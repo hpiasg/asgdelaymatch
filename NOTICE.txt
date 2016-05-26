@@ -1,0 +1,28 @@
+ASGresyn
+Copyright (C) 2016 Hasso-Plattner-Institut fuer Softwaresystemtechnik GmbH
+
+This product includes software developed at Hasso-Plattner-Institut fuer Softwaresystemtechnik GmbH.
+The Software developed and owned by the Hasso-Plattner-Institut fuer Softwaresystemtechnik GmbH is licensed under the GNU GENERAL PUBLIC LICENSE Version 3 ("GPL") to all third parties and that license, as required by the GPL, is included in the LICENSE.txt file.
+
+This software makes use of the following libraries:
+
+args4j v2.0.29
+http://args4j.kohsuke.org/
+Copyright (C) 2003-2014 Kohsuke Kawaguchi
+Licensed under the MIT license
+
+JUnit v4.11
+http://junit.org/
+Licensed under Common Public License Version 1.0
+
+Apache log4j(TM) v2.1
+http://logging.apache.org/log4j/2.x/
+Copyright (C) 1999-2014 Apache Software Foundation
+Licensed under Apache License, Version 2.0
+
+ASGcommon v1.1
+https://github.com/hpiasg
+Copyright (C) 2012-2015 Universitaet Augsburg, Hasso-Plattner-Institut fuer Softwaresystemtechnik GmbH
+Licensed under GNU General Public License (GPL), Version 3.0
+
+This software makes use of the following external software:
