@@ -39,4 +39,8 @@ public class ProfileComponent {
     public List<MatchPath> getMatchpaths() {
         return matchpaths;
     }
+
+    public String getModuleregex() {
+        return moduleregex;
+    }
 }

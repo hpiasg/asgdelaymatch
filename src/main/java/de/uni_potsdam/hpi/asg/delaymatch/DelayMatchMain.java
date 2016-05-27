@@ -20,12 +20,20 @@ package de.uni_potsdam.hpi.asg.delaymatch;
  */
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.Logger;
 
+import de.uni_potsdam.hpi.asg.common.io.FileHelper;
 import de.uni_potsdam.hpi.asg.common.io.LoggerHelper;
 import de.uni_potsdam.hpi.asg.common.io.WorkingdirGenerator;
 import de.uni_potsdam.hpi.asg.common.io.Zipper;
+import de.uni_potsdam.hpi.asg.delaymatch.profile.ProfileComponent;
+import de.uni_potsdam.hpi.asg.delaymatch.profile.ProfileComponents;
 
 public class DelayMatchMain {
     private static Logger                       logger;
@@ -62,8 +70,30 @@ public class DelayMatchMain {
     }
 
     private static int execute() {
+        ProfileComponents comps = ProfileComponents.readIn(options.getProfilefile());
+        if(comps == null) {
+            return 1;
+        }
 
-        return 1;
+        Map<String, ProfileComponent> modules = new HashMap<>();
+        Pattern p = Pattern.compile("module (.*) \\(.*");
+        Matcher m;
+        List<String> lines = FileHelper.getInstance().readFile(options.getVfile());
+        for(String str : lines) {
+            m = p.matcher(str);
+            if(m.matches()) {
+                String modulename = m.group(1);
+                ProfileComponent pc = comps.getComponentByRegex(modulename);
+                if(pc != null) {
+                    modules.put(modulename, pc);
+                }
+
+            }
+        }
+
+        System.out.println(modules.toString());
+
+        return 0;
     }
 
     private static boolean zipWorkfile() {

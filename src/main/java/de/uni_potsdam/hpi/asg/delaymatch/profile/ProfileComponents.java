@@ -21,6 +21,7 @@ package de.uni_potsdam.hpi.asg.delaymatch.profile;
 
 import java.io.File;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
@@ -51,7 +52,7 @@ public class ProfileComponents {
     protected ProfileComponents() {
     }
 
-    public static ProfileComponents readIn(String filename) {
+    public static ProfileComponents readIn(File file) {
         try {
             JAXBContext jaxbContext = JAXBContext.newInstance(ProfileComponents.class);
             Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
@@ -61,27 +62,34 @@ public class ProfileComponents {
 
             jaxbUnmarshaller.setSchema(schema);
 
-            File file = new File(filename);
             if(file.exists()) {
                 return (ProfileComponents)jaxbUnmarshaller.unmarshal(file);
             } else {
-                logger.error("File " + filename + " not found");
+                logger.error("File " + file.getAbsolutePath() + " not found");
                 return null;
             }
         } catch(JAXBException e) {
             if(e.getLinkedException() instanceof SAXParseException) {
                 SAXParseException e2 = (SAXParseException)e.getLinkedException();
-                logger.error("File: " + filename + ", Line: " + e2.getLineNumber() + ", Col: " + e2.getColumnNumber());
+                logger.error("File: " + file.getAbsolutePath() + ", Line: " + e2.getLineNumber() + ", Col: " + e2.getColumnNumber());
                 logger.error(e2.getLocalizedMessage());
                 return null;
             }
             logger.error(e.getLocalizedMessage());
             return null;
         } catch(SAXException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.error(e.getLocalizedMessage());
             return null;
         }
+    }
+
+    public ProfileComponent getComponentByRegex(String str) {
+        for(ProfileComponent c : components) {
+            if(Pattern.matches(c.getModuleregex(), str)) {
+                return c;
+            }
+        }
+        return null;
     }
 
     public List<ProfileComponent> getComponents() {
