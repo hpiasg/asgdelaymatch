@@ -74,6 +74,12 @@ along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
 				</includes>
 			</resource>
 			<resource>
+				<directory>src/main/resources/schema</directory>
+				<includes>
+					<include>**/*</include>
+				</includes>
+			</resource>
+			<resource>
 				<directory>src/assembly</directory>
 				<excludes>
 					<exclude>**/*</exclude>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xs:schema version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:element name="components" type="profileComponents"/>
+
+  <xs:complexType name="profileComponents">
+    <xs:sequence>
+      <xs:element name="component" type="profileComponent" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="profileComponent">
+    <xs:sequence>
+      <xs:element name="matchpath" type="matchPath" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="moduleregex" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="matchPath">
+    <xs:sequence>
+      <xs:element name="measure" type="path"/>
+      <xs:element name="match" type="path"/>
+    </xs:sequence>
+    <xs:attribute name="foreach" type="xs:string"/>
+  </xs:complexType>
+
+  <xs:complexType name="path">
+    <xs:sequence>
+      <xs:element name="from" type="port" maxOccurs="unbounded"/>
+      <xs:element name="to" type="port" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="port">
+    <xs:sequence>
+      <xs:element name="name" type="xs:string"/>
+      <xs:element name="id" type="id"/>
+      <xs:element name="type" type="signalType"/>
+      <xs:element name="width" type="width" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="id">
+    <xs:restriction base="xs:string"/>
+  </xs:simpleType>
+
+  <xs:simpleType name="width">
+    <xs:restriction base="xs:string"/>
+  </xs:simpleType>
+
+  <xs:simpleType name="signalType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="request"/>
+      <xs:enumeration value="acknowledge"/>
+      <xs:enumeration value="data"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>
+
