@@ -20,9 +20,9 @@ package de.uni_potsdam.hpi.asg.delaymatch;
  */
 
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,6 +34,7 @@ import de.uni_potsdam.hpi.asg.common.io.WorkingdirGenerator;
 import de.uni_potsdam.hpi.asg.common.io.Zipper;
 import de.uni_potsdam.hpi.asg.delaymatch.profile.ProfileComponent;
 import de.uni_potsdam.hpi.asg.delaymatch.profile.ProfileComponents;
+import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.VerilogInterfaceParser;
 
 public class DelayMatchMain {
     private static Logger                       logger;
@@ -75,23 +76,29 @@ public class DelayMatchMain {
             return 1;
         }
 
-        Map<String, ProfileComponent> modules = new HashMap<>();
+        Set<DelayMatchPlan> modules = new HashSet<>();
         Pattern p = Pattern.compile("module (.*) \\(.*");
         Matcher m;
         List<String> lines = FileHelper.getInstance().readFile(options.getVfile());
+        VerilogInterfaceParser parser = null;
         for(String str : lines) {
             m = p.matcher(str);
             if(m.matches()) {
                 String modulename = m.group(1);
                 ProfileComponent pc = comps.getComponentByRegex(modulename);
+                parser = null;
                 if(pc != null) {
-                    modules.put(modulename, pc);
+                    parser = new VerilogInterfaceParser();
+                    modules.add(new DelayMatchPlan(modulename, pc, parser));
                 }
-
+            }
+            if(parser != null) {
+                parser.addLine(str);
             }
         }
 
-        System.out.println(modules.toString());
+        MeasureScriptGenerator gen = MeasureScriptGenerator.create(options.getVfile(), modules);
+        gen.generate();
 
         return 0;
     }

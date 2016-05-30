@@ -40,6 +40,7 @@ along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
 			<outputDirectory>.</outputDirectory>
 			<includes>
 				<include>config/**/*</include>
+				<include>templates/**/*</include>
 			</includes>
 		</fileSet>
 		<fileSet>
