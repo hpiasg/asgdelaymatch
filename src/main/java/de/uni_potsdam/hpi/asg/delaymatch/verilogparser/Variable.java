@@ -52,4 +52,9 @@ public class Variable {
     public int getDatawidth() {
         return datawidth;
     }
+
+    @Override
+    public String toString() {
+        return name + ", count:" + count + ", width:" + datawidth;
+    }
 }

@@ -89,7 +89,7 @@ public class DelayMatchMain {
                 parser = null;
                 if(pc != null) {
                     parser = new VerilogInterfaceParser();
-                    modules.add(new DelayMatchPlan(modulename, pc, parser));
+                    modules.add(new DelayMatchPlan(modulename, pc, parser.getVariables()));
                 }
             }
             if(parser != null) {
@@ -98,7 +98,9 @@ public class DelayMatchMain {
         }
 
         MeasureScriptGenerator gen = MeasureScriptGenerator.create(options.getVfile(), modules);
-        gen.generate();
+        if(!gen.generate()) {
+            return 1;
+        }
 
         return 0;
     }

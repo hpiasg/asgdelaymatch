@@ -24,7 +24,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlValue;
 
 @XmlAccessorType(XmlAccessType.NONE)
-public class Width {
+public class Bit {
 
     @XmlValue
     private String val;
@@ -35,6 +35,11 @@ public class Width {
 
     public int getId() {
         return Integer.parseInt(val);
+    }
+
+    @Override
+    public String toString() {
+        return val;
     }
 
 }

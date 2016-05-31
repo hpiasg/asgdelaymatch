@@ -25,13 +25,13 @@ along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
 					<name>inp</name>
 					<id>EACH</id>
 					<type>data</type>
-					<width>ALL</width>
+					<bit>ALL</bit>
 				</from>
 				<to>
 					<name>out</name>
 					<id>0</id>
 					<type>data</type>
-					<width>ALL</width>
+					<bit>ALL</bit>
 				</to>
 			</measure>
 			<match>
@@ -55,19 +55,19 @@ along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
 					<name>inpA</name>
 					<id>0</id>
 					<type>data</type>
-					<width>ALL</width>
+					<bit>ALL</bit>
 				</from>
 				<from>
 					<name>inpB</name>
 					<id>0</id>
 					<type>data</type>
-					<width>ALL</width>
+					<bit>ALL</bit>
 				</from>
 				<to>
 					<name>out</name>
 					<id>0</id>
 					<type>data</type>
-					<width>ALL</width>
+					<bit>ALL</bit>
 				</to>
 			</measure>
 			<match>

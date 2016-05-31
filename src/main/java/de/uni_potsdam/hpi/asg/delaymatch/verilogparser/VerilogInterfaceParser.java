@@ -56,6 +56,7 @@ public class VerilogInterfaceParser {
         }
         String[] signalsplit = signals.split(",");
         for(String str : signalsplit) {
+            str = str.trim();
             m = hssignalpattern.matcher(str);
             if(m.matches()) {
                 String name = m.group(1);

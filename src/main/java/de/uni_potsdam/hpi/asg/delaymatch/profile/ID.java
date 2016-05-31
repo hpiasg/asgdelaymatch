@@ -36,4 +36,9 @@ public class ID {
     public int getId() {
         return Integer.parseInt(val);
     }
+
+    @Override
+    public String toString() {
+        return val;
+    }
 }

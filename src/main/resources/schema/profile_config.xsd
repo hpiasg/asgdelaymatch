@@ -36,7 +36,7 @@
       <xs:element name="name" type="xs:string"/>
       <xs:element name="id" type="id"/>
       <xs:element name="type" type="signalType"/>
-      <xs:element name="width" type="width" minOccurs="0"/>
+      <xs:element name="bit" type="bit" minOccurs="0"/>
     </xs:sequence>
   </xs:complexType>
 
@@ -44,7 +44,7 @@
     <xs:restriction base="xs:string"/>
   </xs:simpleType>
 
-  <xs:simpleType name="width">
+  <xs:simpleType name="bit">
     <xs:restriction base="xs:string"/>
   </xs:simpleType>
 

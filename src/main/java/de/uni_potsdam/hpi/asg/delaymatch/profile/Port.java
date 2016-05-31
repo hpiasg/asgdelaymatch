@@ -37,8 +37,8 @@ public class Port {
     private ID id;
     @XmlElement(name = "type", required = true)
     private SignalType type;
-    @XmlElement(name = "width", required = false)
-    private Width width;
+    @XmlElement(name = "bit", required = false)
+    private Bit bit;
     //@formatter:on
 
     public String getName() {
@@ -53,7 +53,12 @@ public class Port {
         return type;
     }
 
-    public Width getWidth() {
-        return width;
+    public Bit getBit() {
+        return bit;
+    }
+
+    @Override
+    public String toString() {
+        return name + "_" + id.toString() + type + ((bit != null) ? "[" + bit.toString() + "]" : "");
     }
 }

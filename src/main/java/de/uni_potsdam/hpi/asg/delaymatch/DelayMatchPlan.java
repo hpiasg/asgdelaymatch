@@ -23,18 +23,17 @@ import java.util.Map;
 
 import de.uni_potsdam.hpi.asg.delaymatch.profile.ProfileComponent;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.Variable;
-import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.VerilogInterfaceParser;
 
 public class DelayMatchPlan {
 
-    private String                 name;
-    private ProfileComponent       profilecomp;
-    private VerilogInterfaceParser parser;
+    private String                name;
+    private ProfileComponent      profilecomp;
+    private Map<String, Variable> variables;
 
-    public DelayMatchPlan(String name, ProfileComponent profilecomp, VerilogInterfaceParser parser) {
+    public DelayMatchPlan(String name, ProfileComponent profilecomp, Map<String, Variable> variables) {
         this.name = name;
         this.profilecomp = profilecomp;
-        this.parser = parser;
+        this.variables = variables;
     }
 
     public String getName() {
@@ -46,6 +45,6 @@ public class DelayMatchPlan {
     }
 
     public Map<String, Variable> getVariables() {
-        return parser.getVariables();
+        return variables;
     }
 }
