@@ -20,21 +20,14 @@ package de.uni_potsdam.hpi.asg.delaymatch;
  */
 
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.Logger;
 
-import de.uni_potsdam.hpi.asg.common.io.FileHelper;
 import de.uni_potsdam.hpi.asg.common.io.LoggerHelper;
 import de.uni_potsdam.hpi.asg.common.io.WorkingdirGenerator;
 import de.uni_potsdam.hpi.asg.common.io.Zipper;
-import de.uni_potsdam.hpi.asg.delaymatch.profile.ProfileComponent;
+import de.uni_potsdam.hpi.asg.delaymatch.measure.MeasureMain;
 import de.uni_potsdam.hpi.asg.delaymatch.profile.ProfileComponents;
-import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.VerilogInterfaceParser;
 
 public class DelayMatchMain {
     private static Logger                       logger;
@@ -75,30 +68,8 @@ public class DelayMatchMain {
         if(comps == null) {
             return 1;
         }
-
-        Set<DelayMatchPlan> modules = new HashSet<>();
-        Pattern p = Pattern.compile("module (.*) \\(.*");
-        Matcher m;
-        List<String> lines = FileHelper.getInstance().readFile(options.getVfile());
-        VerilogInterfaceParser parser = null;
-        for(String str : lines) {
-            m = p.matcher(str);
-            if(m.matches()) {
-                String modulename = m.group(1);
-                ProfileComponent pc = comps.getComponentByRegex(modulename);
-                parser = null;
-                if(pc != null) {
-                    parser = new VerilogInterfaceParser();
-                    modules.add(new DelayMatchPlan(modulename, pc, parser.getVariables()));
-                }
-            }
-            if(parser != null) {
-                parser.addLine(str);
-            }
-        }
-
-        MeasureScriptGenerator gen = MeasureScriptGenerator.create(options.getVfile(), modules);
-        if(!gen.generate()) {
+        MeasureMain mmain = new MeasureMain(comps);
+        if(!mmain.measure(options.getVfile())) {
             return 1;
         }
 

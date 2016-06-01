@@ -1,4 +1,4 @@
-package de.uni_potsdam.hpi.asg.delaymatch;
+package de.uni_potsdam.hpi.asg.delaymatch.measure;
 
 /*
  * Copyright (C) 2016 Norman Kluge
@@ -33,6 +33,7 @@ import org.apache.logging.log4j.Logger;
 
 import de.uni_potsdam.hpi.asg.common.io.FileHelper;
 import de.uni_potsdam.hpi.asg.common.io.WorkingdirGenerator;
+import de.uni_potsdam.hpi.asg.delaymatch.DelayMatchPlan;
 import de.uni_potsdam.hpi.asg.delaymatch.profile.MatchPath;
 import de.uni_potsdam.hpi.asg.delaymatch.profile.Port;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.Variable;
