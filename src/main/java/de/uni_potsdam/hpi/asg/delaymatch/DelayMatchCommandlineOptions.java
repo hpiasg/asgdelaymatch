@@ -42,7 +42,7 @@ public class DelayMatchCommandlineOptions extends CommandlineOptions {
     private File workfile = new File(System.getProperty("user.dir") + File.separator + "delaymatch.zip");
     
     @Option(name = "-cfg", metaVar = "<configfile>", usage = "Config file, default is delaymatchconfig.xml")
-    private File configfile = new File("resynconfig.xml");
+    private File configfile = new File("delaymatchconfig.xml");
     @Option(name = "-w", metaVar = "<workingdir>", usage = "Working directory. If not given, the value in configfile is used. If there is no entry, 'delaywork*' in the os default tmp dir is used.")
     private File workingdir = null;
     

@@ -27,20 +27,41 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import de.uni_potsdam.hpi.asg.common.io.FileHelper;
+import de.uni_potsdam.hpi.asg.common.io.remote.RemoteInformation;
 import de.uni_potsdam.hpi.asg.delaymatch.DelayMatchPlan;
 import de.uni_potsdam.hpi.asg.delaymatch.profile.ProfileComponent;
 import de.uni_potsdam.hpi.asg.delaymatch.profile.ProfileComponents;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.VerilogInterfaceParser;
 
 public class MeasureMain {
-
     private ProfileComponents comps;
+    private RemoteInformation rinfo;
 
-    public MeasureMain(ProfileComponents comps) {
+    public MeasureMain(ProfileComponents comps, RemoteInformation rinfo) {
         this.comps = comps;
+        this.rinfo = rinfo;
     }
 
     public boolean measure(File vfile) {
+        Set<DelayMatchPlan> modules = findEligibleModules(vfile);
+
+        MeasureScriptGenerator gen = MeasureScriptGenerator.create(vfile, modules);
+        if(!gen.generate()) {
+            return false;
+        }
+
+        Set<String> uploadfiles = new HashSet<>();
+        uploadfiles.addAll(gen.getScriptFiles());
+        uploadfiles.add(vfile.getAbsolutePath());
+
+        if(!run(uploadfiles, gen.getExec())) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private Set<DelayMatchPlan> findEligibleModules(File vfile) {
         Set<DelayMatchPlan> modules = new HashSet<>();
         Pattern p = Pattern.compile("module (.*) \\(.*");
         Matcher m;
@@ -61,13 +82,21 @@ public class MeasureMain {
                 parser.addLine(str);
             }
         }
+        return modules;
+    }
 
-        MeasureScriptGenerator gen = MeasureScriptGenerator.create(vfile, modules);
-        if(!gen.generate()) {
+    private boolean run(Set<String> uploadfiles, String exec) {
+
+        Set<String> execScripts = new HashSet<>();
+        execScripts.add(exec);
+
+        MeasureRemoteOperationWorkflow wf = new MeasureRemoteOperationWorkflow(rinfo, "measure");
+        if(!wf.run(uploadfiles, execScripts)) {
             return false;
         }
 
         return true;
+
     }
 
 }

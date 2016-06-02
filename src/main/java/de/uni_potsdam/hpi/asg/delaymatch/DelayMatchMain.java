@@ -26,12 +26,16 @@ import org.apache.logging.log4j.Logger;
 import de.uni_potsdam.hpi.asg.common.io.LoggerHelper;
 import de.uni_potsdam.hpi.asg.common.io.WorkingdirGenerator;
 import de.uni_potsdam.hpi.asg.common.io.Zipper;
+import de.uni_potsdam.hpi.asg.common.io.remote.RemoteInformation;
+import de.uni_potsdam.hpi.asg.delaymatch.io.Config;
+import de.uni_potsdam.hpi.asg.delaymatch.io.RemoteInvocation;
 import de.uni_potsdam.hpi.asg.delaymatch.measure.MeasureMain;
 import de.uni_potsdam.hpi.asg.delaymatch.profile.ProfileComponents;
 
 public class DelayMatchMain {
     private static Logger                       logger;
     private static DelayMatchCommandlineOptions options;
+    public static Config                        config;
 
     public static void main(String[] args) {
         int status = main2(args);
@@ -46,10 +50,15 @@ public class DelayMatchMain {
             if(options.parseCmdLine(args)) {
                 logger = LoggerHelper.initLogger(options.getOutputlevel(), options.getLogfile(), options.isDebug());
                 logger.debug("Args: " + Arrays.asList(args).toString());
-                WorkingdirGenerator.getInstance().create(options.getWorkingdir(), null, "delaywork", null);
+                config = Config.readIn(options.getConfigfile());
+                if(config == null) {
+                    logger.error("Could not read config");
+                    return 1;
+                }
+                WorkingdirGenerator.getInstance().create(options.getWorkingdir(), config.workdir, "delaywork", null);
                 status = execute();
                 zipWorkfile();
-                //WorkingdirGenerator.getInstance().delete();
+//                WorkingdirGenerator.getInstance().delete();
             }
             long end = System.currentTimeMillis();
             if(logger != null) {
@@ -68,7 +77,14 @@ public class DelayMatchMain {
         if(comps == null) {
             return 1;
         }
-        MeasureMain mmain = new MeasureMain(comps);
+
+        RemoteInvocation rinv = config.toolconfig.designCompilerCmd;
+        if(rinv == null) {
+            return 1;
+        }
+        RemoteInformation rinfo = new RemoteInformation(rinv.hostname, rinv.username, rinv.password, rinv.workingdir);
+
+        MeasureMain mmain = new MeasureMain(comps, rinfo);
         if(!mmain.measure(options.getVfile())) {
             return 1;
         }

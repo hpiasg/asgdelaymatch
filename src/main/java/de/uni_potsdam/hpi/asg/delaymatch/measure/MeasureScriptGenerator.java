@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -276,5 +277,16 @@ public class MeasureScriptGenerator {
 
     private List<String> generateFinalTcl() {
         return final_code;
+    }
+
+    public Set<String> getScriptFiles() {
+        Set<String> retVal = new HashSet<>();
+        retVal.add(localfolder + name + dc_sh_file);
+        retVal.add(localfolder + name + dc_tcl_file);
+        return retVal;
+    }
+
+    public String getExec() {
+        return name + dc_sh_file;
     }
 }
