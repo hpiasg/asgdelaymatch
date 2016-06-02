@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
-<resynconfig>
+<delaymatchconfig>
     <tools>
         <designCompilerCmd>
         	<hostname></hostname>
@@ -27,4 +27,4 @@ along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
         </designCompilerCmd>
     </tools>
     <workdir />
-</resynconfig>
+</delaymatchconfig>

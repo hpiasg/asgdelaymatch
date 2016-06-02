@@ -36,7 +36,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-@XmlRootElement(name = "resynconfig")
+@XmlRootElement(name = "delaymatchconfig")
 @XmlAccessorType(XmlAccessType.NONE)
 public class Config {
     private static final Logger logger = LogManager.getLogger();
