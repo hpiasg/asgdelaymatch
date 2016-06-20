@@ -20,6 +20,7 @@ package de.uni_potsdam.hpi.asg.delaymatch.measure;
  */
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -87,7 +88,7 @@ public class MeasureMain {
 
     private boolean run(Set<String> uploadfiles, String exec) {
 
-        Set<String> execScripts = new HashSet<>();
+        List<String> execScripts = new ArrayList<>();
         execScripts.add(exec);
 
         MeasureRemoteOperationWorkflow wf = new MeasureRemoteOperationWorkflow(rinfo, "measure");
