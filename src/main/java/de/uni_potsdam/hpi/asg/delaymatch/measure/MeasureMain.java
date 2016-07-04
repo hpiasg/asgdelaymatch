@@ -45,6 +45,9 @@ public class MeasureMain {
 
     public boolean measure(File vfile) {
         Set<DelayMatchPlan> modules = findEligibleModules(vfile);
+        if(modules == null) {
+            return false;
+        }
 
         MeasureScriptGenerator gen = MeasureScriptGenerator.create(vfile, modules);
         if(!gen.generate()) {
@@ -67,6 +70,10 @@ public class MeasureMain {
         Pattern p = Pattern.compile("module (.*) \\(.*");
         Matcher m;
         List<String> lines = FileHelper.getInstance().readFile(vfile);
+        if(lines == null) {
+            return null;
+        }
+
         VerilogInterfaceParser parser = null;
         for(String str : lines) {
             m = p.matcher(str);
