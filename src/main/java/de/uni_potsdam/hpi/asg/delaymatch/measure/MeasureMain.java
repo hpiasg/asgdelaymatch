@@ -24,30 +24,20 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import de.uni_potsdam.hpi.asg.common.io.FileHelper;
 import de.uni_potsdam.hpi.asg.common.io.remote.RemoteInformation;
 import de.uni_potsdam.hpi.asg.delaymatch.DelayMatchPlan;
-import de.uni_potsdam.hpi.asg.delaymatch.profile.ProfileComponent;
-import de.uni_potsdam.hpi.asg.delaymatch.profile.ProfileComponents;
-import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.VerilogInterfaceParser;
 
 public class MeasureMain {
-    private ProfileComponents comps;
-    private RemoteInformation rinfo;
+    private RemoteInformation   rinfo;
+    private Set<DelayMatchPlan> modules;
 
-    public MeasureMain(ProfileComponents comps, RemoteInformation rinfo) {
-        this.comps = comps;
+    public MeasureMain(RemoteInformation rinfo, Set<DelayMatchPlan> modules) {
         this.rinfo = rinfo;
+        this.modules = modules;
     }
 
     public boolean measure(File vfile) {
-        Set<DelayMatchPlan> modules = findEligibleModules(vfile);
-        if(modules == null) {
-            return false;
-        }
 
         MeasureScriptGenerator gen = MeasureScriptGenerator.create(vfile, modules);
         if(!gen.generate()) {
@@ -65,36 +55,7 @@ public class MeasureMain {
         return true;
     }
 
-    private Set<DelayMatchPlan> findEligibleModules(File vfile) {
-        Set<DelayMatchPlan> modules = new HashSet<>();
-        Pattern p = Pattern.compile("module (.*) \\(.*");
-        Matcher m;
-        List<String> lines = FileHelper.getInstance().readFile(vfile);
-        if(lines == null) {
-            return null;
-        }
-
-        VerilogInterfaceParser parser = null;
-        for(String str : lines) {
-            m = p.matcher(str);
-            if(m.matches()) {
-                String modulename = m.group(1);
-                ProfileComponent pc = comps.getComponentByRegex(modulename);
-                parser = null;
-                if(pc != null) {
-                    parser = new VerilogInterfaceParser();
-                    modules.add(new DelayMatchPlan(modulename, pc, parser.getVariables()));
-                }
-            }
-            if(parser != null) {
-                parser.addLine(str);
-            }
-        }
-        return modules;
-    }
-
     private boolean run(Set<String> uploadfiles, String exec) {
-
         List<String> execScripts = new ArrayList<>();
         execScripts.add(exec);
 
@@ -104,7 +65,5 @@ public class MeasureMain {
         }
 
         return true;
-
     }
-
 }

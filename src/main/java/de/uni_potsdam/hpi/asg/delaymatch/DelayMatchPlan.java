@@ -19,7 +19,10 @@ package de.uni_potsdam.hpi.asg.delaymatch;
  * along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import java.util.HashSet;
+
 import java.util.Map;
+import java.util.Set;
 
 import de.uni_potsdam.hpi.asg.delaymatch.profile.ProfileComponent;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.Variable;
@@ -29,11 +32,22 @@ public class DelayMatchPlan {
     private String                name;
     private ProfileComponent      profilecomp;
     private Map<String, Variable> variables;
+    private String                measureOutputfile;
+    private Set<String>           instances;
 
     public DelayMatchPlan(String name, ProfileComponent profilecomp, Map<String, Variable> variables) {
         this.name = name;
         this.profilecomp = profilecomp;
         this.variables = variables;
+        this.instances = new HashSet<>();
+    }
+
+    public boolean addInstance(String instance) {
+        return this.instances.add(instance);
+    }
+
+    public Set<String> getInstances() {
+        return instances;
     }
 
     public String getName() {
@@ -46,5 +60,13 @@ public class DelayMatchPlan {
 
     public Map<String, Variable> getVariables() {
         return variables;
+    }
+
+    public void setMeasureOutputfile(String measureOutputfile) {
+        this.measureOutputfile = measureOutputfile;
+    }
+
+    public String getMeasureOutputfile() {
+        return measureOutputfile;
     }
 }

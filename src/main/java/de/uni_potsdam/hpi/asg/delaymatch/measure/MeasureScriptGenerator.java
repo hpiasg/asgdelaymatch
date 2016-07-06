@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
@@ -35,9 +34,8 @@ import org.apache.logging.log4j.Logger;
 import de.uni_potsdam.hpi.asg.common.io.FileHelper;
 import de.uni_potsdam.hpi.asg.common.io.WorkingdirGenerator;
 import de.uni_potsdam.hpi.asg.delaymatch.DelayMatchPlan;
+import de.uni_potsdam.hpi.asg.delaymatch.helper.PortHelper;
 import de.uni_potsdam.hpi.asg.delaymatch.profile.MatchPath;
-import de.uni_potsdam.hpi.asg.delaymatch.profile.Port;
-import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.Variable;
 
 public class MeasureScriptGenerator {
     private static final Logger logger              = LogManager.getLogger();
@@ -163,6 +161,7 @@ public class MeasureScriptGenerator {
                     addMeasure(tclfilecontent, plan, path, null);
                 }
             }
+            plan.setMeasureOutputfile(name + "_" + plan.getName() + dc_log_file);
         }
         tclfilecontent.addAll(generateFinalTcl());
 
@@ -178,52 +177,9 @@ public class MeasureScriptGenerator {
     }
 
     private void addMeasure(List<String> tclfilecontent, DelayMatchPlan plan, MatchPath path, Integer eachid) {
-        String from = getPortListAsString(path.getMeasure().getFrom(), eachid, plan.getVariables());
-        String to = getPortListAsString(path.getMeasure().getTo(), eachid, plan.getVariables());
+        String from = PortHelper.getPortListAsString(path.getMeasure().getFrom(), eachid, plan.getVariables());
+        String to = PortHelper.getPortListAsString(path.getMeasure().getTo(), eachid, plan.getVariables());
         tclfilecontent.addAll(generateMeasureTcl(plan.getName(), from, to));
-    }
-
-    private String getPortListAsString(List<Port> ports, Integer eachid, Map<String, Variable> vars) {
-        StringBuilder str = new StringBuilder();
-        for(Port p : ports) {
-            str.append(getPortAsString(p, eachid, vars) + " ");
-        }
-        str.setLength(str.length() - 1);
-        return str.toString();
-    }
-
-    private String getPortAsString(Port p, Integer eachid, Map<String, Variable> vars) {
-        int id = (p.getId().isEach()) ? eachid : p.getId().getId();
-        String type = null;
-        switch(p.getType()) {
-            case acknowledge:
-                type = "a";
-                break;
-            case data:
-                Variable var = vars.get(p.getName());
-                if(var == null) {
-                    logger.error("Variable not found");
-                    return null;
-                }
-                if(var.getDatawidth() == 1) {
-                    type = "d";
-                } else if(var.getDatawidth() > 1) {
-                    if(p.getBit().isALL()) {
-                        type = "d[*]";
-                    } else {
-                        type = "d[" + p.getBit().getId() + "]";
-                    }
-                }
-                if(type == null) {
-                    System.out.println();
-                }
-                break;
-            case request:
-                type = "r";
-                break;
-        }
-
-        return p.getName() + "_" + id + type;
     }
 
     private void replaceInSh(String filename) {

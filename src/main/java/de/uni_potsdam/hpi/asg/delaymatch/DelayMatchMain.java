@@ -20,6 +20,7 @@ package de.uni_potsdam.hpi.asg.delaymatch;
  */
 
 import java.util.Arrays;
+import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 
@@ -29,8 +30,10 @@ import de.uni_potsdam.hpi.asg.common.io.Zipper;
 import de.uni_potsdam.hpi.asg.common.io.remote.RemoteInformation;
 import de.uni_potsdam.hpi.asg.delaymatch.io.Config;
 import de.uni_potsdam.hpi.asg.delaymatch.io.RemoteInvocation;
+import de.uni_potsdam.hpi.asg.delaymatch.match.MatchMain;
 import de.uni_potsdam.hpi.asg.delaymatch.measure.MeasureMain;
 import de.uni_potsdam.hpi.asg.delaymatch.profile.ProfileComponents;
+import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.ModuleFinder;
 
 public class DelayMatchMain {
     private static Logger                       logger;
@@ -84,8 +87,19 @@ public class DelayMatchMain {
         }
         RemoteInformation rinfo = new RemoteInformation(rinv.hostname, rinv.username, rinv.password, rinv.workingdir);
 
-        MeasureMain mmain = new MeasureMain(comps, rinfo);
-        if(!mmain.measure(options.getVfile())) {
+        ModuleFinder find = new ModuleFinder(comps);
+        Set<DelayMatchPlan> modules = find.findEligibleModules(options.getVfile());
+        if(modules == null) {
+            return 1;
+        }
+
+        MeasureMain memain = new MeasureMain(rinfo, modules);
+        if(!memain.measure(options.getVfile())) {
+            return 1;
+        }
+
+        MatchMain mamain = new MatchMain(modules);
+        if(!mamain.match()) {
             return 1;
         }
 
