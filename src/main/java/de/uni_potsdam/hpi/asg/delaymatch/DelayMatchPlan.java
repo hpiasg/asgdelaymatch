@@ -1,5 +1,7 @@
 package de.uni_potsdam.hpi.asg.delaymatch;
 
+import java.util.ArrayList;
+
 /*
  * Copyright (C) 2016 Norman Kluge
  * 
@@ -20,7 +22,7 @@ package de.uni_potsdam.hpi.asg.delaymatch;
  */
 
 import java.util.HashSet;
-
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -34,12 +36,18 @@ public class DelayMatchPlan {
     private Map<String, Variable> variables;
     private String                measureOutputfile;
     private Set<String>           instances;
+    private List<Float>           values;
 
     public DelayMatchPlan(String name, ProfileComponent profilecomp, Map<String, Variable> variables) {
         this.name = name;
         this.profilecomp = profilecomp;
         this.variables = variables;
         this.instances = new HashSet<>();
+        this.values = new ArrayList<>();
+    }
+
+    public boolean addValue(Float value) {
+        return this.values.add(value);
     }
 
     public boolean addInstance(String instance) {
@@ -48,6 +56,10 @@ public class DelayMatchPlan {
 
     public Set<String> getInstances() {
         return instances;
+    }
+
+    public List<Float> getValues() {
+        return values;
     }
 
     public String getName() {

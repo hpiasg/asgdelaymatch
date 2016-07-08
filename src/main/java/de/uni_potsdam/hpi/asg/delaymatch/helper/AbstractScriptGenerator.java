@@ -31,43 +31,40 @@ import org.apache.logging.log4j.Logger;
 import de.uni_potsdam.hpi.asg.common.io.FileHelper;
 
 public abstract class AbstractScriptGenerator {
-    private static final Logger                logger = LogManager.getLogger();
-    protected static Map<String, List<String>> templates;
+    private static final Logger logger = LogManager.getLogger();
 
-    protected static boolean readTemplateCodeSnippets(File templatefile, String[] templatenames) {
-        if(templates == null) {
-            templates = new HashMap<String, List<String>>();
-            List<String> current = null;
-            List<String> lines = FileHelper.getInstance().readFile(templatefile);
-            boolean templatefound = false;
-            for(String line : lines) {
-                templatefound = false;
-                for(String str : templatenames) {
-                    if(line.equals("#+" + str + "_begin+#")) {
-                        if(current != null) {
-                            logger.error("Found begin before end: " + str);
-                            return false;
-                        }
-                        if(templates.containsKey(str)) {
-                            logger.error("Templatename already registered: " + str);
-                        }
-                        current = new ArrayList<>();
-                        templates.put(str, current);
-                        templatefound = true;
-                        break;
-                    } else if(line.equals("#+" + str + "_end+#")) {
-                        current = null;
-                        templatefound = true;
-                        break;
-                    }
-                }
-                if(!templatefound) {
+    protected static Map<String, List<String>> readTemplateCodeSnippets(File templatefile, String[] templatenames) {
+        Map<String, List<String>> templates = new HashMap<String, List<String>>();
+        List<String> current = null;
+        List<String> lines = FileHelper.getInstance().readFile(templatefile);
+        boolean templatefound = false;
+        for(String line : lines) {
+            templatefound = false;
+            for(String str : templatenames) {
+                if(line.equals("#+" + str + "_begin+#")) {
                     if(current != null) {
-                        current.add(line);
+                        logger.error("Found begin before end: " + str);
+                        return null;
                     }
+                    if(templates.containsKey(str)) {
+                        logger.error("Templatename already registered: " + str);
+                    }
+                    current = new ArrayList<>();
+                    templates.put(str, current);
+                    templatefound = true;
+                    break;
+                } else if(line.equals("#+" + str + "_end+#")) {
+                    current = null;
+                    templatefound = true;
+                    break;
+                }
+            }
+            if(!templatefound) {
+                if(current != null) {
+                    current.add(line);
                 }
             }
         }
-        return true;
+        return templates;
     }
 }

@@ -98,8 +98,8 @@ public class DelayMatchMain {
             return 1;
         }
 
-        MatchMain mamain = new MatchMain(modules);
-        if(!mamain.match()) {
+        MatchMain mamain = new MatchMain(rinfo, modules);
+        if(!mamain.match(options.getVfile())) {
             return 1;
         }
 

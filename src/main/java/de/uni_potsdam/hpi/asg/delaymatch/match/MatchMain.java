@@ -31,92 +31,56 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import de.uni_potsdam.hpi.asg.common.io.FileHelper;
-import de.uni_potsdam.hpi.asg.common.io.WorkingdirGenerator;
+import de.uni_potsdam.hpi.asg.common.io.remote.RemoteInformation;
 import de.uni_potsdam.hpi.asg.delaymatch.DelayMatchPlan;
-import de.uni_potsdam.hpi.asg.delaymatch.helper.PortHelper;
-import de.uni_potsdam.hpi.asg.delaymatch.profile.MatchPath;
 
 public class MatchMain {
     private static final Logger  logger      = LogManager.getLogger();
 
     private static final Pattern arrivalTime = Pattern.compile("\\s+data arrival time\\s+([0-9.]+)");
 
+    private RemoteInformation    rinfo;
     private Set<DelayMatchPlan>  modules;
 
-    public MatchMain(Set<DelayMatchPlan> modules) {
+    public MatchMain(RemoteInformation rinfo, Set<DelayMatchPlan> modules) {
+        this.rinfo = rinfo;
         this.modules = modules;
     }
 
-    public boolean match() {
-        return generateConstraints(new File(WorkingdirGenerator.getInstance().getWorkingdir() + "match.tcl"));
-    }
+    public boolean match(File vfile) {
+        parseValues();
 
-    private boolean generateConstraints(File outfile) {
-        StringBuilder outdata = new StringBuilder();
-        List<Float> values = new ArrayList<>();
-
-        for(DelayMatchPlan plan : modules) {
-            values.clear();
-            List<String> lines = FileHelper.getInstance().readFile(plan.getMeasureOutputfile());
-            Matcher m = null;
-            outdata.append("# " + plan.getName() + FileHelper.getNewline());
-
-            for(String line : lines) {
-                m = arrivalTime.matcher(line);
-                if(m.matches()) {
-                    values.add(Float.parseFloat(m.group(1)));
-                }
-            }
-
-            int index = 0;
-            List<String> constraints = new ArrayList<>();
-            Set<String> donttouch = new HashSet<>();
-
-            outdata.append("elaborate " + plan.getName() + " -architecture verilog -library DEFAULT" + FileHelper.getNewline());
-
-            for(MatchPath path : plan.getProfilecomp().getMatchpaths()) {
-                if(path.getForeach() != null) {
-                    int num = plan.getVariables().get(path.getForeach()).getCount();
-                    for(int eachid = 0; eachid < num; eachid++) {
-                        if(index == values.size()) {
-                            logger.error("index");
-                            return false;
-                        }
-                        constraints.add(generateMatch(plan, path, eachid, values.get(index)));
-                        donttouch.add(generateDontTouch(plan, path, eachid));
-                        index++;
-                    }
-                } else {
-                    if(index == values.size()) {
-                        logger.error("index");
-                        return false;
-                    }
-                    constraints.add(generateMatch(plan, path, null, values.get(index)));
-                    donttouch.add(generateDontTouch(plan, path, null));
-                    index++;
-                }
-            }
-
-            for(String str : constraints) {
-                outdata.append(str + FileHelper.getNewline());
-            }
-            for(String str : donttouch) {
-                outdata.append(str + FileHelper.getNewline());
-            }
-            outdata.append("compile" + FileHelper.getNewline());
+        MatchScriptGenerator gen = MatchScriptGenerator.create(vfile, modules);
+        if(!gen.generate()) {
+            return false;
         }
 
-        FileHelper.getInstance().writeFile(outfile, outdata.toString());
+        Set<String> uploadfiles = new HashSet<>();
+        uploadfiles.addAll(gen.getScriptFiles());
+        uploadfiles.add(vfile.getAbsolutePath());
+
+        List<String> execScripts = new ArrayList<>();
+        execScripts.add(gen.getExec());
+
+        MatchRemoteOperationWorkflow wf = new MatchRemoteOperationWorkflow(rinfo, "match");
+        if(!wf.run(uploadfiles, execScripts)) {
+            return false;
+        }
+
         return true;
     }
 
-    private String generateMatch(DelayMatchPlan plan, MatchPath path, Integer eachid, Float value) {
-        String from = PortHelper.getPortListAsString(path.getMatch().getFrom(), eachid, plan.getVariables());
-        String to = PortHelper.getPortListAsString(path.getMatch().getTo(), eachid, plan.getVariables());
-        return "set_min_delay -from [get_ports {" + from + "}] -to [get_ports {" + to + "}] " + value;
+    private void parseValues() {
+        for(DelayMatchPlan plan : modules) {
+            List<String> lines = FileHelper.getInstance().readFile(plan.getMeasureOutputfile());
+            Matcher m = null;
+            for(String line : lines) {
+                m = arrivalTime.matcher(line);
+                if(m.matches()) {
+                    plan.addValue(Float.parseFloat(m.group(1)));
+                }
+            }
+        }
     }
 
-    private String generateDontTouch(DelayMatchPlan plan, MatchPath path, Integer eachid) {
-        return "set_dont_touch_network [get_ports {" + PortHelper.getPortListAsString(path.getMeasure().getFrom(), eachid, plan.getVariables()) + "}]";
-    }
 }
