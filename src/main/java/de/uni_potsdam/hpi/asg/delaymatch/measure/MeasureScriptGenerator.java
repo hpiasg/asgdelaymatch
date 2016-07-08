@@ -34,10 +34,11 @@ import org.apache.logging.log4j.Logger;
 import de.uni_potsdam.hpi.asg.common.io.FileHelper;
 import de.uni_potsdam.hpi.asg.common.io.WorkingdirGenerator;
 import de.uni_potsdam.hpi.asg.delaymatch.DelayMatchPlan;
+import de.uni_potsdam.hpi.asg.delaymatch.helper.AbstractScriptGenerator;
 import de.uni_potsdam.hpi.asg.delaymatch.helper.PortHelper;
 import de.uni_potsdam.hpi.asg.delaymatch.profile.MatchPath;
 
-public class MeasureScriptGenerator {
+public class MeasureScriptGenerator extends AbstractScriptGenerator {
     private static final Logger logger              = LogManager.getLogger();
 
     private static final String v_file              = ".v";
@@ -53,12 +54,6 @@ public class MeasureScriptGenerator {
     private static final File   dc_sh_templatefile  = FileHelper.getInstance().getBasedirFile("templates/delay_measure.sh");
     private static final File   dc_tcl_templatefile = FileHelper.getInstance().getBasedirFile("templates/delay_measure.tcl");
 
-    // template code
-    private static List<String> setup_code          = null;
-    private static List<String> elab_code           = null;
-    private static List<String> measure_code        = null;
-    private static List<String> final_code          = null;
-
     private String              name;
     private File                localfile;
     private String              localfolder;
@@ -66,7 +61,7 @@ public class MeasureScriptGenerator {
     private Set<DelayMatchPlan> modules;
 
     public static MeasureScriptGenerator create(File arg_origfile, Set<DelayMatchPlan> modules) {
-        if(!readTemplateCodeSnippets()) {
+        if(!readTemplateCodeSnippets(dc_tcl_templatefile, new String[]{"setup", "elab", "measure", "final"})) {
             return null;
         }
         return new MeasureScriptGenerator(arg_origfile, modules);
@@ -79,68 +74,7 @@ public class MeasureScriptGenerator {
         name = localfile.getName().split("\\.")[0];
     }
 
-    private static boolean readTemplateCodeSnippets() {
-        if(setup_code == null) {
-            List<String> current = null;
-            setup_code = new ArrayList<>();
-            elab_code = new ArrayList<>();
-            measure_code = new ArrayList<>();
-            final_code = new ArrayList<>();
-            List<String> lines = FileHelper.getInstance().readFile(dc_tcl_templatefile);
-            for(String line : lines) {
-                switch(line) {
-                    case "#+setup_begin+#":
-                        if(current != null) {
-                            logger.error("Found begin before end: setup");
-                            return false;
-                        }
-                        current = setup_code;
-                        break;
-                    case "#+setup_end+#":
-                        current = null;
-                        break;
-                    case "#+elab_begin+#":
-                        if(current != null) {
-                            logger.error("Found begin before end: elab");
-                            return false;
-                        }
-                        current = elab_code;
-                        break;
-                    case "#+elab_end+#":
-                        current = null;
-                        break;
-                    case "#+measure_begin+#":
-                        if(current != null) {
-                            logger.error("Found begin before end: measure");
-                            return false;
-                        }
-                        current = measure_code;
-                        break;
-                    case "#+measure_end+#":
-                        current = null;
-                        break;
-                    case "#+final_begin+#":
-                        if(current != null) {
-                            logger.error("Found begin before end: final");
-                            return false;
-                        }
-                        current = final_code;
-                        break;
-                    case "#+final_end+#":
-                        current = null;
-                        break;
-                    default:
-                        if(current != null) {
-                            current.add(line);
-                        }
-                }
-            }
-        }
-        return true;
-    }
-
     public boolean generate() {
-
         String rmdcshfile = name + dc_sh_file;
         String dcshfile = localfolder + rmdcshfile;
         FileHelper.getInstance().copyfile(dc_sh_templatefile, new File(dcshfile));
@@ -164,10 +98,6 @@ public class MeasureScriptGenerator {
             plan.setMeasureOutputfile(name + "_" + plan.getName() + dc_log_file);
         }
         tclfilecontent.addAll(generateFinalTcl());
-
-//        for(String str : tclfilecontent) {
-//            System.out.println(str);
-//        }
 
         if(!FileHelper.getInstance().writeFile(new File(dctclfile), tclfilecontent)) {
             return false;
@@ -200,8 +130,12 @@ public class MeasureScriptGenerator {
     }
 
     private List<String> generateSetupTcl() {
+        if(!templates.containsKey("setup")) {
+            logger.error("Setup template code not found");
+            return null;
+        }
         List<String> newlines = new ArrayList<>();
-        for(String line : setup_code) {
+        for(String line : templates.get("setup")) {
             line = line.replace("#*orig*#", name + v_file);
             line = line.replace("#*dc_log*#", name + dc_log_file);
             newlines.add(line);
@@ -210,8 +144,12 @@ public class MeasureScriptGenerator {
     }
 
     private List<String> generateElabTcl(String component) {
+        if(!templates.containsKey("elab")) {
+            logger.error("Elab template code not found");
+            return null;
+        }
         List<String> newlines = new ArrayList<>();
-        for(String line : elab_code) {
+        for(String line : templates.get("elab")) {
             line = line.replace("#*dc_sub_log*#", name + "_" + component + dc_log_file);
             line = line.replace("#*root_sub*#", component);
             newlines.add(line);
@@ -220,8 +158,12 @@ public class MeasureScriptGenerator {
     }
 
     private List<String> generateMeasureTcl(String component, String from, String to) {
+        if(!templates.containsKey("measure")) {
+            logger.error("Measure template code not found");
+            return null;
+        }
         List<String> newlines = new ArrayList<>();
-        for(String line : measure_code) {
+        for(String line : templates.get("measure")) {
             line = line.replace("#*dc_sub_log*#", name + "_" + component + dc_log_file);
             line = line.replace("#*root_sub*#", component);
             line = line.replace("#*from_sub*#", from);
@@ -232,7 +174,11 @@ public class MeasureScriptGenerator {
     }
 
     private List<String> generateFinalTcl() {
-        return final_code;
+        if(!templates.containsKey("final")) {
+            logger.error("Final template code not found");
+            return null;
+        }
+        return templates.get("final");
     }
 
     public Set<String> getScriptFiles() {
