@@ -281,4 +281,8 @@ public class MatchScriptGenerator extends AbstractScriptGenerator {
     public String getExec() {
         return name + dc_sh_file;
     }
+
+    public String getOutfile() {
+        return name + dc_out_file;
+    }
 }

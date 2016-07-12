@@ -24,6 +24,7 @@ import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 
+import de.uni_potsdam.hpi.asg.common.io.FileHelper;
 import de.uni_potsdam.hpi.asg.common.io.LoggerHelper;
 import de.uni_potsdam.hpi.asg.common.io.WorkingdirGenerator;
 import de.uni_potsdam.hpi.asg.common.io.Zipper;
@@ -93,13 +94,19 @@ public class DelayMatchMain {
             return 1;
         }
 
+        logger.info("Measure phase");
         MeasureMain memain = new MeasureMain(rinfo, modules);
         if(!memain.measure(options.getVfile())) {
             return 1;
         }
 
+        logger.info("Match phase");
         MatchMain mamain = new MatchMain(rinfo, modules);
         if(!mamain.match(options.getVfile())) {
+            return 1;
+        }
+
+        if(!FileHelper.getInstance().copyfile(mamain.getMatchedfilename(), options.getOutfile())) {
             return 1;
         }
 

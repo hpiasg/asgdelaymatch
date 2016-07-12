@@ -41,6 +41,7 @@ public class MatchMain {
 
     private RemoteInformation    rinfo;
     private Set<DelayMatchPlan>  modules;
+    private String               matchedfilename;
 
     public MatchMain(RemoteInformation rinfo, Set<DelayMatchPlan> modules) {
         this.rinfo = rinfo;
@@ -54,6 +55,7 @@ public class MatchMain {
         if(!gen.generate()) {
             return false;
         }
+        matchedfilename = gen.getOutfile();
 
         Set<String> uploadfiles = new HashSet<>();
         uploadfiles.addAll(gen.getScriptFiles());
@@ -83,4 +85,7 @@ public class MatchMain {
         }
     }
 
+    public String getMatchedfilename() {
+        return matchedfilename;
+    }
 }

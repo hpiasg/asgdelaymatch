@@ -48,6 +48,8 @@ public class DelayMatchCommandlineOptions extends CommandlineOptions {
     
     @Option(name = "-p", metaVar = "<profile>", usage = "Profile file", required = true)
     private File profilefile = null;
+    @Option(name = "-out", metaVar = "<outfile>", usage = "Outfile", required = true)
+    private File outfile = null;
 
     @Argument(metaVar = "Verilog File", required = true)
     private File vfile;
@@ -87,5 +89,9 @@ public class DelayMatchCommandlineOptions extends CommandlineOptions {
 
     public File getVfile() {
         return vfile;
+    }
+
+    public File getOutfile() {
+        return outfile;
     }
 }
