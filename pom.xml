@@ -156,7 +156,7 @@ along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
 					</platforms>
 					<programs>
 						<program>
-							<mainClass>de.uni_potsdam.hpi.asg.resyntool.DelayMatchMain</mainClass>
+							<mainClass>de.uni_potsdam.hpi.asg.delaymatch.DelayMatchMain</mainClass>
 							<id>ASGdelaymatch</id>
 							<commandLineArguments>
 								<commandLineArgument>-cfg "$BASEDIR"/config/delaymatchconfig.xml</commandLineArgument>
