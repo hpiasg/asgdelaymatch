@@ -43,4 +43,29 @@ along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
 			</match>
 		</matchpath>
 	</component>
+	<component moduleregex="ResynBinaryFuncConstR\_\d+">
+		<matchpath>
+			<measure>
+				<from name="inpA" id="0" type="data" bit="ALL" />
+				<to name="out" id="0" type="data" bit="ALL" />
+			</measure>
+			<match>
+				<from name="out" id="0" type="req" />
+				<to name="out" id="0" type="ack" />
+			</match>
+		</matchpath>
+	</component>
+	<!-- <component moduleregex="ResynVariable\_\d+">
+		<matchpath>
+			<measure>
+				<from name="write" id="0" type="data" bit="ALL" />
+				<from name="write" id="0" type="req" />
+				<to name="read" id="0" type="data" bit="ALL" />
+			</measure>
+			<match>
+				<from name="write" id="0" type="req" />
+				<to name="write" id="0" type="ack" />
+			</match>
+		</matchpath>
+	</component> -->
 </components>
