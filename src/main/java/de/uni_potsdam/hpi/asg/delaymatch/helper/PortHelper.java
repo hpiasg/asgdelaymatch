@@ -48,7 +48,7 @@ public class PortHelper {
         int id = (p.getId().isEach()) ? eachid : p.getId().getId();
         String type = null;
         switch(p.getType()) {
-            case acknowledge:
+            case ack:
                 type = "a";
                 break;
             case data:
@@ -70,7 +70,7 @@ public class PortHelper {
                     System.out.println();
                 }
                 break;
-            case request:
+            case req:
                 type = "r";
                 break;
         }

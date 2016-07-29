@@ -21,66 +21,25 @@ along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
 	<component moduleregex="ResynCallMux\_\d+">
 		<matchpath foreach="inp">
 			<measure>
-				<from>
-					<name>inp</name>
-					<id>EACH</id>
-					<type>data</type>
-					<bit>ALL</bit>
-				</from>
-				<to>
-					<name>out</name>
-					<id>0</id>
-					<type>data</type>
-					<bit>ALL</bit>
-				</to>
+				<from name="inp" id="EACH" type="data" bit="ALL" />
+				<to name="out" id="0" type="data" bit="ALL" />
 			</measure>
 			<match>
-				<from>
-					<name>inp</name>
-					<id>EACH</id>
-					<type>request</type>
-				</from>
-				<to>
-					<name>out</name>
-					<id>0</id>
-					<type>request</type>
-				</to>
+				<from name="inp" id="EACH" type="req" />
+				<to name="out" id="0" type="req" />
 			</match>		
 		</matchpath>
 	</component>
 	<component moduleregex="ResynBinaryFunc\_\d+">
 		<matchpath>
 			<measure>
-				<from>
-					<name>inpA</name>
-					<id>0</id>
-					<type>data</type>
-					<bit>ALL</bit>
-				</from>
-				<from>
-					<name>inpB</name>
-					<id>0</id>
-					<type>data</type>
-					<bit>ALL</bit>
-				</from>
-				<to>
-					<name>out</name>
-					<id>0</id>
-					<type>data</type>
-					<bit>ALL</bit>
-				</to>
+				<from name="inpA" id="0" type="data" bit="ALL" />
+				<from name="inpB" id="0" type="data" bit="ALL" />
+				<to name="out" id="0" type="data" bit="ALL" />
 			</measure>
 			<match>
-				<from>
-					<name>out</name>
-					<id>0</id>
-					<type>request</type>
-				</from>
-				<to>
-					<name>out</name>
-					<id>0</id>
-					<type>acknowledge</type>
-				</to>
+				<from name="out" id="0" type="req" />
+				<to name="out" id="0" type="ack" />
 			</match>
 		</matchpath>
 	</component>

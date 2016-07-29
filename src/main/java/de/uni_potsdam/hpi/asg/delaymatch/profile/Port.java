@@ -21,23 +21,23 @@ package de.uni_potsdam.hpi.asg.delaymatch.profile;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlAttribute;
 
 @XmlAccessorType(XmlAccessType.NONE)
 public class Port {
 
     public enum SignalType {
-        request, acknowledge, data
+        req, ack, data
     }
 
     //@formatter:off
-    @XmlElement(name = "name", required = true)
+    @XmlAttribute(name = "name", required = true)
     private String name;
-    @XmlElement(name = "id", required = true)
+    @XmlAttribute(name = "id", required = true)
     private ID id;
-    @XmlElement(name = "type", required = true)
+    @XmlAttribute(name = "type", required = true)
     private SignalType type;
-    @XmlElement(name = "bit", required = false)
+    @XmlAttribute(name = "bit", required = false)
     private Bit bit;
     //@formatter:on
 
