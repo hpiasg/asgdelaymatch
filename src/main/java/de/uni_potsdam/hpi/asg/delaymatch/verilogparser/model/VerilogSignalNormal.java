@@ -1,4 +1,4 @@
-package de.uni_potsdam.hpi.asg.delaymatch.verilogparser;
+package de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model;
 
 /*
  * Copyright (C) 2016 Norman Kluge
@@ -19,42 +19,40 @@ package de.uni_potsdam.hpi.asg.delaymatch.verilogparser;
  * along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-public class Variable {
+public class VerilogSignalNormal extends VerilogSignal {
 
-    private String name;
-    private int    count;
-    private int    datawidth;
+    private String    name;
+    private Direction dir;
+    private int       datawidth;
 
-    public Variable(String name) {
+    public VerilogSignalNormal(String name, Direction dir) {
         this.name = name;
-        this.count = 1;
+        this.dir = dir;
         this.datawidth = 0;
     }
 
-    public void setCountWithId(int id) {
-        if(this.count < (id + 1)) {
-            this.count = id + 1;
-        }
-    }
-
+    @Override
     public void setDatawidth(int datawidth) {
         this.datawidth = datawidth;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
-    public int getCount() {
-        return count;
-    }
-
+    @Override
     public int getDatawidth() {
         return datawidth;
     }
 
     @Override
     public String toString() {
-        return name + ", count:" + count + ", width:" + datawidth;
+        return name + ":" + dir + ",width:" + datawidth;
+    }
+
+    @Override
+    public Direction getDirection() {
+        return dir;
     }
 }

@@ -47,7 +47,7 @@ public class ModuleFinder {
             return null;
         }
 
-        VerilogInterfaceParser parser = null;
+        VerilogModuleContentParser parser = null;
         for(String str : lines) {
             m = p.matcher(str);
             if(m.matches()) {
@@ -55,7 +55,7 @@ public class ModuleFinder {
                 ProfileComponent pc = comps.getComponentByRegex(modulename);
                 parser = null;
                 if(pc != null) {
-                    parser = new VerilogInterfaceParser();
+                    parser = new VerilogModuleContentParser();
                     modules.add(new DelayMatchPlan(modulename, pc, parser.getVariables()));
                 }
             }

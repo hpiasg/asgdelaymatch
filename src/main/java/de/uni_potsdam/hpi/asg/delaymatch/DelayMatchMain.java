@@ -35,6 +35,7 @@ import de.uni_potsdam.hpi.asg.delaymatch.match.MatchMain;
 import de.uni_potsdam.hpi.asg.delaymatch.measure.MeasureMain;
 import de.uni_potsdam.hpi.asg.delaymatch.profile.ProfileComponents;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.ModuleFinder;
+import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.VerilogParser;
 
 public class DelayMatchMain {
     private static Logger                       logger;
@@ -77,6 +78,12 @@ public class DelayMatchMain {
     }
 
     private static int execute() {
+        VerilogParser p = new VerilogParser();
+        p.parserVerilogStructure(options.getVfile());
+        return 0;
+    }
+
+    private static int execute2() {
         ProfileComponents comps = ProfileComponents.readIn(options.getProfilefile());
         if(comps == null) {
             return 1;
