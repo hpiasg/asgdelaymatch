@@ -19,19 +19,40 @@ package de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model;
  * along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-public abstract class VerilogSignal {
+public class VerilogSignal {
 
     public enum Direction {
         input, output, wire
     }
 
-    public abstract void setDatawidth(int datawidth);
+    protected String    name;
+    protected Direction dir;
+    protected int       width;
 
-    public abstract String getName();
+    public VerilogSignal(String name, Direction dir) {
+        this.name = name;
+        this.dir = dir;
+        this.width = 0;
+    }
 
-//    public abstract int getCount();
+    public void setWidth(int width) {
+        this.width = width;
+    }
 
-    public abstract int getDatawidth();
+    public String getName() {
+        return name;
+    }
 
-    public abstract Direction getDirection();
+    public int getWidth() {
+        return width;
+    }
+
+    @Override
+    public String toString() {
+        return name + ":" + dir + ",width:" + width;
+    }
+
+    public Direction getDirection() {
+        return dir;
+    }
 }

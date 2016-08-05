@@ -19,30 +19,53 @@ package de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model;
  * along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class VerilogModule {
 
-    private String              name;
-    private List<VerilogSignal> interfaceSignals;
+    private String                                      modulename;
+    private List<String>                                code;
+    private Map<String, VerilogSignal>                  signals;
+    private List<VerilogModuleInstance>                 submodules;
+    private Map<VerilogSignal, VerilogModuleConnection> connections;
+    private List<VerilogModuleInstance>                 instances;
 
-    public VerilogModule(String name, List<VerilogSignal> interfaceSignals) {
-        this.name = name;
-        this.interfaceSignals = interfaceSignals;
+    public VerilogModule(String modulename, List<String> code, Map<String, VerilogSignal> signals) {
+        this.modulename = modulename;
+        this.code = code;
+        this.signals = signals;
+        this.submodules = new ArrayList<>();
+        this.connections = new HashMap<>();
+        this.instances = new ArrayList<>();
     }
 
-    @Override
-    public String toString() {
-        StringBuilder str = new StringBuilder();
-        str.append(name + ": ");
-        for(VerilogSignal sig : interfaceSignals) {
-            str.append(sig.toString() + "; ");
+    public boolean addSubmodule(VerilogModuleInstance submodule) {
+        return this.submodules.add(submodule);
+    }
+
+    public VerilogModuleConnection getConnection(VerilogSignal sig) {
+        if(!connections.containsKey(sig)) {
+            connections.put(sig, new VerilogModuleConnection(this, sig));
         }
-        str.setLength(str.length() - 2);
-        return str.toString();
+        return connections.get(sig);
     }
 
-    public String getName() {
-        return name;
+    public VerilogModuleInstance getNewInstance() {
+        return new VerilogModuleInstance(this);
+    }
+
+    public VerilogSignal getSignal(String name) {
+        return signals.get(name);
+    }
+
+    public String getModulename() {
+        return modulename;
+    }
+
+    public Map<VerilogSignal, VerilogModuleConnection> getConnections() {
+        return connections;
     }
 }

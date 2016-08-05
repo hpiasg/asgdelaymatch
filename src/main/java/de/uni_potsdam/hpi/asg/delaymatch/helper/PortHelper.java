@@ -57,9 +57,9 @@ public class PortHelper {
                     logger.error("Variable not found");
                     return null;
                 }
-                if(var.getDatawidth() == 1) {
+                if(var.getWidth() == 1) {
                     type = "d";
-                } else if(var.getDatawidth() > 1) {
+                } else if(var.getWidth() > 1) {
                     if(p.getBit().isALL()) {
                         type = "d[*]";
                     } else {

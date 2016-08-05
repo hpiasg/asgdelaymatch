@@ -19,22 +19,29 @@ package de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model;
  * along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
-public class VerilogModuleInstanceAbstract {
+public class VerilogModuleInstance {
 
-    private String                             modulename;
-    private String                             instancename;
-    private List<VerilogModuleInstanceMapping> interfaceSignals;
+    private VerilogModule                module;
+    private Set<VerilogModuleConnection> connections;
 
-    public VerilogModuleInstanceAbstract(String modulename, String instancename, List<VerilogModuleInstanceMapping> interfaceSignals) {
-        this.modulename = modulename;
-        this.instancename = instancename;
-        this.interfaceSignals = interfaceSignals;
+    public VerilogModuleInstance(VerilogModule module) {
+        this.module = module;
+        this.module.addSubmodule(this);
+        this.connections = new HashSet<>();
     }
 
-    @Override
-    public String toString() {
-        return instancename + ":" + modulename;
+    public boolean addConnection(VerilogModuleConnection con) {
+        return connections.add(con);
+    }
+
+    public Set<VerilogModuleConnection> getConnections() {
+        return connections;
+    }
+
+    public VerilogModule getModule() {
+        return module;
     }
 }

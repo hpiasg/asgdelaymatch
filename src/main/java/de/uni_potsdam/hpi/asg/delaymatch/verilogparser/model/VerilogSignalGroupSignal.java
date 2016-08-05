@@ -22,33 +22,12 @@ package de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model;
 public class VerilogSignalGroupSignal extends VerilogSignal {
 
     private VerilogSignalGroup group;
-    private String             name;
     private int                count_id;
 
-    public VerilogSignalGroupSignal(VerilogSignalGroup group, String name, int count_id) {
+    public VerilogSignalGroupSignal(String name, Direction dir, VerilogSignalGroup group, int count_id) {
+        super(name, dir);
         this.group = group;
-        this.name = name;
         this.count_id = count_id;
-    }
-
-    @Override
-    public void setDatawidth(int datawidth) {
-        group.setDatawidth(datawidth);
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public int getDatawidth() {
-        return group.getDatawidth();
-    }
-
-    @Override
-    public Direction getDirection() {
-        return group.getDirection();
     }
 
     @Override

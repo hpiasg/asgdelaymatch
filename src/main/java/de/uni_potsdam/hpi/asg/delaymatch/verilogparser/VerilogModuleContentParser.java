@@ -29,29 +29,28 @@ import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogModuleInstanceAbstract;
-import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogModuleInstanceMapping;
+import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogModuleInstanceTemp;
+import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogModuleInstanceConnectionTemp;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogSignal;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogSignal.Direction;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogSignalGroup;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogSignalGroupSignal;
-import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogSignalNormal;
 
 public class VerilogModuleContentParser {
-    private static final Logger                 logger                = LogManager.getLogger();
+    private static final Logger             logger                = LogManager.getLogger();
 
-    private static final Pattern                linebuspattern        = Pattern.compile("\\s*(input|output|wire)\\s*\\[\\s*(\\d+):(\\d+)\\]\\s*(.*);");
-    private static final Pattern                linepattern           = Pattern.compile("\\s*(input|output|wire)\\s*(.*);");
-    private static final Pattern                instancePattern       = Pattern.compile("\\s*(.*)\\s+([A-Za-z0-9]+)\\s+\\((.*)\\);\\s*");
-    private static final Pattern                mappedPositionPattern = Pattern.compile("\\.(.*)\\((.*)\\)");
+    private static final Pattern            linebuspattern        = Pattern.compile("\\s*(input|output|wire)\\s*\\[\\s*(\\d+):(\\d+)\\]\\s*(.*);");
+    private static final Pattern            linepattern           = Pattern.compile("\\s*(input|output|wire)\\s*(.*);");
+    private static final Pattern            instancePattern       = Pattern.compile("\\s*(.*)\\s+([A-Za-z0-9]+)\\s+\\((.*)\\);\\s*");
+    private static final Pattern            mappedPositionPattern = Pattern.compile("\\.(.*)\\((.*)\\)");
 
-    private static final Pattern                hssignalpattern       = Pattern.compile("(.*)\\_(\\d+)(r|a|d)");
+    private static final Pattern            hssignalpattern       = Pattern.compile("(.*)\\_(\\d+)(r|a|d)");
 
-    private Map<String, VerilogSignal>          signals;
-    private Map<String, VerilogSignalGroup>     signalgroups;
-    private List<VerilogModuleInstanceAbstract> instances;
+    private Map<String, VerilogSignal>      signals;
+    private Map<String, VerilogSignalGroup> signalgroups;
+    private List<VerilogModuleInstanceTemp> instances;
 
-    private List<String>                        interfaceSignalNames;
+    private List<String>                    interfaceSignalNames;
 
     public VerilogModuleContentParser(List<String> interfaceSignalNames) {
         this.signals = new HashMap<>();
@@ -76,7 +75,7 @@ public class VerilogModuleContentParser {
         if(m.matches()) {
             String modulename = m.group(1);
             String instancename = m.group(2);
-            List<VerilogModuleInstanceMapping> interfaceSignals = new ArrayList<>();
+            List<VerilogModuleInstanceConnectionTemp> interfaceSignals = new ArrayList<>();
             String[] splitsig = m.group(3).split(",");
             for(String str : splitsig) {
                 m2 = mappedPositionPattern.matcher(str.trim());
@@ -88,13 +87,13 @@ public class VerilogModuleContentParser {
                         logger.error("Signal " + localSigName + " not found");
                         return false;
                     }
-                    interfaceSignals.add(new VerilogModuleInstanceMapping(signals.get(localSigName), moduleSigName));
+                    interfaceSignals.add(new VerilogModuleInstanceConnectionTemp(signals.get(localSigName), moduleSigName));
                 } else {
                     logger.warn("Positional mapping not yet implemented");
                     return false;
                 }
             }
-            this.instances.add(new VerilogModuleInstanceAbstract(modulename, instancename, interfaceSignals));
+            this.instances.add(new VerilogModuleInstanceTemp(modulename, instancename, interfaceSignals));
         }
 
         return true;
@@ -159,18 +158,18 @@ public class VerilogModuleContentParser {
                     logger.error("Name already registered");
                     return false;
                 }
-                this.signals.put(str, new VerilogSignalGroupSignal(group, str, id));
+                this.signals.put(str, new VerilogSignalGroupSignal(str, dir, group, id));
             } else {
                 if(this.signals.containsKey(str)) {
                     logger.error("Name already registered");
                     return false;
                 }
-                this.signals.put(str, new VerilogSignalNormal(str, dir));
+                this.signals.put(str, new VerilogSignal(str, dir));
                 VerilogSignal var = this.signals.get(str);
                 if(datawidth != null) {
-                    var.setDatawidth(datawidth);
+                    var.setWidth(datawidth);
                 } else {
-                    var.setDatawidth(1);
+                    var.setWidth(1);
                 }
             }
         }
@@ -203,7 +202,11 @@ public class VerilogModuleContentParser {
         return interfaceSignals;
     }
 
-    public List<VerilogModuleInstanceAbstract> getInstances() {
+    public List<VerilogModuleInstanceTemp> getInstances() {
         return instances;
+    }
+
+    public Map<String, VerilogSignal> getSignals() {
+        return signals;
     }
 }

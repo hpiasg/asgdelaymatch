@@ -34,7 +34,6 @@ import de.uni_potsdam.hpi.asg.delaymatch.io.RemoteInvocation;
 import de.uni_potsdam.hpi.asg.delaymatch.match.MatchMain;
 import de.uni_potsdam.hpi.asg.delaymatch.measure.MeasureMain;
 import de.uni_potsdam.hpi.asg.delaymatch.profile.ProfileComponents;
-import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.ModuleFinder;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.VerilogParser;
 
 public class DelayMatchMain {
@@ -79,7 +78,7 @@ public class DelayMatchMain {
 
     private static int execute() {
         VerilogParser p = new VerilogParser();
-        p.parserVerilogStructure(options.getVfile());
+        p.parseVerilogStructure(options.getVfile());
         return 0;
     }
 

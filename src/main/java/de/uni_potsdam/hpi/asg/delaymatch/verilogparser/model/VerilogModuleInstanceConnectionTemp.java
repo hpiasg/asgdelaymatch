@@ -19,40 +19,21 @@ package de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model;
  * along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-public class VerilogSignalNormal extends VerilogSignal {
+public class VerilogModuleInstanceConnectionTemp {
 
-    private String    name;
-    private Direction dir;
-    private int       datawidth;
+    private VerilogSignal localSig;
+    private String        moduleSigName;
 
-    public VerilogSignalNormal(String name, Direction dir) {
-        this.name = name;
-        this.dir = dir;
-        this.datawidth = 0;
+    public VerilogModuleInstanceConnectionTemp(VerilogSignal localSig, String moduleSigName) {
+        this.localSig = localSig;
+        this.moduleSigName = moduleSigName;
     }
 
-    @Override
-    public void setDatawidth(int datawidth) {
-        this.datawidth = datawidth;
+    public VerilogSignal getLocalSig() {
+        return localSig;
     }
 
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public int getDatawidth() {
-        return datawidth;
-    }
-
-    @Override
-    public String toString() {
-        return name + ":" + dir + ",width:" + datawidth;
-    }
-
-    @Override
-    public Direction getDirection() {
-        return dir;
+    public String getModuleSigName() {
+        return moduleSigName;
     }
 }
