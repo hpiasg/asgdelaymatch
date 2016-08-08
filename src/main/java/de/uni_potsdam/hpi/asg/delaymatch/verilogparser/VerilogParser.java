@@ -42,11 +42,13 @@ import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogModuleInstan
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogSignal;
 
 public class VerilogParser {
-    private static final Logger  logger           = LogManager.getLogger();
+    private static final Logger        logger           = LogManager.getLogger();
 
-    private static final Pattern modulepattern    = Pattern.compile("^\\s*module (.*) \\((.*)\\);\\s*$");
-    private static final Pattern endmodulepattern = Pattern.compile("^\\s*endmodule\\s*$");
-    private static final Pattern linepattern      = Pattern.compile("^.*;$");
+    private static final Pattern       modulepattern    = Pattern.compile("^\\s*module (.*) \\((.*)\\);\\s*$");
+    private static final Pattern       endmodulepattern = Pattern.compile("^\\s*endmodule\\s*$");
+    private static final Pattern       linepattern      = Pattern.compile("^.*;$");
+
+    private Map<String, VerilogModule> modules;
 
     public VerilogModule parseVerilogStructure(File vfile) {
         List<String> lines = FileHelper.getInstance().readFile(vfile);
@@ -139,10 +141,10 @@ public class VerilogParser {
 //        }
 
         VerilogModule rootModule = null;
-        Map<String, VerilogModule> modules = new HashMap<>();
+        modules = new HashMap<>();
         for(Entry<String, VerilogModuleContentParser> entry : parserMap.entrySet()) {
             String modulename = entry.getKey();
-            VerilogModule mod = new VerilogModule(modulename, linesMap.get(modulename), entry.getValue().getSignals());
+            VerilogModule mod = new VerilogModule(modulename, linesMap.get(modulename), entry.getValue().getSignals(), entry.getValue().getSignalGroups());
             modules.put(modulename, mod);
             if(modulename.equals(rootModuleName)) {
                 rootModule = mod;
@@ -206,5 +208,9 @@ public class VerilogParser {
             }
         }
         return rootModule;
+    }
+
+    public Map<String, VerilogModule> getModules() {
+        return modules;
     }
 }

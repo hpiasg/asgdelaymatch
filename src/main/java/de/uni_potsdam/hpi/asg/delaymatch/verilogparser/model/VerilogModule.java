@@ -29,14 +29,17 @@ public class VerilogModule {
     private String                                      modulename;
     private List<String>                                code;
     private Map<String, VerilogSignal>                  signals;
+    private Map<String, VerilogSignalGroup>             signalgroups;
+
     private List<VerilogModuleInstance>                 submodules;
     private Map<VerilogSignal, VerilogModuleConnection> connections;
     private List<VerilogModuleInstance>                 instances;
 
-    public VerilogModule(String modulename, List<String> code, Map<String, VerilogSignal> signals) {
+    public VerilogModule(String modulename, List<String> code, Map<String, VerilogSignal> signals, Map<String, VerilogSignalGroup> signalgroups) {
         this.modulename = modulename;
         this.code = code;
         this.signals = signals;
+        this.signalgroups = signalgroups;
         this.submodules = new ArrayList<>();
         this.connections = new HashMap<>();
         this.instances = new ArrayList<>();
@@ -61,11 +64,23 @@ public class VerilogModule {
         return signals.get(name);
     }
 
+    public Map<String, VerilogSignal> getSignals() {
+        return signals;
+    }
+
+    public Map<String, VerilogSignalGroup> getSignalGroups() {
+        return signalgroups;
+    }
+
     public String getModulename() {
         return modulename;
     }
 
     public Map<VerilogSignal, VerilogModuleConnection> getConnections() {
         return connections;
+    }
+
+    public List<VerilogModuleInstance> getSubmodules() {
+        return submodules;
     }
 }

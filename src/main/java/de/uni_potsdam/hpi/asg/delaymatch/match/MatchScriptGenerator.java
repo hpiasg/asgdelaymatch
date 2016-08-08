@@ -36,10 +36,11 @@ import org.apache.logging.log4j.Logger;
 
 import de.uni_potsdam.hpi.asg.common.io.FileHelper;
 import de.uni_potsdam.hpi.asg.common.io.WorkingdirGenerator;
-import de.uni_potsdam.hpi.asg.delaymatch.DelayMatchPlan;
 import de.uni_potsdam.hpi.asg.delaymatch.helper.AbstractScriptGenerator;
 import de.uni_potsdam.hpi.asg.delaymatch.helper.PortHelper;
+import de.uni_potsdam.hpi.asg.delaymatch.misc.DelayMatchPlan;
 import de.uni_potsdam.hpi.asg.delaymatch.profile.MatchPath;
+import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogSignalGroup;
 
 public class MatchScriptGenerator extends AbstractScriptGenerator {
     private static final Logger              logger              = LogManager.getLogger();
@@ -102,7 +103,12 @@ public class MatchScriptGenerator extends AbstractScriptGenerator {
             tclfilecontent.addAll(generateElabTcl(plan.getName()));
             for(MatchPath path : plan.getProfilecomp().getMatchpaths()) {
                 if(path.getForeach() != null) {
-                    int num = plan.getVariables().get(path.getForeach()).getCount();
+                    VerilogSignalGroup group = plan.getSignalGroups().get(path.getForeach());
+                    if(group == null) {
+                        logger.error("Signal must be group signal!");
+                        return false;
+                    }
+                    int num = group.getCount();
                     for(int eachid = 0; eachid < num; eachid++) {
                         if(index == plan.getValues().size()) {
                             logger.error("index");
@@ -134,13 +140,13 @@ public class MatchScriptGenerator extends AbstractScriptGenerator {
     }
 
     private List<String> generateMatch(DelayMatchPlan plan, MatchPath path, Integer eachid, Float value) {
-        String from = PortHelper.getPortListAsString(path.getMatch().getFrom(), eachid, plan.getVariables());
-        String to = PortHelper.getPortListAsString(path.getMatch().getTo(), eachid, plan.getVariables());
+        String from = PortHelper.getPortListAsString(path.getMatch().getFrom(), eachid, plan.getSignals());
+        String to = PortHelper.getPortListAsString(path.getMatch().getTo(), eachid, plan.getSignals());
         return generateSetDelayTcl(plan.getName(), from, to, value.toString());
     }
 
     private List<String> generateDontTouch(DelayMatchPlan plan, MatchPath path, Integer eachid) {
-        String touch = PortHelper.getPortListAsString(path.getMeasure().getFrom(), eachid, plan.getVariables());
+        String touch = PortHelper.getPortListAsString(path.getMeasure().getFrom(), eachid, plan.getSignals());
         return generatSetTouchTcl(plan.getName(), touch);
     }
 

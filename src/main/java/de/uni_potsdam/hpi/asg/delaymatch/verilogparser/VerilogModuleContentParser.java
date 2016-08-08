@@ -138,6 +138,7 @@ public class VerilogModuleContentParser {
             }
 
             m = hssignalpattern.matcher(str);
+            VerilogSignal sig = null;
             if(m.matches()) {
                 String name = m.group(1);
                 int id = Integer.parseInt(m.group(2));
@@ -154,24 +155,21 @@ public class VerilogModuleContentParser {
                     }
                 }
                 group.setCountWithId(id);
-                if(this.signals.containsKey(str)) {
-                    logger.error("Name already registered");
-                    return false;
-                }
-                this.signals.put(str, new VerilogSignalGroupSignal(str, dir, group, id));
+                sig = new VerilogSignalGroupSignal(str, dir, group, id);
             } else {
-                if(this.signals.containsKey(str)) {
-                    logger.error("Name already registered");
-                    return false;
-                }
-                this.signals.put(str, new VerilogSignal(str, dir));
-                VerilogSignal var = this.signals.get(str);
-                if(datawidth != null) {
-                    var.setWidth(datawidth);
-                } else {
-                    var.setWidth(1);
-                }
+                sig = new VerilogSignal(str, dir);
             }
+
+            if(this.signals.containsKey(str)) {
+                logger.error("Name already registered");
+                return false;
+            }
+            if(datawidth != null) {
+                sig.setWidth(datawidth);
+            } else {
+                sig.setWidth(1);
+            }
+            this.signals.put(str, sig);
         }
 
         return true;
@@ -208,5 +206,9 @@ public class VerilogModuleContentParser {
 
     public Map<String, VerilogSignal> getSignals() {
         return signals;
+    }
+
+    public Map<String, VerilogSignalGroup> getSignalGroups() {
+        return signalgroups;
     }
 }

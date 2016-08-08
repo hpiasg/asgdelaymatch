@@ -32,7 +32,7 @@ import org.apache.logging.log4j.Logger;
 
 import de.uni_potsdam.hpi.asg.common.io.FileHelper;
 import de.uni_potsdam.hpi.asg.common.io.remote.RemoteInformation;
-import de.uni_potsdam.hpi.asg.delaymatch.DelayMatchPlan;
+import de.uni_potsdam.hpi.asg.delaymatch.misc.DelayMatchPlan;
 
 public class MatchMain {
     private static final Logger  logger      = LogManager.getLogger();

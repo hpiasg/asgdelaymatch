@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Set;
 
 import de.uni_potsdam.hpi.asg.common.io.remote.RemoteInformation;
-import de.uni_potsdam.hpi.asg.delaymatch.DelayMatchPlan;
+import de.uni_potsdam.hpi.asg.delaymatch.misc.DelayMatchPlan;
 
 public class MeasureMain {
     private RemoteInformation   rinfo;

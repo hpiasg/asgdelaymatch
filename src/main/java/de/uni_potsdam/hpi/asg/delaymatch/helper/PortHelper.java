@@ -52,7 +52,7 @@ public class PortHelper {
                 type = "a";
                 break;
             case data:
-                VerilogSignal var = vars.get(p.getName());
+                VerilogSignal var = vars.get(p.getName() + "_" + id + "d");
                 if(var == null) {
                     logger.error("Variable not found");
                     return null;
@@ -67,7 +67,8 @@ public class PortHelper {
                     }
                 }
                 if(type == null) {
-                    System.out.println();
+                    logger.error("Could not determine type");
+                    return null;
                 }
                 break;
             case req:

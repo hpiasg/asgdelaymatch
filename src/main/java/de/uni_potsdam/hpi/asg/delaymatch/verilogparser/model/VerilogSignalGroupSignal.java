@@ -30,8 +30,12 @@ public class VerilogSignalGroupSignal extends VerilogSignal {
         this.count_id = count_id;
     }
 
+    public VerilogSignalGroup getGroup() {
+        return group;
+    }
+
     @Override
     public String toString() {
-        return name + ":" + group.getDirection() + ",group:" + group.getGroupName() + ",id:" + count_id + "/" + (group.getCount() - 1) + ",width:" + group.getDatawidth();
+        return name + ":" + dir + ",width:" + width + ",group:" + group.getGroupName() + ",id:" + count_id + "/" + (group.getCount() - 1);
     }
 }

@@ -33,8 +33,11 @@ import de.uni_potsdam.hpi.asg.delaymatch.io.Config;
 import de.uni_potsdam.hpi.asg.delaymatch.io.RemoteInvocation;
 import de.uni_potsdam.hpi.asg.delaymatch.match.MatchMain;
 import de.uni_potsdam.hpi.asg.delaymatch.measure.MeasureMain;
+import de.uni_potsdam.hpi.asg.delaymatch.misc.DelayMatchPlan;
+import de.uni_potsdam.hpi.asg.delaymatch.misc.EligibleModuleFinder;
 import de.uni_potsdam.hpi.asg.delaymatch.profile.ProfileComponents;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.VerilogParser;
+import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogModule;
 
 public class DelayMatchMain {
     private static Logger                       logger;
@@ -77,12 +80,6 @@ public class DelayMatchMain {
     }
 
     private static int execute() {
-        VerilogParser p = new VerilogParser();
-        p.parseVerilogStructure(options.getVfile());
-        return 0;
-    }
-
-    private static int execute2() {
         ProfileComponents comps = ProfileComponents.readIn(options.getProfilefile());
         if(comps == null) {
             return 1;
@@ -94,8 +91,11 @@ public class DelayMatchMain {
         }
         RemoteInformation rinfo = new RemoteInformation(rinv.hostname, rinv.username, rinv.password, rinv.workingdir);
 
-        ModuleFinder find = new ModuleFinder(comps);
-        Set<DelayMatchPlan> modules = find.findEligibleModules(options.getVfile());
+        VerilogParser vparser = new VerilogParser();
+        VerilogModule rootModule = vparser.parseVerilogStructure(options.getVfile());
+
+        EligibleModuleFinder find = new EligibleModuleFinder(comps);
+        Set<DelayMatchPlan> modules = find.find(vparser.getModules());
         if(modules == null) {
             return 1;
         }

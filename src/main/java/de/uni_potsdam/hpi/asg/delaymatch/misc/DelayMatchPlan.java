@@ -1,4 +1,4 @@
-package de.uni_potsdam.hpi.asg.delaymatch;
+package de.uni_potsdam.hpi.asg.delaymatch.misc;
 
 /*
  * Copyright (C) 2016 Norman Kluge
@@ -27,21 +27,21 @@ import java.util.Map;
 import java.util.Set;
 
 import de.uni_potsdam.hpi.asg.delaymatch.profile.ProfileComponent;
+import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogModule;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogSignal;
+import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogSignalGroup;
 
 public class DelayMatchPlan {
 
-    private String                name;
-    private ProfileComponent      profilecomp;
-    private Map<String, VerilogSignal> variables;
-    private String                measureOutputfile;
-    private Set<String>           instances;
-    private List<Float>           values;
+    private VerilogModule    module;
+    private ProfileComponent profilecomp;
+    private String           measureOutputfile;
+    private Set<String>      instances;
+    private List<Float>      values;
 
-    public DelayMatchPlan(String name, ProfileComponent profilecomp, Map<String, VerilogSignal> variables) {
-        this.name = name;
+    public DelayMatchPlan(VerilogModule module, ProfileComponent profilecomp) {
+        this.module = module;
         this.profilecomp = profilecomp;
-        this.variables = variables;
         this.instances = new HashSet<>();
         this.values = new ArrayList<>();
     }
@@ -63,15 +63,19 @@ public class DelayMatchPlan {
     }
 
     public String getName() {
-        return name;
+        return module.getModulename();
     }
 
     public ProfileComponent getProfilecomp() {
         return profilecomp;
     }
 
-    public Map<String, VerilogSignal> getVariables() {
-        return variables;
+    public Map<String, VerilogSignal> getSignals() {
+        return module.getSignals();
+    }
+
+    public Map<String, VerilogSignalGroup> getSignalGroups() {
+        return module.getSignalGroups();
     }
 
     public void setMeasureOutputfile(String measureOutputfile) {
