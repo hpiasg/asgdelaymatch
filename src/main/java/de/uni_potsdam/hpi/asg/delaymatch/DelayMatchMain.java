@@ -33,7 +33,7 @@ import de.uni_potsdam.hpi.asg.delaymatch.io.Config;
 import de.uni_potsdam.hpi.asg.delaymatch.io.RemoteInvocation;
 import de.uni_potsdam.hpi.asg.delaymatch.match.MatchMain;
 import de.uni_potsdam.hpi.asg.delaymatch.measure.MeasureMain;
-import de.uni_potsdam.hpi.asg.delaymatch.misc.DelayMatchPlan;
+import de.uni_potsdam.hpi.asg.delaymatch.misc.DelayMatchModule;
 import de.uni_potsdam.hpi.asg.delaymatch.misc.EligibleModuleFinder;
 import de.uni_potsdam.hpi.asg.delaymatch.profile.ProfileComponents;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.VerilogParser;
@@ -95,7 +95,7 @@ public class DelayMatchMain {
         VerilogModule rootModule = vparser.parseVerilogStructure(options.getVfile());
 
         EligibleModuleFinder find = new EligibleModuleFinder(comps);
-        Set<DelayMatchPlan> modules = find.find(vparser.getModules());
+        Set<DelayMatchModule> modules = find.find(vparser.getModules());
         if(modules == null) {
             return 1;
         }

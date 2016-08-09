@@ -19,47 +19,47 @@ package de.uni_potsdam.hpi.asg.delaymatch.misc;
  * along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import java.util.ArrayList;
-
-import java.util.HashSet;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
+import de.uni_potsdam.hpi.asg.delaymatch.profile.Path;
 import de.uni_potsdam.hpi.asg.delaymatch.profile.ProfileComponent;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogModule;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogSignal;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogSignalGroup;
 
-public class DelayMatchPlan {
+public class DelayMatchModule {
 
-    private VerilogModule    module;
-    private ProfileComponent profilecomp;
-    private String           measureOutputfile;
-    private Set<String>      instances;
-    private List<Float>      values;
+    private VerilogModule      module;
+    private ProfileComponent   profilecomp;
+    private String             measureOutputfile;
+    private Map<String, Float> values;
+    private Map<Path, String>  ids;
 
-    public DelayMatchPlan(VerilogModule module, ProfileComponent profilecomp) {
+    public DelayMatchModule(VerilogModule module, ProfileComponent profilecomp) {
         this.module = module;
         this.profilecomp = profilecomp;
-        this.instances = new HashSet<>();
-        this.values = new ArrayList<>();
+        this.values = new HashMap<>();
+        this.ids = new HashMap<>();
     }
 
-    public boolean addValue(Float value) {
-        return this.values.add(value);
+    public void addValue(String id, Float value) {
+        this.values.put(id, value);
     }
 
-    public boolean addInstance(String instance) {
-        return this.instances.add(instance);
+    public void addPath(String id, Path p) {
+        this.ids.put(p, id);
     }
 
-    public Set<String> getInstances() {
-        return instances;
-    }
-
-    public List<Float> getValues() {
-        return values;
+    public Float getValue(Path p) {
+        if(!ids.containsKey(p)) {
+            return null;
+        }
+        String id = ids.get(p);
+        if(!values.containsKey(id)) {
+            return null;
+        }
+        return values.get(id);
     }
 
     public String getName() {

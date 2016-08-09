@@ -35,12 +35,12 @@ public class EligibleModuleFinder {
         this.comps = comps;
     }
 
-    public Set<DelayMatchPlan> find(Map<String, VerilogModule> modules) {
-        Set<DelayMatchPlan> plans = new HashSet<>();
+    public Set<DelayMatchModule> find(Map<String, VerilogModule> modules) {
+        Set<DelayMatchModule> plans = new HashSet<>();
         for(VerilogModule module : modules.values()) {
             ProfileComponent pc = comps.getComponentByRegex(module.getModulename());
             if(pc != null) {
-                plans.add(new DelayMatchPlan(module, pc));
+                plans.add(new DelayMatchModule(module, pc));
             }
         }
         return plans;

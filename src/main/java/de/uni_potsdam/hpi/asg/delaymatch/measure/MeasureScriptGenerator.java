@@ -36,8 +36,9 @@ import de.uni_potsdam.hpi.asg.common.io.FileHelper;
 import de.uni_potsdam.hpi.asg.common.io.WorkingdirGenerator;
 import de.uni_potsdam.hpi.asg.delaymatch.helper.AbstractScriptGenerator;
 import de.uni_potsdam.hpi.asg.delaymatch.helper.PortHelper;
-import de.uni_potsdam.hpi.asg.delaymatch.misc.DelayMatchPlan;
+import de.uni_potsdam.hpi.asg.delaymatch.misc.DelayMatchModule;
 import de.uni_potsdam.hpi.asg.delaymatch.profile.MatchPath;
+import de.uni_potsdam.hpi.asg.delaymatch.profile.Path;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogSignalGroup;
 
 public class MeasureScriptGenerator extends AbstractScriptGenerator {
@@ -62,9 +63,9 @@ public class MeasureScriptGenerator extends AbstractScriptGenerator {
     private File                             localfile;
     private String                           localfolder;
 
-    private Set<DelayMatchPlan>              modules;
+    private Set<DelayMatchModule>            modules;
 
-    public static MeasureScriptGenerator create(File arg_origfile, Set<DelayMatchPlan> modules) {
+    public static MeasureScriptGenerator create(File arg_origfile, Set<DelayMatchModule> modules) {
         if(templates == null) {
             templates = readTemplateCodeSnippets(dc_tcl_templatefile, new String[]{"setup", "elab", "measure", "final"});
             if(templates == null) {
@@ -74,7 +75,7 @@ public class MeasureScriptGenerator extends AbstractScriptGenerator {
         return new MeasureScriptGenerator(arg_origfile, modules);
     }
 
-    private MeasureScriptGenerator(File arg_origfile, Set<DelayMatchPlan> modules) {
+    private MeasureScriptGenerator(File arg_origfile, Set<DelayMatchModule> modules) {
         this.modules = modules;
         localfolder = WorkingdirGenerator.getInstance().getWorkingdir();
         localfile = new File(localfolder + arg_origfile);
@@ -90,24 +91,24 @@ public class MeasureScriptGenerator extends AbstractScriptGenerator {
         String dctclfile = localfolder + name + dc_tcl_file;
         List<String> tclfilecontent = new ArrayList<>();
         tclfilecontent.addAll(generateSetupTcl());
-        for(DelayMatchPlan plan : modules) {
-            tclfilecontent.addAll(generateElabTcl(plan.getName()));
-            for(MatchPath path : plan.getProfilecomp().getMatchpaths()) {
+        for(DelayMatchModule mod : modules) {
+            tclfilecontent.addAll(generateElabTcl(mod.getName()));
+            for(MatchPath path : mod.getProfilecomp().getMatchpaths()) {
                 if(path.getForeach() != null) {
-                    VerilogSignalGroup group = plan.getSignalGroups().get(path.getForeach());
+                    VerilogSignalGroup group = mod.getSignalGroups().get(path.getForeach());
                     if(group == null) {
                         logger.error("Signal must be group signal!");
                         return false;
                     }
                     int num = group.getCount();
                     for(int eachid = 0; eachid < num; eachid++) {
-                        addMeasure(tclfilecontent, plan, path, eachid);
+                        addMeasure(tclfilecontent, mod, path.getMeasure(), eachid);
                     }
                 } else {
-                    addMeasure(tclfilecontent, plan, path, null);
+                    addMeasure(tclfilecontent, mod, path.getMeasure(), null);
                 }
             }
-            plan.setMeasureOutputfile(name + "_" + plan.getName() + dc_log_file);
+            mod.setMeasureOutputfile(name + "_" + mod.getName() + dc_log_file);
         }
         tclfilecontent.addAll(generateFinalTcl());
 
@@ -118,10 +119,11 @@ public class MeasureScriptGenerator extends AbstractScriptGenerator {
         return true;
     }
 
-    private void addMeasure(List<String> tclfilecontent, DelayMatchPlan plan, MatchPath path, Integer eachid) {
-        String from = PortHelper.getPortListAsString(path.getMeasure().getFrom(), eachid, plan.getSignals());
-        String to = PortHelper.getPortListAsString(path.getMeasure().getTo(), eachid, plan.getSignals());
-        tclfilecontent.addAll(generateMeasureTcl(plan.getName(), from, to));
+    private void addMeasure(List<String> tclfilecontent, DelayMatchModule mod, Path measure, Integer eachid) {
+        String from = PortHelper.getPortListAsString(measure.getFrom(), eachid, mod.getSignals());
+        String to = PortHelper.getPortListAsString(measure.getTo(), eachid, mod.getSignals());
+        tclfilecontent.addAll(generateMeasureTcl(mod.getName(), from, to));
+        mod.addPath("from:" + from + ";to:" + to, measure);
     }
 
     private void replaceInSh(String filename) {
@@ -175,6 +177,7 @@ public class MeasureScriptGenerator extends AbstractScriptGenerator {
             return null;
         }
         List<String> newlines = new ArrayList<>();
+        newlines.add("redirect -append " + name + "_" + component + dc_log_file + " {echo ASGdm\\;from:" + from + "\\;to:" + to + "\\;}");
         for(String line : templates.get("measure")) {
             line = line.replace("#*dc_sub_log*#", name + "_" + component + dc_log_file);
             line = line.replace("#*root_sub*#", component);

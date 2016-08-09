@@ -26,13 +26,13 @@ import java.util.List;
 import java.util.Set;
 
 import de.uni_potsdam.hpi.asg.common.io.remote.RemoteInformation;
-import de.uni_potsdam.hpi.asg.delaymatch.misc.DelayMatchPlan;
+import de.uni_potsdam.hpi.asg.delaymatch.misc.DelayMatchModule;
 
 public class MeasureMain {
     private RemoteInformation   rinfo;
-    private Set<DelayMatchPlan> modules;
+    private Set<DelayMatchModule> modules;
 
-    public MeasureMain(RemoteInformation rinfo, Set<DelayMatchPlan> modules) {
+    public MeasureMain(RemoteInformation rinfo, Set<DelayMatchModule> modules) {
         this.rinfo = rinfo;
         this.modules = modules;
     }
