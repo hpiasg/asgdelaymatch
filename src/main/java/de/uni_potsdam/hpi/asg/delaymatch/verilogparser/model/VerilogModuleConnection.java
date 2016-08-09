@@ -23,7 +23,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class VerilogModuleConnection {
+    private static final Logger                       logger = LogManager.getLogger();
 
     private VerilogModuleInstance                     writer;
     private VerilogSignal                             writerSig;
@@ -35,20 +39,40 @@ public class VerilogModuleConnection {
         this.reader = new HashMap<>();
         this.host = host;
         this.hostSig = hostSig;
+        host.addConnection(this, hostSig);
     }
 
     public void setWriter(VerilogModuleInstance writer, VerilogSignal writerSig) {
         this.writer = writer;
         this.writerSig = writerSig;
+        writer.addConnection(this, writerSig);
     }
 
-    public void addReader(VerilogModuleInstance writer, VerilogSignal writerSig) {
-        this.reader.put(writer, writerSig);
+    public void addReader(VerilogModuleInstance reader, VerilogSignal readerSig) {
+        this.reader.put(reader, readerSig);
+        reader.addConnection(this, readerSig);
     }
 
-    public boolean isInternal() {
-        return(writer == null || reader.isEmpty());
-    }
+//    public boolean isExternal() {
+//        return writer == null || reader.isEmpty();
+//    }
+
+//    public Map<VerilogModuleInstance, VerilogSignal> getOthers(VerilogModule mod) {
+//        if(writer != null) {
+//            if(writer.getModule() == mod) {
+//                return reader;
+//            }
+//        }
+//        for(VerilogModuleInstance inst : reader.keySet()) {
+//            if(inst.getModule() == mod) {
+//                Map<VerilogModuleInstance, VerilogSignal> retVal = new HashMap<>();
+//                retVal.put(writer, writerSig);
+//                return retVal;
+//            }
+//        }
+//        logger.error("Module not found");
+//        return null;
+//    }
 
     @Override
     public String toString() {
@@ -70,5 +94,25 @@ public class VerilogModuleConnection {
             str.append("XX");
         }
         return str.toString();
+    }
+
+    public VerilogModule getHost() {
+        return host;
+    }
+
+    public VerilogSignal getHostSig() {
+        return hostSig;
+    }
+
+    public Map<VerilogModuleInstance, VerilogSignal> getReader() {
+        return reader;
+    }
+
+    public VerilogModuleInstance getWriter() {
+        return writer;
+    }
+
+    public VerilogSignal getWriterSig() {
+        return writerSig;
     }
 }

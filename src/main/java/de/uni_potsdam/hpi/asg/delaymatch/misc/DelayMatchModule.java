@@ -85,4 +85,8 @@ public class DelayMatchModule {
     public String getMeasureOutputfile() {
         return measureOutputfile;
     }
+
+    public VerilogModule getVerilogModule() {
+        return module;
+    }
 }

@@ -1,5 +1,7 @@
 package de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model;
 
+import java.util.HashMap;
+
 /*
  * Copyright (C) 2016 Norman Kluge
  * 
@@ -19,29 +21,45 @@ package de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model;
  * along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Map;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class VerilogModuleInstance {
+    private static final Logger                         logger = LogManager.getLogger();
 
-    private VerilogModule                module;
-    private Set<VerilogModuleConnection> connections;
+    private VerilogModule                               module;
+    private Map<VerilogSignal, VerilogModuleConnection> connections;
 
     public VerilogModuleInstance(VerilogModule module) {
         this.module = module;
-        this.module.addSubmodule(this);
-        this.connections = new HashSet<>();
+        this.connections = new HashMap<>();
     }
 
-    public boolean addConnection(VerilogModuleConnection con) {
-        return connections.add(con);
+    public boolean addConnection(VerilogModuleConnection con, VerilogSignal sig) {
+        if(!this.module.getSignals().values().contains(sig)) {
+            logger.error("Signal is not part of module!");
+            return false;
+        }
+        this.connections.put(sig, con);
+        return true;
     }
 
-    public Set<VerilogModuleConnection> getConnections() {
-        return connections;
+    public VerilogModuleConnection getConnection(VerilogSignal sig) {
+        return connections.get(sig);
     }
 
     public VerilogModule getModule() {
         return module;
+    }
+
+    public Map<VerilogSignal, VerilogModuleConnection> getConnections() {
+        return connections;
+    }
+
+    @Override
+    public String toString() {
+        return "ModInst:" + module.getModulename();
     }
 }

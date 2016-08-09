@@ -31,20 +31,20 @@ import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogSignal;
 public class PortHelper {
     private static final Logger logger = LogManager.getLogger();
 
-    public static String getPortListAsString(List<Port> ports, Integer eachid, Map<String, VerilogSignal> vars, String instance) {
+    public static String getPortListAsDCString(List<Port> ports, Integer eachid, Map<String, VerilogSignal> vars, String instance) {
         StringBuilder str = new StringBuilder();
         for(Port p : ports) {
-            str.append(getPortAsString(p, eachid, vars, instance) + " ");
+            str.append(getPortAsDCString(p, eachid, vars, instance) + " ");
         }
         str.setLength(str.length() - 1);
         return str.toString();
     }
 
-    public static String getPortListAsString(List<Port> ports, Integer eachid, Map<String, VerilogSignal> vars) {
-        return getPortListAsString(ports, eachid, vars, null);
+    public static String getPortListAsDCString(List<Port> ports, Integer eachid, Map<String, VerilogSignal> vars) {
+        return getPortListAsDCString(ports, eachid, vars, null);
     }
 
-    private static String getPortAsString(Port p, Integer eachid, Map<String, VerilogSignal> vars, String instance) {
+    private static String getPortAsDCString(Port p, Integer eachid, Map<String, VerilogSignal> vars, String instance) {
         int id = (p.getId().isEach()) ? eachid : p.getId().getId();
         String type = null;
         switch(p.getType()) {

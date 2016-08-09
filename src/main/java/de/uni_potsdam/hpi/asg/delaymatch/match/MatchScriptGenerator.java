@@ -137,13 +137,13 @@ public class MatchScriptGenerator extends AbstractScriptGenerator {
     }
 
     private List<String> generateMatch(DelayMatchModule plan, MatchPath path, Integer eachid, Float value) {
-        String from = PortHelper.getPortListAsString(path.getMatch().getFrom(), eachid, plan.getSignals());
-        String to = PortHelper.getPortListAsString(path.getMatch().getTo(), eachid, plan.getSignals());
+        String from = PortHelper.getPortListAsDCString(path.getMatch().getFrom(), eachid, plan.getSignals());
+        String to = PortHelper.getPortListAsDCString(path.getMatch().getTo(), eachid, plan.getSignals());
         return generateSetDelayTcl(plan.getName(), from, to, value.toString());
     }
 
     private List<String> generateDontTouch(DelayMatchModule plan, MatchPath path, Integer eachid) {
-        String touch = PortHelper.getPortListAsString(path.getMeasure().getFrom(), eachid, plan.getSignals());
+        String touch = PortHelper.getPortListAsDCString(path.getMeasure().getFrom(), eachid, plan.getSignals());
         return generatSetTouchTcl(plan.getName(), touch);
     }
 

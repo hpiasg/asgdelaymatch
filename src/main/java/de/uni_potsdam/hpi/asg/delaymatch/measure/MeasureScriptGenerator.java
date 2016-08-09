@@ -27,11 +27,13 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import de.uni_potsdam.hpi.asg.common.breeze.model.Signal;
 import de.uni_potsdam.hpi.asg.common.io.FileHelper;
 import de.uni_potsdam.hpi.asg.common.io.WorkingdirGenerator;
 import de.uni_potsdam.hpi.asg.delaymatch.helper.AbstractScriptGenerator;
@@ -39,6 +41,11 @@ import de.uni_potsdam.hpi.asg.delaymatch.helper.PortHelper;
 import de.uni_potsdam.hpi.asg.delaymatch.misc.DelayMatchModule;
 import de.uni_potsdam.hpi.asg.delaymatch.profile.MatchPath;
 import de.uni_potsdam.hpi.asg.delaymatch.profile.Path;
+import de.uni_potsdam.hpi.asg.delaymatch.profile.Port;
+import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogModuleConnection;
+import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogModuleInstance;
+import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogSignal;
+import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogSignal.Direction;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogSignalGroup;
 
 public class MeasureScriptGenerator extends AbstractScriptGenerator {
@@ -91,6 +98,7 @@ public class MeasureScriptGenerator extends AbstractScriptGenerator {
         String dctclfile = localfolder + name + dc_tcl_file;
         List<String> tclfilecontent = new ArrayList<>();
         tclfilecontent.addAll(generateSetupTcl());
+        List<String> adv = new ArrayList<>();
         for(DelayMatchModule mod : modules) {
             tclfilecontent.addAll(generateElabTcl(mod.getName()));
             for(MatchPath path : mod.getProfilecomp().getMatchpaths()) {
@@ -107,9 +115,48 @@ public class MeasureScriptGenerator extends AbstractScriptGenerator {
                 } else {
                     addMeasure(tclfilecontent, mod, path.getMeasure(), null);
                 }
+
+                //Test: advanced
+//                if(mod.getName().startsWith("ResynCallMux")) {
+                System.out.println("----------");
+                System.out.println(mod.getName());
+                System.out.println("----------");
+                Set<VerilogSignal> sigs = new HashSet<>();
+                for(Port p : path.getMatch().getTo()) {
+                    sigs.addAll(p.getCorrespondingSignals(mod.getVerilogModule()));
+                }
+                for(VerilogModuleInstance inst : mod.getVerilogModule().getInstances()) {
+                    for(VerilogSignal sig : sigs) {
+                        VerilogModuleConnection con = inst.getConnections().get(sig);
+                        if(con == null) {
+                            return false;
+                        }
+                        Map<VerilogModuleInstance, VerilogSignal> others = con.getReader();
+                        if(others == null) {
+                            return false;
+                        }
+                        for(Entry<VerilogModuleInstance, VerilogSignal> otherinst : others.entrySet()) {
+                            System.out.println(otherinst.getKey().getModule().getModulename());
+                            System.out.println("in: " + otherinst.getValue().getName());
+                            String to = null;
+                            for(VerilogSignal sig2 : otherinst.getKey().getModule().getSignals().values()) {
+                                if(sig2.getDirection() == Direction.output) {
+                                    to = sig2.getName();
+                                    System.out.println("out: " + sig2.getName());
+                                }
+                            }
+                            adv.addAll(generateElabTcl(otherinst.getKey().getModule().getModulename()));
+                            adv.addAll(generateMeasureTcl(otherinst.getKey().getModule().getModulename(), otherinst.getValue().getName(), to));
+                        }
+                    }
+                }
+//                }
+                //End-Test: advanced
             }
             mod.setMeasureOutputfile(name + "_" + mod.getName() + dc_log_file);
         }
+        //Test:adv
+        tclfilecontent.addAll(adv);
         tclfilecontent.addAll(generateFinalTcl());
 
         if(!FileHelper.getInstance().writeFile(new File(dctclfile), tclfilecontent)) {
@@ -120,8 +167,8 @@ public class MeasureScriptGenerator extends AbstractScriptGenerator {
     }
 
     private void addMeasure(List<String> tclfilecontent, DelayMatchModule mod, Path measure, Integer eachid) {
-        String from = PortHelper.getPortListAsString(measure.getFrom(), eachid, mod.getSignals());
-        String to = PortHelper.getPortListAsString(measure.getTo(), eachid, mod.getSignals());
+        String from = PortHelper.getPortListAsDCString(measure.getFrom(), eachid, mod.getSignals());
+        String to = PortHelper.getPortListAsDCString(measure.getTo(), eachid, mod.getSignals());
         tclfilecontent.addAll(generateMeasureTcl(mod.getName(), from, to));
         mod.addPath("from:" + from + ";to:" + to, measure);
     }

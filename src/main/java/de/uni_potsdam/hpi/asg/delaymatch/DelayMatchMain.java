@@ -93,6 +93,7 @@ public class DelayMatchMain {
 
         VerilogParser vparser = new VerilogParser();
         VerilogModule rootModule = vparser.parseVerilogStructure(options.getVfile());
+//        new VerilogGraph(rootModule, true, null);
 
         EligibleModuleFinder find = new EligibleModuleFinder(comps);
         Set<DelayMatchModule> modules = find.find(vparser.getModules());
@@ -106,15 +107,15 @@ public class DelayMatchMain {
             return 1;
         }
 
-        logger.info("Match phase");
-        MatchMain mamain = new MatchMain(rinfo, modules);
-        if(!mamain.match(options.getVfile())) {
-            return 1;
-        }
-
-        if(!FileHelper.getInstance().copyfile(mamain.getMatchedfilename(), options.getOutfile())) {
-            return 1;
-        }
+//        logger.info("Match phase");
+//        MatchMain mamain = new MatchMain(rinfo, modules);
+//        if(!mamain.match(options.getVfile())) {
+//            return 1;
+//        }
+//
+//        if(!FileHelper.getInstance().copyfile(mamain.getMatchedfilename(), options.getOutfile())) {
+//            return 1;
+//        }
 
         return 0;
     }

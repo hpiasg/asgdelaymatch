@@ -24,7 +24,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class VerilogModule {
+    private static final Logger                         logger = LogManager.getLogger();
 
     private String                                      modulename;
     private List<String>                                code;
@@ -49,15 +53,30 @@ public class VerilogModule {
         return this.submodules.add(submodule);
     }
 
-    public VerilogModuleConnection getConnection(VerilogSignal sig) {
-        if(!connections.containsKey(sig)) {
-            connections.put(sig, new VerilogModuleConnection(this, sig));
+    public boolean addConnection(VerilogModuleConnection con, VerilogSignal sig) {
+        if(!this.signals.values().contains(sig)) {
+            logger.error("Signal is not part of module!");
+            return false;
         }
+        this.connections.put(sig, con);
+        return true;
+    }
+
+    public VerilogModuleConnection getConnection(VerilogSignal sig) {
         return connections.get(sig);
     }
 
+//    public VerilogModuleConnection getConnectionOrCreate(VerilogSignal sig) {
+//        if(!connections.containsKey(sig)) {
+//            connections.put(sig, new VerilogModuleConnection(this, sig));
+//        }
+//        return connections.get(sig);
+//    }
+
     public VerilogModuleInstance getNewInstance() {
-        return new VerilogModuleInstance(this);
+        VerilogModuleInstance inst = new VerilogModuleInstance(this);
+        this.instances.add(inst);
+        return inst;
     }
 
     public VerilogSignal getSignal(String name) {
@@ -82,5 +101,14 @@ public class VerilogModule {
 
     public List<VerilogModuleInstance> getSubmodules() {
         return submodules;
+    }
+
+    public List<VerilogModuleInstance> getInstances() {
+        return instances;
+    }
+
+    @Override
+    public String toString() {
+        return "Mod:" + modulename;
     }
 }

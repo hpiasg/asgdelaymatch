@@ -1,5 +1,8 @@
 package de.uni_potsdam.hpi.asg.delaymatch.profile;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /*
  * Copyright (C) 2016 Norman Kluge
  * 
@@ -22,6 +25,10 @@ package de.uni_potsdam.hpi.asg.delaymatch.profile;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
+
+import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogModule;
+import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogSignal;
+import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogSignalGroup;
 
 @XmlAccessorType(XmlAccessType.NONE)
 public class Port {
@@ -55,6 +62,36 @@ public class Port {
 
     public Bit getBit() {
         return bit;
+    }
+
+    public Set<VerilogSignal> getCorrespondingSignals(VerilogModule mod) {
+        Set<VerilogSignal> retVal = new HashSet<>();
+        VerilogSignalGroup group = mod.getSignalGroups().get(name);
+        if(group == null) {
+            return null;
+        }
+
+        if(id.isEach()) {
+            for(int i = 0; i < group.getCount(); i++) {
+                retVal.add(mod.getSignal(name + "_" + i + typeString()));
+            }
+        } else {
+            retVal.add(mod.getSignal(name + "_" + id.getId() + typeString()));
+        }
+
+        return retVal;
+    }
+
+    private String typeString() {
+        switch(type) {
+            case ack:
+                return "a";
+            case data:
+                return "d";
+            case req:
+                return "r";
+        }
+        return "";
     }
 
     @Override

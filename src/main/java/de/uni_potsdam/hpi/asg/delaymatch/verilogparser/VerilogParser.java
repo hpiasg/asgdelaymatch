@@ -157,10 +157,14 @@ public class VerilogParser {
                 if(parserMap.containsKey(tinst.getModuleName())) {
                     VerilogModule submodule = modules.get(tinst.getModuleName());
                     VerilogModuleInstance submoduleinst = submodule.getNewInstance();
+                    module.addSubmodule(submoduleinst);
                     for(VerilogModuleInstanceConnectionTemp tcon : tinst.getInterfaceSignals()) {
                         VerilogSignal moduleSignal = tcon.getLocalSig();
                         VerilogSignal submoduleSignal = submodule.getSignal(tcon.getModuleSigName());
-                        VerilogModuleConnection con = module.getConnection(moduleSignal);
+                        VerilogModuleConnection con = null;
+                        if((con = module.getConnection(moduleSignal)) == null) {
+                            con = new VerilogModuleConnection(module, moduleSignal);
+                        }
                         switch(moduleSignal.getDirection()) {
                             case input:
                                 switch(submoduleSignal.getDirection()) {
