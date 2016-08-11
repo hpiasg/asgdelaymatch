@@ -31,6 +31,7 @@ public class VerilogModule {
     private static final Logger                         logger = LogManager.getLogger();
 
     private String                                      modulename;
+    private List<VerilogSignal>                         interfaceSignals;
     private List<String>                                code;
     private Map<String, VerilogSignal>                  signals;
     private Map<String, VerilogSignalGroup>             signalgroups;
@@ -39,8 +40,9 @@ public class VerilogModule {
     private Map<VerilogSignal, VerilogModuleConnection> connections;
     private List<VerilogModuleInstance>                 instances;
 
-    public VerilogModule(String modulename, List<String> code, Map<String, VerilogSignal> signals, Map<String, VerilogSignalGroup> signalgroups) {
+    public VerilogModule(String modulename, List<VerilogSignal> interfaceSignals, List<String> code, Map<String, VerilogSignal> signals, Map<String, VerilogSignalGroup> signalgroups) {
         this.modulename = modulename;
+        this.interfaceSignals = interfaceSignals;
         this.code = code;
         this.signals = signals;
         this.signalgroups = signalgroups;
@@ -81,6 +83,10 @@ public class VerilogModule {
 
     public VerilogSignal getSignal(String name) {
         return signals.get(name);
+    }
+
+    public VerilogSignal getSignal(Integer pos) {
+        return interfaceSignals.get(pos);
     }
 
     public Map<String, VerilogSignal> getSignals() {

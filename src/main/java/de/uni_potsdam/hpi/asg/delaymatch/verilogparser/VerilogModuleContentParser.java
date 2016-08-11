@@ -77,9 +77,11 @@ public class VerilogModuleContentParser {
             String instancename = m.group(2);
             List<VerilogModuleInstanceConnectionTemp> interfaceSignals = new ArrayList<>();
             String[] splitsig = m.group(3).split(",");
+            int id = 0;
             for(String str : splitsig) {
                 m2 = mappedPositionPattern.matcher(str.trim());
                 if(m2.matches()) {
+                    // mapped
                     String moduleSigName = m2.group(1);
                     String localSigName = m2.group(2).trim();
                     localSigName = localSigName.replaceAll("\\[.*\\]", ""); //TODO: ??
@@ -89,9 +91,16 @@ public class VerilogModuleContentParser {
                     }
                     interfaceSignals.add(new VerilogModuleInstanceConnectionTemp(signals.get(localSigName), moduleSigName));
                 } else {
-                    logger.warn("Positional mapping not yet implemented");
-                    return false;
+                    // positional
+                    String localSigName = str.trim();
+                    localSigName = localSigName.replaceAll("\\[.*\\]", ""); //TODO: ??
+                    if(!signals.containsKey(localSigName)) {
+                        logger.error("Signal " + localSigName + " not found");
+                        return false;
+                    }
+                    interfaceSignals.add(new VerilogModuleInstanceConnectionTemp(signals.get(localSigName), id));
                 }
+                id++;
             }
             this.instances.add(new VerilogModuleInstanceTemp(modulename, instancename, interfaceSignals));
         }
@@ -210,5 +219,17 @@ public class VerilogModuleContentParser {
 
     public Map<String, VerilogSignalGroup> getSignalGroups() {
         return signalgroups;
+    }
+
+    public List<VerilogSignal> getInterface() {
+        List<VerilogSignal> retVal = new ArrayList<>();
+        for(String str : interfaceSignalNames) {
+            if(!signals.containsKey(str)) {
+                logger.error("Signal " + str + " not found");
+                return null;
+            }
+            retVal.add(signals.get(str));
+        }
+        return retVal;
     }
 }

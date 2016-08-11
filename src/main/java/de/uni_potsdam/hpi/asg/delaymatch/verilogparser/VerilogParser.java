@@ -73,6 +73,9 @@ public class VerilogParser {
 
         while((line = linequeue.poll()) != null) {
             do {
+                if(line.contains("//")) {
+                    line = line.substring(0, line.indexOf("//"));
+                }
                 m = linepattern.matcher(line);
                 if(m.matches()) {
                     break;
@@ -148,7 +151,8 @@ public class VerilogParser {
         modules = new HashMap<>();
         for(Entry<String, VerilogModuleContentParser> entry : parserMap.entrySet()) {
             String modulename = entry.getKey();
-            VerilogModule mod = new VerilogModule(modulename, linesMap.get(modulename), entry.getValue().getSignals(), entry.getValue().getSignalGroups());
+            VerilogModuleContentParser parser = entry.getValue();
+            VerilogModule mod = new VerilogModule(modulename, parser.getInterface(), linesMap.get(modulename), parser.getSignals(), parser.getSignalGroups());
             modules.put(modulename, mod);
             if(modulename.equals(rootModuleName)) {
                 rootModule = mod;
@@ -164,7 +168,11 @@ public class VerilogParser {
                     module.addSubmodule(submoduleinst);
                     for(VerilogModuleInstanceConnectionTemp tcon : tinst.getInterfaceSignals()) {
                         VerilogSignal moduleSignal = tcon.getLocalSig();
-                        VerilogSignal submoduleSignal = submodule.getSignal(tcon.getModuleSigName());
+                        VerilogSignal submoduleSignal = getSubModuleSignal(submodule, tcon);
+                        if(submoduleSignal == null) {
+                            return false;
+                        }
+
                         VerilogModuleConnection con = null;
                         if((con = module.getConnection(moduleSignal)) == null) {
                             con = new VerilogModuleConnection(module, moduleSignal);
@@ -216,6 +224,18 @@ public class VerilogParser {
             }
         }
         return true;
+    }
+
+    private VerilogSignal getSubModuleSignal(VerilogModule submodule, VerilogModuleInstanceConnectionTemp tcon) {
+        if(tcon.getModuleSigName() != null) {
+            return submodule.getSignal(tcon.getModuleSigName());
+        } else if(tcon.getModuleSigPos() != null) {
+//            System.out.println(tcon.getModuleSigPos() + " (" + submodule + ") = " + submodule.getSignal(tcon.getModuleSigPos()));
+            return submodule.getSignal(tcon.getModuleSigPos());
+        } else {
+            logger.error("Position and name are null");
+            return null;
+        }
     }
 
     public Map<String, VerilogModule> getModules() {

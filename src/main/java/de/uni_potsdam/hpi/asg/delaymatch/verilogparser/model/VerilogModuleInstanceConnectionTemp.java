@@ -23,10 +23,18 @@ public class VerilogModuleInstanceConnectionTemp {
 
     private VerilogSignal localSig;
     private String        moduleSigName;
+    private Integer       moduleSigPos;
+
+    public VerilogModuleInstanceConnectionTemp(VerilogSignal localSig, Integer moduleSigPos) {
+        this.localSig = localSig;
+        this.moduleSigName = null;
+        this.moduleSigPos = moduleSigPos;
+    }
 
     public VerilogModuleInstanceConnectionTemp(VerilogSignal localSig, String moduleSigName) {
         this.localSig = localSig;
         this.moduleSigName = moduleSigName;
+        this.moduleSigPos = null;
     }
 
     public VerilogSignal getLocalSig() {
@@ -35,5 +43,9 @@ public class VerilogModuleInstanceConnectionTemp {
 
     public String getModuleSigName() {
         return moduleSigName;
+    }
+
+    public Integer getModuleSigPos() {
+        return moduleSigPos;
     }
 }
