@@ -50,6 +50,9 @@ public class DelayMatchCommandlineOptions extends CommandlineOptions {
     private File profilefile = null;
     @Option(name = "-out", metaVar = "<outfile>", usage = "Outfile", required = true)
     private File outfile = null;
+    
+    @Option(name = "-adv", usage = "Use advanced delay matching")
+    private boolean advanced = false;
 
     @Argument(metaVar = "Verilog File", required = true)
     private File vfile;
@@ -93,5 +96,9 @@ public class DelayMatchCommandlineOptions extends CommandlineOptions {
 
     public File getOutfile() {
         return outfile;
+    }
+
+    public boolean isAdvanced() {
+        return advanced;
     }
 }

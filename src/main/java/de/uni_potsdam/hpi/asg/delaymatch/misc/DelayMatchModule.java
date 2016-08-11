@@ -1,5 +1,7 @@
 package de.uni_potsdam.hpi.asg.delaymatch.misc;
 
+import java.util.ArrayList;
+
 /*
  * Copyright (C) 2016 Norman Kluge
  * 
@@ -20,7 +22,9 @@ package de.uni_potsdam.hpi.asg.delaymatch.misc;
  */
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import de.uni_potsdam.hpi.asg.delaymatch.profile.Path;
 import de.uni_potsdam.hpi.asg.delaymatch.profile.ProfileComponent;
@@ -30,36 +34,73 @@ import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogSignalGroup;
 
 public class DelayMatchModule {
 
-    private VerilogModule      module;
-    private ProfileComponent   profilecomp;
-    private String             measureOutputfile;
-    private Map<String, Float> values;
-    private Map<Path, String>  ids;
+    private VerilogModule                            module;
+    private ProfileComponent                         profilecomp;
+    private String                                   measureOutputfile;
+    private Map<String, Float>                       values;
+    private Map<Path, String>                        measureids;
+    private Map<Path, Map<String, DelayMatchModule>> negids;
+    private List<String>                             measuretcl;
 
     public DelayMatchModule(VerilogModule module, ProfileComponent profilecomp) {
         this.module = module;
         this.profilecomp = profilecomp;
         this.values = new HashMap<>();
-        this.ids = new HashMap<>();
+        this.measureids = new HashMap<>();
+        this.negids = new HashMap<>();
     }
 
     public void addValue(String id, Float value) {
         this.values.put(id, value);
     }
 
-    public void addPath(String id, Path p) {
-        this.ids.put(p, id);
+    public Float getValue(String id) {
+        return values.get(id);
     }
 
-    public Float getValue(Path p) {
-        if(!ids.containsKey(p)) {
+    public void addMeasurePath(String id, Path p) {
+        this.measureids.put(p, id);
+    }
+
+    public Float getMeasureValue(Path p) {
+        if(!measureids.containsKey(p)) {
             return null;
         }
-        String id = ids.get(p);
+        String id = measureids.get(p);
         if(!values.containsKey(id)) {
             return null;
         }
         return values.get(id);
+    }
+
+    public void addNegativeMatchPath(Path p, String id, DelayMatchModule module) {
+        if(!negids.containsKey(p)) {
+            negids.put(p, new HashMap<String, DelayMatchModule>());
+        }
+        negids.get(p).put(id, module);
+    }
+
+    public List<Float> getNegativeMatchValues(Path p) {
+        if(!negids.containsKey(p)) {
+            return null;
+        }
+        List<Float> retVal = new ArrayList<>();
+        Map<String, DelayMatchModule> map = negids.get(p);
+        for(Entry<String, DelayMatchModule> entry : map.entrySet()) {
+            Float val = entry.getValue().getValue(entry.getKey());
+            if(val == null) {
+                return null;
+            }
+            retVal.add(val);
+        }
+        return retVal;
+    }
+
+    public void addMeasureTclLines(List<String> lines) {
+        if(measuretcl == null) {
+            measuretcl = new ArrayList<>();
+        }
+        measuretcl.addAll(lines);
     }
 
     public String getName() {
@@ -88,5 +129,9 @@ public class DelayMatchModule {
 
     public VerilogModule getVerilogModule() {
         return module;
+    }
+
+    public List<String> getMeasuretcl() {
+        return measuretcl;
     }
 }

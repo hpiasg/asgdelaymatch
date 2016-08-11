@@ -49,11 +49,16 @@ public class VerilogParser {
     private static final Pattern       linepattern      = Pattern.compile("^.*;$");
 
     private Map<String, VerilogModule> modules;
+    private VerilogModule              rootModule;
 
-    public VerilogModule parseVerilogStructure(File vfile) {
+    public VerilogParser() {
+        rootModule = null;
+    }
+
+    public boolean parseVerilogStructure(File vfile) {
         List<String> lines = FileHelper.getInstance().readFile(vfile);
         if(lines == null) {
-            return null;
+            return false;
         }
         Matcher m = null;
         Queue<String> linequeue = new LinkedList<>(lines);
@@ -84,7 +89,7 @@ public class VerilogParser {
                 String tmp = linequeue.poll();
                 if(tmp == null) {
                     logger.error("no ; but null: #" + line + "#");
-                    return null;
+                    return false;
                 }
                 line = line + tmp;
             } while(true);
@@ -140,7 +145,6 @@ public class VerilogParser {
 //            }
 //        }
 
-        VerilogModule rootModule = null;
         modules = new HashMap<>();
         for(Entry<String, VerilogModuleContentParser> entry : parserMap.entrySet()) {
             String modulename = entry.getKey();
@@ -173,23 +177,23 @@ public class VerilogParser {
                                         break;
                                     case output:
                                         logger.error("fail inp out");
-                                        return null;
+                                        return false;
                                     case wire:
                                         logger.error("fail sub wire");
-                                        return null;
+                                        return false;
                                 }
                                 break;
                             case output:
                                 switch(submoduleSignal.getDirection()) {
                                     case input:
                                         logger.error("fail out inp");
-                                        return null;
+                                        return false;
                                     case output:
                                         con.setWriter(submoduleinst, submoduleSignal);
                                         break;
                                     case wire:
                                         logger.error("fail sub wire");
-                                        return null;
+                                        return false;
                                 }
                                 break;
                             case wire:
@@ -202,7 +206,7 @@ public class VerilogParser {
                                         break;
                                     case wire:
                                         logger.error("fail sub wire");
-                                        return null;
+                                        return false;
                                 }
                                 break;
                         }
@@ -211,10 +215,14 @@ public class VerilogParser {
                 }
             }
         }
-        return rootModule;
+        return true;
     }
 
     public Map<String, VerilogModule> getModules() {
         return modules;
+    }
+
+    public VerilogModule getRootModule() {
+        return rootModule;
     }
 }

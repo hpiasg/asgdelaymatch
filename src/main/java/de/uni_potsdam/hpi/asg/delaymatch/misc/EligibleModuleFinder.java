@@ -1,5 +1,7 @@
 package de.uni_potsdam.hpi.asg.delaymatch.misc;
 
+import java.util.HashMap;
+
 /*
  * Copyright (C) 2016 Norman Kluge
  * 
@@ -19,9 +21,7 @@ package de.uni_potsdam.hpi.asg.delaymatch.misc;
  * along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import de.uni_potsdam.hpi.asg.delaymatch.profile.ProfileComponent;
 import de.uni_potsdam.hpi.asg.delaymatch.profile.ProfileComponents;
@@ -35,14 +35,14 @@ public class EligibleModuleFinder {
         this.comps = comps;
     }
 
-    public Set<DelayMatchModule> find(Map<String, VerilogModule> modules) {
-        Set<DelayMatchModule> plans = new HashSet<>();
+    public Map<String, DelayMatchModule> find(Map<String, VerilogModule> modules) {
+        Map<String, DelayMatchModule> retVal = new HashMap<>();
         for(VerilogModule module : modules.values()) {
             ProfileComponent pc = comps.getComponentByRegex(module.getModulename());
-            if(pc != null) {
-                plans.add(new DelayMatchModule(module, pc));
-            }
+//            if(pc != null) {
+            retVal.put(module.getModulename(), new DelayMatchModule(module, pc));
+//            }
         }
-        return plans;
+        return retVal;
     }
 }

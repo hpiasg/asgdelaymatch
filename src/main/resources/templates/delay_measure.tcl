@@ -20,14 +20,23 @@ if {$rvs == 0} {
 }
 #+elab_end+#
 
-#+measure_begin+#
+#+measure_max_begin+#
 redirect -append #*dc_sub_log*# {
 	set rvs [report_timing -from { #*from_sub*# } -to { #*to_sub*# } -path full -delay max -nworst 1 -max_paths 1 -significant_digits 5 -sort_by group]
 }
 if {$rvs == 0} {
 	echo "report_timing_fail #*root_sub*# from: { #*from_sub*# } to: { #*to_sub*# }"
 }
-#+measure_end+#
+#+measure_max_end+#
+
+#+measure_min_begin+#
+redirect -append #*dc_sub_log*# {
+	set rvs [report_timing -rise_from { #*from_sub*# } -to { #*to_sub*# } -path full -delay min -nworst 1 -max_paths 1 -significant_digits 5 -sort_by group]
+}
+if {$rvs == 0} {
+	echo "report_timing_fail #*root_sub*# from: { #*from_sub*# } to: { #*to_sub*# }"
+}
+#+measure_min_end+#
 
 #+final_begin+#
 exit 2

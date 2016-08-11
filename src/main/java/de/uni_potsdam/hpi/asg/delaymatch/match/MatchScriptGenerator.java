@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -68,9 +69,9 @@ public class MatchScriptGenerator extends AbstractScriptGenerator {
     private String                           localfolder;
     private String                           root;
 
-    private Set<DelayMatchModule>            modules;
+    private Map<String, DelayMatchModule>    modules;
 
-    public static MatchScriptGenerator create(File arg_origfile, Set<DelayMatchModule> modules) {
+    public static MatchScriptGenerator create(File arg_origfile, Map<String, DelayMatchModule> modules) {
         if(templates == null) {
             templates = readTemplateCodeSnippets(dc_tcl_templatefile, new String[]{"setup", "elab", "setdelay", "settouch", "compile", "final"});
             if(templates == null) {
@@ -80,7 +81,7 @@ public class MatchScriptGenerator extends AbstractScriptGenerator {
         return new MatchScriptGenerator(arg_origfile, modules);
     }
 
-    private MatchScriptGenerator(File arg_origfile, Set<DelayMatchModule> modules) {
+    private MatchScriptGenerator(File arg_origfile, Map<String, DelayMatchModule> modules) {
         this.modules = modules;
         localfolder = WorkingdirGenerator.getInstance().getWorkingdir();
         localfile = new File(localfolder + arg_origfile);
@@ -98,34 +99,36 @@ public class MatchScriptGenerator extends AbstractScriptGenerator {
         List<String> tclfilecontent = new ArrayList<>();
         tclfilecontent.addAll(generateSetupTcl());
 
-        for(DelayMatchModule mod : modules) {
-            tclfilecontent.addAll(generateElabTcl(mod.getName()));
-            for(MatchPath path : mod.getProfilecomp().getMatchpaths()) {
-                if(path.getForeach() != null) {
-                    VerilogSignalGroup group = mod.getSignalGroups().get(path.getForeach());
-                    if(group == null) {
-                        logger.error("Signal must be group signal!");
-                        return false;
-                    }
-                    int num = group.getCount();
-                    for(int eachid = 0; eachid < num; eachid++) {
-                        Float val = mod.getValue(path.getMeasure());
+        for(DelayMatchModule mod : modules.values()) {
+            if(mod.getProfilecomp() != null) {
+                tclfilecontent.addAll(generateElabTcl(mod.getName()));
+                for(MatchPath path : mod.getProfilecomp().getMatchpaths()) {
+                    if(path.getForeach() != null) {
+                        VerilogSignalGroup group = mod.getSignalGroups().get(path.getForeach());
+                        if(group == null) {
+                            logger.error("Signal must be group signal!");
+                            return false;
+                        }
+                        int num = group.getCount();
+                        for(int eachid = 0; eachid < num; eachid++) {
+                            Float val = computeValue(path, mod);
+                            if(val == null) {
+                                return false;
+                            }
+                            tclfilecontent.addAll(generateMatch(mod, path, eachid, val));
+                            tclfilecontent.addAll(generateDontTouch(mod, path, eachid));
+                        }
+                    } else {
+                        Float val = computeValue(path, mod);
                         if(val == null) {
                             return false;
                         }
-                        tclfilecontent.addAll(generateMatch(mod, path, eachid, val));
-                        tclfilecontent.addAll(generateDontTouch(mod, path, eachid));
+                        tclfilecontent.addAll(generateMatch(mod, path, null, val));
+                        tclfilecontent.addAll(generateDontTouch(mod, path, null));
                     }
-                } else {
-                    Float val = mod.getValue(path.getMeasure());
-                    if(val == null) {
-                        return false;
-                    }
-                    tclfilecontent.addAll(generateMatch(mod, path, null, val));
-                    tclfilecontent.addAll(generateDontTouch(mod, path, null));
                 }
+                tclfilecontent.addAll(generatCompileTcl(mod.getName()));
             }
-            tclfilecontent.addAll(generatCompileTcl(mod.getName()));
         }
         tclfilecontent.addAll(generateFinalTcl());
 
@@ -134,6 +137,16 @@ public class MatchScriptGenerator extends AbstractScriptGenerator {
         }
 
         return true;
+    }
+
+    private Float computeValue(MatchPath path, DelayMatchModule mod) {
+        Float val = mod.getMeasureValue(path.getMeasure());
+        List<Float> negvals = mod.getNegativeMatchValues(path.getMatch());
+        if(!negvals.isEmpty()) {
+            Float minnegval = Collections.min(negvals);
+            return val - minnegval;
+        }
+        return val;
     }
 
     private List<String> generateMatch(DelayMatchModule plan, MatchPath path, Integer eachid, Float value) {

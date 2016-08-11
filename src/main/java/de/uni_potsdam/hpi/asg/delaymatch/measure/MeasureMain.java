@@ -23,23 +23,36 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import de.uni_potsdam.hpi.asg.common.io.FileHelper;
 import de.uni_potsdam.hpi.asg.common.io.remote.RemoteInformation;
 import de.uni_potsdam.hpi.asg.delaymatch.misc.DelayMatchModule;
 
 public class MeasureMain {
-    private RemoteInformation   rinfo;
-    private Set<DelayMatchModule> modules;
+    private static final Logger           logger      = LogManager.getLogger();
 
-    public MeasureMain(RemoteInformation rinfo, Set<DelayMatchModule> modules) {
+    private static final Pattern          arrivalTime = Pattern.compile("\\s+data arrival time\\s+([0-9.]+)");
+    private static final Pattern          pathSpec    = Pattern.compile("ASGdm;(.*);");
+
+    private RemoteInformation             rinfo;
+    private Map<String, DelayMatchModule> modules;
+    private boolean                       advanced;
+
+    public MeasureMain(RemoteInformation rinfo, Map<String, DelayMatchModule> modules, boolean advanced) {
         this.rinfo = rinfo;
         this.modules = modules;
+        this.advanced = advanced;
     }
 
     public boolean measure(File vfile) {
-
-        MeasureScriptGenerator gen = MeasureScriptGenerator.create(vfile, modules);
+        MeasureScriptGenerator gen = MeasureScriptGenerator.create(vfile, modules, advanced);
         if(!gen.generate()) {
             return false;
         }
@@ -52,6 +65,40 @@ public class MeasureMain {
             return false;
         }
 
+        if(!parseValues()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean parseValues() {
+        for(DelayMatchModule mod : modules.values()) {
+            if(mod.getMeasureOutputfile() != null) {
+                List<String> lines = FileHelper.getInstance().readFile(mod.getMeasureOutputfile());
+                if(lines == null) {
+                    return false;
+                }
+                Matcher m = null;
+                String currSpec = null;
+                for(String line : lines) {
+                    m = pathSpec.matcher(line);
+                    if(m.matches()) {
+                        currSpec = m.group(1);
+                        continue;
+                    }
+                    m = arrivalTime.matcher(line);
+                    if(m.matches()) {
+                        if(currSpec == null) {
+                            logger.error("No spec?");
+                            return false;
+                        }
+                        mod.addValue(currSpec, Float.parseFloat(m.group(1)));
+                        currSpec = null;
+                    }
+                }
+            }
+        }
         return true;
     }
 

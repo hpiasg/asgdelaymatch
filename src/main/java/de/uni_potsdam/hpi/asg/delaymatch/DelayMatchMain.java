@@ -20,7 +20,7 @@ package de.uni_potsdam.hpi.asg.delaymatch;
  */
 
 import java.util.Arrays;
-import java.util.Set;
+import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
 
@@ -37,7 +37,6 @@ import de.uni_potsdam.hpi.asg.delaymatch.misc.DelayMatchModule;
 import de.uni_potsdam.hpi.asg.delaymatch.misc.EligibleModuleFinder;
 import de.uni_potsdam.hpi.asg.delaymatch.profile.ProfileComponents;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.VerilogParser;
-import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogModule;
 
 public class DelayMatchMain {
     private static Logger                       logger;
@@ -92,30 +91,34 @@ public class DelayMatchMain {
         RemoteInformation rinfo = new RemoteInformation(rinv.hostname, rinv.username, rinv.password, rinv.workingdir);
 
         VerilogParser vparser = new VerilogParser();
-        VerilogModule rootModule = vparser.parseVerilogStructure(options.getVfile());
+        if(!vparser.parseVerilogStructure(options.getVfile())) {
+            return 1;
+        }
+
+//        VerilogModule rootModule = vparser.getRootModule();
 //        new VerilogGraph(rootModule, true, null);
 
         EligibleModuleFinder find = new EligibleModuleFinder(comps);
-        Set<DelayMatchModule> modules = find.find(vparser.getModules());
+        Map<String, DelayMatchModule> modules = find.find(vparser.getModules());
         if(modules == null) {
             return 1;
         }
 
         logger.info("Measure phase");
-        MeasureMain memain = new MeasureMain(rinfo, modules);
+        MeasureMain memain = new MeasureMain(rinfo, modules, options.isAdvanced());
         if(!memain.measure(options.getVfile())) {
             return 1;
         }
 
-//        logger.info("Match phase");
-//        MatchMain mamain = new MatchMain(rinfo, modules);
-//        if(!mamain.match(options.getVfile())) {
-//            return 1;
-//        }
-//
-//        if(!FileHelper.getInstance().copyfile(mamain.getMatchedfilename(), options.getOutfile())) {
-//            return 1;
-//        }
+        logger.info("Match phase");
+        MatchMain mamain = new MatchMain(rinfo, modules);
+        if(!mamain.match(options.getVfile())) {
+            return 1;
+        }
+
+        if(!FileHelper.getInstance().copyfile(mamain.getMatchedfilename(), options.getOutfile())) {
+            return 1;
+        }
 
         return 0;
     }
