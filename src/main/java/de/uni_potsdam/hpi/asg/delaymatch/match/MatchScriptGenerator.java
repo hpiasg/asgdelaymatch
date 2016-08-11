@@ -142,7 +142,7 @@ public class MatchScriptGenerator extends AbstractScriptGenerator {
     private Float computeValue(MatchPath path, DelayMatchModule mod) {
         Float val = mod.getMeasureValue(path.getMeasure());
         List<Float> negvals = mod.getNegativeMatchValues(path.getMatch());
-        if(!negvals.isEmpty()) {
+        if(negvals != null && !negvals.isEmpty()) {
             Float minnegval = Collections.min(negvals);
             return val - minnegval;
         }
