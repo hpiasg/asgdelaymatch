@@ -23,7 +23,13 @@ if {$rvs == 0} {
 
 #+setdelay_begin+#
 redirect -append #*dc_sub_log*# {
-	set rvs [set_min_delay -from [get_ports { #*from_sub*# }] -to [get_ports { #*to_sub*# }] #*time_sub*#]
+	set rvs [set_min_delay -from [get_ports { #*from_sub*# }] -to [get_ports { #*to_sub*# }] #*time_min_sub*#]
+}
+if {$rvs == 0} {
+	echo "setdelay_fail #*root_sub*#"
+}
+redirect -append #*dc_sub_log*# {
+	set rvs [set_max_delay -from [get_ports { #*from_sub*# }] -to [get_ports { #*to_sub*# }] #*time_max_sub*#]
 }
 if {$rvs == 0} {
 	echo "setdelay_fail #*root_sub*#"

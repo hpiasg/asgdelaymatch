@@ -43,6 +43,8 @@ public class DelayMatchMain {
     private static DelayMatchCommandlineOptions options;
     public static Config                        config;
 
+    public static float                         matchMaxFactor = 1.1f;
+
     public static void main(String[] args) {
         int status = main2(args);
         System.exit(status);

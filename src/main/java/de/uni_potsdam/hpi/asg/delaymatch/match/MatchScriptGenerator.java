@@ -37,6 +37,7 @@ import org.apache.logging.log4j.Logger;
 
 import de.uni_potsdam.hpi.asg.common.io.FileHelper;
 import de.uni_potsdam.hpi.asg.common.io.WorkingdirGenerator;
+import de.uni_potsdam.hpi.asg.delaymatch.DelayMatchMain;
 import de.uni_potsdam.hpi.asg.delaymatch.helper.AbstractScriptGenerator;
 import de.uni_potsdam.hpi.asg.delaymatch.helper.PortHelper;
 import de.uni_potsdam.hpi.asg.delaymatch.misc.DelayMatchModule;
@@ -152,7 +153,7 @@ public class MatchScriptGenerator extends AbstractScriptGenerator {
     private List<String> generateMatch(DelayMatchModule plan, MatchPath path, Integer eachid, Float value) {
         String from = PortHelper.getPortListAsDCString(path.getMatch().getFrom(), eachid, plan.getSignals());
         String to = PortHelper.getPortListAsDCString(path.getMatch().getTo(), eachid, plan.getSignals());
-        return generateSetDelayTcl(plan.getName(), from, to, value.toString());
+        return generateSetDelayTcl(plan.getName(), from, to, value);
     }
 
     private List<String> generateDontTouch(DelayMatchModule plan, MatchPath path, Integer eachid) {
@@ -206,7 +207,7 @@ public class MatchScriptGenerator extends AbstractScriptGenerator {
         return newlines;
     }
 
-    private List<String> generateSetDelayTcl(String component, String from, String to, String time) {
+    private List<String> generateSetDelayTcl(String component, String from, String to, Float time) {
         if(!templates.containsKey("setdelay")) {
             logger.error("Setdelay template code not found");
             return null;
@@ -217,7 +218,8 @@ public class MatchScriptGenerator extends AbstractScriptGenerator {
             line = line.replace("#*root_sub*#", component);
             line = line.replace("#*from_sub*#", from);
             line = line.replace("#*to_sub*#", to);
-            line = line.replace("#*time_sub*#", time);
+            line = line.replace("#*time_min_sub*#", time.toString());
+            line = line.replace("#*time_max_sub*#", Float.toString(time * DelayMatchMain.matchMaxFactor));
             newlines.add(line);
         }
         return newlines;
