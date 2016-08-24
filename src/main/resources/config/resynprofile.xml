@@ -18,7 +18,7 @@ along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
 <components>
-	<component moduleregex="ResynCallMux\_\d+">
+	<!-- <component moduleregex="ResynCallMux\_\d+">
 		<matchpath foreach="inp">
 			<measure>
 				<from name="inp" id="EACH" type="data" bit="ALL" />
@@ -29,7 +29,7 @@ along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
 				<to name="out" id="0" type="req" />
 			</match>		
 		</matchpath>
-	</component>
+	</component> -->
 	<component moduleregex="ResynBinaryFunc\_\d+">
 		<matchpath>
 			<measure>
