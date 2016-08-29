@@ -1,4 +1,4 @@
-package de.uni_potsdam.hpi.asg.delaymatch.match;
+package de.uni_potsdam.hpi.asg.logictool.trace.tracehelper;
 
 /*
  * Copyright (C) 2016 Norman Kluge
@@ -19,21 +19,24 @@ package de.uni_potsdam.hpi.asg.delaymatch.match;
  * along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import de.uni_potsdam.hpi.asg.common.remote.RemoteInformation;
-import de.uni_potsdam.hpi.asg.common.remote.SimpleRemoteOperationWorkflow;
+import java.util.List;
 
-public class MatchRemoteOperationWorkflow extends SimpleRemoteOperationWorkflow {
+import de.uni_potsdam.hpi.asg.logictool.stg.model.Transition;
 
-    public MatchRemoteOperationWorkflow(RemoteInformation rinfo, String subdir) {
-        super(rinfo, subdir);
+public class Trace {
+
+    private List<Transition> sequence;
+
+    public Trace(List<Transition> sequence) {
+        this.sequence = sequence;
+    }
+
+    public List<Transition> getSequence() {
+        return sequence;
     }
 
     @Override
-    protected boolean executeCallBack(String script, int code) {
-        if(code == 0) {
-            return true;
-        }
-        return false;
+    public String toString() {
+        return sequence.toString();
     }
-
 }

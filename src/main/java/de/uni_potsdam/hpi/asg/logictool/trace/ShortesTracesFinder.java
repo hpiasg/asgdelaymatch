@@ -1,4 +1,4 @@
-package de.uni_potsdam.hpi.asg.logictool.mapping;
+package de.uni_potsdam.hpi.asg.logictool.trace;
 
 /*
  * Copyright (C) 2016 Norman Kluge
@@ -35,27 +35,27 @@ import java.util.TreeSet;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import de.uni_potsdam.hpi.asg.logictool.mapping.seqhelper.IOBehaviour;
-import de.uni_potsdam.hpi.asg.logictool.mapping.seqhelper.IOBehaviourSimulationStep;
-import de.uni_potsdam.hpi.asg.logictool.mapping.seqhelper.IOBehaviourSimulationStepFactory;
-import de.uni_potsdam.hpi.asg.logictool.mapping.seqhelper.IOBehaviourSimulationStepPool;
-import de.uni_potsdam.hpi.asg.logictool.mapping.seqhelper.SequenceFrontCmp;
 import de.uni_potsdam.hpi.asg.logictool.srgraph.State;
 import de.uni_potsdam.hpi.asg.logictool.srgraph.StateGraph;
 import de.uni_potsdam.hpi.asg.logictool.stg.model.Signal;
 import de.uni_potsdam.hpi.asg.logictool.stg.model.Transition;
 import de.uni_potsdam.hpi.asg.logictool.stg.model.Transition.Edge;
+import de.uni_potsdam.hpi.asg.logictool.trace.tracehelper.Trace;
+import de.uni_potsdam.hpi.asg.logictool.trace.tracehelper.TraceCmp;
+import de.uni_potsdam.hpi.asg.logictool.trace.tracehelper.TraceSimulationStep;
+import de.uni_potsdam.hpi.asg.logictool.trace.tracehelper.TraceSimulationStepFactory;
+import de.uni_potsdam.hpi.asg.logictool.trace.tracehelper.TraceSimulationStepPool;
 
-public class ShortSequenceFinder {
+public class ShortesTracesFinder {
     private static final Logger           logger = LogManager.getLogger();
 
     private StateGraph                    origsg;
 
-    private IOBehaviourSimulationStepPool pool;
+    private TraceSimulationStepPool pool;
     private long                          rmSub  = 0;
     private long                          rmFall = 0;
 
-    public ShortSequenceFinder(StateGraph stategraph) {
+    public ShortesTracesFinder(StateGraph stategraph) {
         this.origsg = stategraph;
     }
 
@@ -69,13 +69,13 @@ public class ShortSequenceFinder {
             }
         }
 
-        SortedSet<IOBehaviour> sequences = new TreeSet<>(new SequenceFrontCmp());
-        Deque<IOBehaviourSimulationStep> steps = new ArrayDeque<>();
+        SortedSet<Trace> sequences = new TreeSet<>(new TraceCmp());
+        Deque<TraceSimulationStep> steps = new ArrayDeque<>();
 
-        pool = new IOBehaviourSimulationStepPool(new IOBehaviourSimulationStepFactory());
+        pool = new TraceSimulationStepPool(new TraceSimulationStepFactory());
         pool.setMaxTotal(-1);
 
-        IOBehaviourSimulationStep newStep;
+        TraceSimulationStep newStep;
         for(State s : startStates) {
             try {
                 newStep = pool.borrowObject();
@@ -94,7 +94,7 @@ public class ShortSequenceFinder {
         }
 
 //        long stepsEvaledTotal = 0;
-        IOBehaviourSimulationStep step = null;
+        TraceSimulationStep step = null;
         while(!steps.isEmpty()) {
             step = steps.removeLast();
             getNewSteps(step, endSig, sequences, steps, startStates);
@@ -106,14 +106,14 @@ public class ShortSequenceFinder {
         logger.debug("Pool: " + "Created: " + pool.getCreatedCount() + ", Borrowed: " + pool.getBorrowedCount() + ", Returned: " + pool.getReturnedCount() + ", Active: " + pool.getNumActive() + ", Idle: " + pool.getNumIdle());
         logger.debug("RmSub: " + rmSub + " // RmFall: " + rmFall);
 
-        Queue<IOBehaviour> checkQ = new LinkedList<>();
-        Set<IOBehaviour> tmpSeq = new HashSet<>();
+        Queue<Trace> checkQ = new LinkedList<>();
+        Set<Trace> tmpSeq = new HashSet<>();
         checkQ.addAll(sequences);
-        IOBehaviour check = null;
+        Trace check = null;
         while((check = checkQ.poll()) != null) {
             tmpSeq.clear();
             tmpSeq.addAll(sequences);
-            for(IOBehaviour beh : tmpSeq) {
+            for(Trace beh : tmpSeq) {
                 if(beh == check) {
                     continue;
                 }
@@ -136,7 +136,7 @@ public class ShortSequenceFinder {
         }
 
         List<List<Transition>> sequences2 = new ArrayList<>();
-        for(IOBehaviour beh : sequences) {
+        for(Trace beh : sequences) {
             sequences2.add(beh.getSequence());
         }
 
@@ -156,7 +156,7 @@ public class ShortSequenceFinder {
         return -1;
     }
 
-    private void getNewSteps(IOBehaviourSimulationStep step, Signal sig, Set<IOBehaviour> sequences, Deque<IOBehaviourSimulationStep> newSteps, Set<State> startStates) {
+    private void getNewSteps(TraceSimulationStep step, Signal sig, Set<Trace> sequences, Deque<TraceSimulationStep> newSteps, Set<State> startStates) {
 
         int sum = 0;
         for(State s : startStates) {
@@ -176,14 +176,14 @@ public class ShortSequenceFinder {
         for(Entry<Transition, State> entry : step.getNextState().getNextStates().entrySet()) {
             if(entry.getKey().getSignal() == sig) {
                 List<Transition> seq = new ArrayList<>(step.getSequence());
-                IOBehaviour beh = new IOBehaviour(seq, step.getStart(), step.getNextState());
+                Trace beh = new Trace(seq);
                 sequences.add(beh);
                 pool.returnObject(step);
                 return;
             }
         }
 
-        for(IOBehaviour beh : sequences) {
+        for(Trace beh : sequences) {
             tail.clear();
             tail.addAll(step.getSequence());
             allcovered = true;
@@ -203,7 +203,7 @@ public class ShortSequenceFinder {
         }
 
         for(Entry<Transition, State> entry : step.getNextState().getNextStates().entrySet()) {
-            IOBehaviourSimulationStep newStep;
+            TraceSimulationStep newStep;
             try {
                 newStep = pool.borrowObject();
             } catch(Exception e) {

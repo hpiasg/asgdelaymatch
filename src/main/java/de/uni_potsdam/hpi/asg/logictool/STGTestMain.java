@@ -32,8 +32,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import de.uni_potsdam.hpi.asg.common.io.LoggerHelper;
-import de.uni_potsdam.hpi.asg.logictool.mapping.ShortSequenceFinder;
+import de.uni_potsdam.hpi.asg.common.iohelper.LoggerHelper;
 import de.uni_potsdam.hpi.asg.logictool.srgraph.StateGraph;
 import de.uni_potsdam.hpi.asg.logictool.srgraph.StateGraphComputer;
 import de.uni_potsdam.hpi.asg.logictool.stg.GFile;
@@ -42,6 +41,7 @@ import de.uni_potsdam.hpi.asg.logictool.stg.model.Place;
 import de.uni_potsdam.hpi.asg.logictool.stg.model.STG;
 import de.uni_potsdam.hpi.asg.logictool.stg.model.Signal;
 import de.uni_potsdam.hpi.asg.logictool.stg.model.Signal.SignalType;
+import de.uni_potsdam.hpi.asg.logictool.trace.ShortesTracesFinder;
 import de.uni_potsdam.hpi.asg.logictool.stg.model.Transition;
 
 public class STGTestMain {
@@ -106,7 +106,7 @@ public class STGTestMain {
         while((t = queue.poll()) != null) {
             Queue<Transition> queue2 = new LinkedList<>();
             queue2.add(t);
-            SortedSet<Transition> newseq = new TreeSet<>(new TransitionSequenceSort());
+            SortedSet<Transition> newseq = new TreeSet<>(new TransitionTraceSort());
             while((t2 = queue2.poll()) != null) {
                 if(t2.getSignal() == startSig || t2.getSignal() == endSig) {
                     continue;
@@ -175,7 +175,7 @@ public class STGTestMain {
         }
 //        new GraphicalStateGraph(stateGraph, true, null);
 
-        ShortSequenceFinder comp = new ShortSequenceFinder(stateGraph);
+        ShortesTracesFinder comp = new ShortesTracesFinder(stateGraph);
         List<List<Transition>> sequences3 = comp.decomposeAND(startSig, endSig);
 
         for(List<Transition> seq : sequences3) {

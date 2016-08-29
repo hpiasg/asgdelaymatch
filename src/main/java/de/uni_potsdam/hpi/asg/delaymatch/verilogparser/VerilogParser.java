@@ -33,7 +33,7 @@ import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import de.uni_potsdam.hpi.asg.common.io.FileHelper;
+import de.uni_potsdam.hpi.asg.common.iohelper.FileHelper;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogModule;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogModuleInstance;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogModuleConnection;

@@ -1,7 +1,5 @@
 package de.uni_potsdam.hpi.asg.delaymatch.misc;
 
-import java.util.ArrayList;
-
 /*
  * Copyright (C) 2016 Norman Kluge
  * 
@@ -21,6 +19,7 @@ import java.util.ArrayList;
  * along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

@@ -1,4 +1,4 @@
-package de.uni_potsdam.hpi.asg.logictool.mapping.seqhelper;
+package de.uni_potsdam.hpi.asg.logictool.trace.tracehelper;
 
 /*
  * Copyright (C) 2015 Norman Kluge
@@ -22,9 +22,9 @@ package de.uni_potsdam.hpi.asg.logictool.mapping.seqhelper;
 import org.apache.commons.pool2.PooledObjectFactory;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 
-public class IOBehaviourSimulationStepPool extends GenericObjectPool<IOBehaviourSimulationStep> {
+public class TraceSimulationStepPool extends GenericObjectPool<TraceSimulationStep> {
 
-    public IOBehaviourSimulationStepPool(PooledObjectFactory<IOBehaviourSimulationStep> factory) {
+    public TraceSimulationStepPool(PooledObjectFactory<TraceSimulationStep> factory) {
         super(factory);
     }
 }

@@ -29,7 +29,7 @@ import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import de.uni_potsdam.hpi.asg.common.io.remote.RemoteInformation;
+import de.uni_potsdam.hpi.asg.common.remote.RemoteInformation;
 import de.uni_potsdam.hpi.asg.delaymatch.misc.DelayMatchModule;
 
 public class MatchMain {

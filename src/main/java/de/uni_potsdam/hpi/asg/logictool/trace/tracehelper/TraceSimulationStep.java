@@ -1,4 +1,4 @@
-package de.uni_potsdam.hpi.asg.logictool.mapping.seqhelper;
+package de.uni_potsdam.hpi.asg.logictool.trace.tracehelper;
 
 /*
  * Copyright (C) 2015 Norman Kluge
@@ -25,14 +25,14 @@ import java.util.List;
 import de.uni_potsdam.hpi.asg.logictool.srgraph.State;
 import de.uni_potsdam.hpi.asg.logictool.stg.model.Transition;
 
-public class IOBehaviourSimulationStep {
+public class TraceSimulationStep {
 
     private State            nextState;
     private List<Transition> sequence;
     private State            start;
     private List<State>      states;
 
-    public IOBehaviourSimulationStep() {
+    public TraceSimulationStep() {
         sequence = new ArrayList<>();
         states = new ArrayList<>();
     }

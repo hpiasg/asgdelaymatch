@@ -1,4 +1,4 @@
-package de.uni_potsdam.hpi.asg.logictool.mapping.seqhelper;
+package de.uni_potsdam.hpi.asg.logictool.trace.tracehelper;
 
 /*
  * Copyright (C) 2015 Norman Kluge
@@ -23,20 +23,20 @@ import org.apache.commons.pool2.BasePooledObjectFactory;
 import org.apache.commons.pool2.PooledObject;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
 
-public class IOBehaviourSimulationStepFactory extends BasePooledObjectFactory<IOBehaviourSimulationStep> {
+public class TraceSimulationStepFactory extends BasePooledObjectFactory<TraceSimulationStep> {
 
     @Override
-    public IOBehaviourSimulationStep create() throws Exception {
-        return new IOBehaviourSimulationStep();
+    public TraceSimulationStep create() throws Exception {
+        return new TraceSimulationStep();
     }
 
     @Override
-    public PooledObject<IOBehaviourSimulationStep> wrap(IOBehaviourSimulationStep obj) {
-        return new DefaultPooledObject<IOBehaviourSimulationStep>(obj);
+    public PooledObject<TraceSimulationStep> wrap(TraceSimulationStep obj) {
+        return new DefaultPooledObject<TraceSimulationStep>(obj);
     }
 
     @Override
-    public void passivateObject(PooledObject<IOBehaviourSimulationStep> p) throws Exception {
+    public void passivateObject(PooledObject<TraceSimulationStep> p) throws Exception {
         p.getObject().getStates().clear();
         p.getObject().getSequence().clear();
 //        p.getObject().getNextSteps().clear();
