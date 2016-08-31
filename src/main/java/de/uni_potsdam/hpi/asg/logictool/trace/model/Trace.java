@@ -20,13 +20,13 @@ package de.uni_potsdam.hpi.asg.logictool.trace.model;
  */
 
 public class Trace {
-    private Box trace;
+    private SequenceBox trace;
 
-    public Trace(Box trace) {
+    public Trace(SequenceBox trace) {
         this.trace = trace;
     }
 
-    public Box getTrace() {
+    public SequenceBox getTrace() {
         return trace;
     }
 

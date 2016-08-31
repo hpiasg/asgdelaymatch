@@ -32,6 +32,8 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import com.google.common.collect.Lists;
+
 import de.uni_potsdam.hpi.asg.common.iohelper.LoggerHelper;
 import de.uni_potsdam.hpi.asg.logictool.srgraph.GraphicalStateGraph;
 import de.uni_potsdam.hpi.asg.logictool.srgraph.StateGraph;
@@ -42,8 +44,11 @@ import de.uni_potsdam.hpi.asg.logictool.stg.model.Place;
 import de.uni_potsdam.hpi.asg.logictool.stg.model.STG;
 import de.uni_potsdam.hpi.asg.logictool.stg.model.Signal;
 import de.uni_potsdam.hpi.asg.logictool.trace.ShortesTracesFinder;
+import de.uni_potsdam.hpi.asg.logictool.trace.model.Box;
+import de.uni_potsdam.hpi.asg.logictool.trace.model.ParallelBox;
 import de.uni_potsdam.hpi.asg.logictool.trace.model.SequenceBox;
 import de.uni_potsdam.hpi.asg.logictool.trace.model.Trace;
+import de.uni_potsdam.hpi.asg.logictool.trace.model.TransitionBox;
 import de.uni_potsdam.hpi.asg.logictool.trace.tracehelper.TempTrace;
 import de.uni_potsdam.hpi.asg.logictool.stg.model.Transition;
 import de.uni_potsdam.hpi.asg.logictool.stg.model.Transition.Edge;
@@ -164,7 +169,7 @@ public class STGTestMain {
         if(stateGraph == null) {
             return;
         }
-        new GraphicalStateGraph(stateGraph, true, null);
+//        new GraphicalStateGraph(stateGraph, true, null);
 
         ShortesTracesFinder comp = new ShortesTracesFinder(stateGraph);
         SortedSet<TempTrace> tmptraces = comp.findTraces(startSig, startEdge, endSig, endEdge);
@@ -184,14 +189,141 @@ public class STGTestMain {
         List<Trace> traces = new ArrayList<>();
         for(List<TempTrace> list : equalTransitionTraces.values()) {
             if(list.size() == 1) {
-                SequenceBox box = new SequenceBox();
+                SequenceBox box = new SequenceBox(null);
                 for(Transition tx : list.get(0).getTrace()) {
-                    box.getTransitions().add(tx);
+                    box.getContent().add(new TransitionBox(box, tx));
                 }
                 traces.add(new Trace(box));
                 continue;
             }
 
+            Map<Transition, Set<Transition>> commonPredecessors = new HashMap<>();
+            Map<Transition, Set<Transition>> directPredecessors = new HashMap<>();
+            Map<Transition, Set<Transition>> predecessors = new HashMap<>();
+            for(Transition tx : list.get(0).getTransitions()) {
+                commonPredecessors.put(tx, new HashSet<Transition>());
+                for(Transition tx2 : list.get(0).getTransitions()) {
+                    commonPredecessors.get(tx).add(tx2);
+                }
+                directPredecessors.put(tx, new HashSet<Transition>());
+            }
+            for(TempTrace ttrace : list) {
+                for(int i = 0; i < ttrace.getTrace().size(); i++) {
+                    Transition curr = ttrace.getTrace().get(i);
+                    commonPredecessors.get(curr).retainAll(ttrace.getTrace().subList(0, i));
+                    if(i > 0) {
+                        directPredecessors.get(curr).add(ttrace.getTrace().get(i - 1));
+                    }
+                }
+            }
+            for(Transition tx : list.get(0).getTransitions()) {
+                predecessors.put(tx, new HashSet<>(commonPredecessors.get(tx)));
+                predecessors.get(tx).retainAll(directPredecessors.get(tx));
+            }
+
+            SequenceBox rootbox = new SequenceBox(null);
+            Set<Transition> transitionsleft = new HashSet<>(list.get(0).getTransitions());
+            Map<Transition, SequenceBox> boxmap = new HashMap<>();
+            while(true) {
+                Set<Transition> currEmpty = new HashSet<>();
+                for(Transition tx : transitionsleft) {
+                    if(commonPredecessors.get(tx).isEmpty()) {
+                        currEmpty.add(tx);
+                    }
+                }
+
+                if(currEmpty.isEmpty()) {
+                    if(!transitionsleft.isEmpty()) {
+                        System.out.println("Error: not all transitions placed!");
+                    }
+                    break;
+                } else if(currEmpty.size() == 1) {
+                    //sequential
+                    Transition trans = currEmpty.iterator().next();
+                    if(predecessors.get(trans).isEmpty()) {
+                        // first
+                        rootbox.getContent().add(new TransitionBox(rootbox, trans));
+                        boxmap.put(trans, rootbox);
+                    } else if(predecessors.get(trans).size() == 1) {
+                        // sequential
+                        SequenceBox box = boxmap.get(predecessors.get(trans).iterator().next());
+                        box.getContent().add(new TransitionBox(box, trans));
+                        boxmap.put(trans, box);
+                    } else {
+                        // join
+                        List<List<Box>> boxhier = new ArrayList<>();
+                        int min = -1;
+                        for(Transition predecessor : predecessors.get(trans)) {
+                            List<Box> boxlist = getTransitiveBox(boxmap.get(predecessor));
+                            boxhier.add(boxlist);
+                            if(min == -1) {
+                                min = boxlist.size();
+                            }
+                            if(boxlist.size() < min) {
+                                min = boxlist.size();
+                            }
+                        }
+                        int firstuncommon = -1;
+                        for(int i = 0; i < min; i++) {
+                            Box value = null;
+                            for(List<Box> boxes : boxhier) {
+                                if(value == null) {
+                                    value = boxes.get(i);
+                                    continue;
+                                }
+                                if(value != boxes.get(i)) {
+                                    firstuncommon = i;
+                                }
+                            }
+                        }
+                        if(firstuncommon == -1) {
+                            System.out.println("ERROR: common sublist");
+                        } else if(firstuncommon == 0) {
+                            rootbox.getContent().add(new TransitionBox(rootbox, trans));
+                            boxmap.put(trans, rootbox);
+                        } else {
+                            Box box = boxhier.get(0).get(firstuncommon - 2); //PBox is last common (-1) -but we need SBox in front of it (-1) = (-2)
+                            if(box instanceof SequenceBox) {
+                                SequenceBox sbox = (SequenceBox)box;
+                                sbox.getContent().add(new TransitionBox(sbox, trans));
+                                boxmap.put(trans, sbox);
+                            } else {
+                                System.out.println("ERROR: no sequencebox");
+                            }
+                        }
+                    }
+                } else {
+                    Map<Transition, ParallelBox> parallelBoxes = new HashMap<>();
+                    for(Transition trans : currEmpty) {
+                        if(predecessors.get(trans).isEmpty()) {
+                            System.out.println("ERROR: Parallel Trans with empty predecessor!");
+                        } else if(predecessors.get(trans).size() == 1) {
+                            Transition predecessor = predecessors.get(trans).iterator().next();
+                            SequenceBox prebox = boxmap.get(predecessor);
+                            if(!parallelBoxes.containsKey(predecessor)) {
+                                ParallelBox pbox = new ParallelBox(prebox);
+                                parallelBoxes.put(predecessor, pbox);
+                                prebox.getContent().add(pbox);
+                            }
+                            ParallelBox pbox = parallelBoxes.get(predecessor);
+                            SequenceBox sbox = new SequenceBox(pbox);
+                            pbox.getParallelLines().add(sbox);
+                            sbox.getContent().add(new TransitionBox(sbox, trans));
+                            boxmap.put(trans, sbox);
+                        } else {
+                            System.out.println("ERROR: Parallel Trans with multiple predecessors!");
+                        }
+                    }
+                }
+
+                for(Transition tx : currEmpty) {
+                    for(Set<Transition> set : commonPredecessors.values()) {
+                        set.remove(tx);
+                    }
+                    transitionsleft.remove(tx);
+                }
+            }
+            traces.add(new Trace(rootbox));
         }
 
         //extend shrunk sequences
@@ -217,5 +349,15 @@ public class STGTestMain {
 
         long end = System.currentTimeMillis();
         System.out.println(LoggerHelper.formatRuntime(end - start, true));
+    }
+
+    private static List<Box> getTransitiveBox(SequenceBox start) {
+        List<Box> retVal = new ArrayList<>();
+        Box next = start;
+        while(next != null) {
+            retVal.add(next);
+            next = next.getSuperBox();
+        }
+        return Lists.reverse(retVal);
     }
 }

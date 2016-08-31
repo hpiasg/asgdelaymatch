@@ -20,7 +20,14 @@ package de.uni_potsdam.hpi.asg.logictool.trace.model;
  */
 
 public abstract class Box {
-    public abstract boolean isSequentialBox();
 
-    public abstract boolean isParallelBox();
+    private Box superBox;
+
+    public Box(Box superBox) {
+        this.superBox = superBox;
+    }
+
+    public Box getSuperBox() {
+        return superBox;
+    }
 }

@@ -19,30 +19,6 @@ package de.uni_potsdam.hpi.asg.logictool.trace.model;
  * along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import java.util.ArrayList;
-import java.util.List;
+public interface PTBox {
 
-public class SequenceBox extends Box {
-
-    private List<PTBox> content;
-
-    public SequenceBox(Box superBox) {
-        super(superBox);
-        this.content = new ArrayList<>();
-    }
-
-    public List<PTBox> getContent() {
-        return content;
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder str = new StringBuilder();
-        str.append("[S ");
-        for(PTBox box : content) {
-            str.append(box.toString());
-        }
-        str.append("]");
-        return str.toString();
-    }
 }

@@ -19,30 +19,23 @@ package de.uni_potsdam.hpi.asg.logictool.trace.model;
  * along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import java.util.ArrayList;
-import java.util.List;
+import de.uni_potsdam.hpi.asg.logictool.stg.model.Transition;
 
-public class SequenceBox extends Box {
+public class TransitionBox extends Box implements PTBox {
 
-    private List<PTBox> content;
+    private Transition trans;
 
-    public SequenceBox(Box superBox) {
+    public TransitionBox(Box superBox, Transition trans) {
         super(superBox);
-        this.content = new ArrayList<>();
+        this.trans = trans;
     }
 
-    public List<PTBox> getContent() {
-        return content;
+    public Transition getTransition() {
+        return trans;
     }
 
     @Override
     public String toString() {
-        StringBuilder str = new StringBuilder();
-        str.append("[S ");
-        for(PTBox box : content) {
-            str.append(box.toString());
-        }
-        str.append("]");
-        return str.toString();
+        return "[T " + trans.toString() + "]";
     }
 }
