@@ -1,4 +1,4 @@
-package de.uni_potsdam.hpi.asg.logictool.trace.tracehelper;
+package de.uni_potsdam.hpi.asg.logictool.trace.model;
 
 /*
  * Copyright (C) 2016 Norman Kluge
@@ -19,24 +19,19 @@ package de.uni_potsdam.hpi.asg.logictool.trace.tracehelper;
  * along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import java.util.List;
-
-import de.uni_potsdam.hpi.asg.logictool.stg.model.Transition;
-
 public class Trace {
+    private Box trace;
 
-    private List<Transition> sequence;
-
-    public Trace(List<Transition> sequence) {
-        this.sequence = sequence;
+    public Trace(Box trace) {
+        this.trace = trace;
     }
 
-    public List<Transition> getSequence() {
-        return sequence;
+    public Box getTrace() {
+        return trace;
     }
 
     @Override
     public String toString() {
-        return sequence.toString();
+        return trace.toString();
     }
 }

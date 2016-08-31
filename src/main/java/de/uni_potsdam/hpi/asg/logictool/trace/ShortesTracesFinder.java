@@ -40,54 +40,67 @@ import de.uni_potsdam.hpi.asg.logictool.srgraph.StateGraph;
 import de.uni_potsdam.hpi.asg.logictool.stg.model.Signal;
 import de.uni_potsdam.hpi.asg.logictool.stg.model.Transition;
 import de.uni_potsdam.hpi.asg.logictool.stg.model.Transition.Edge;
-import de.uni_potsdam.hpi.asg.logictool.trace.tracehelper.Trace;
+import de.uni_potsdam.hpi.asg.logictool.trace.tracehelper.TempTrace;
 import de.uni_potsdam.hpi.asg.logictool.trace.tracehelper.TraceCmp;
 import de.uni_potsdam.hpi.asg.logictool.trace.tracehelper.TraceSimulationStep;
 import de.uni_potsdam.hpi.asg.logictool.trace.tracehelper.TraceSimulationStepFactory;
 import de.uni_potsdam.hpi.asg.logictool.trace.tracehelper.TraceSimulationStepPool;
 
 public class ShortesTracesFinder {
-    private static final Logger           logger = LogManager.getLogger();
+    private static final Logger     logger = LogManager.getLogger();
 
-    private StateGraph                    origsg;
+    private StateGraph              origsg;
 
     private TraceSimulationStepPool pool;
-    private long                          rmSub  = 0;
-    private long                          rmFall = 0;
+    private long                    rmSub  = 0;
+    private long                    rmFall = 0;
 
     public ShortesTracesFinder(StateGraph stategraph) {
         this.origsg = stategraph;
     }
 
-    public List<List<Transition>> decomposeAND(Signal startSig, Signal endSig) {
-        Set<State> startStates = new HashSet<>();
-        for(State s : origsg.getStates()) {
-            for(Entry<Transition, State> entry2 : s.getNextStates().entrySet()) {
-                if(entry2.getKey().getSignal() == startSig && entry2.getKey().getEdge() == Edge.falling) {
-                    startStates.add(entry2.getValue());
-                }
-            }
-        }
+    public SortedSet<TempTrace> findTraces(Signal startSig, Edge startEdge, Signal endSig, Edge endEdge) {
 
-        SortedSet<Trace> sequences = new TreeSet<>(new TraceCmp());
+        SortedSet<TempTrace> traces = new TreeSet<>(new TraceCmp());
         Deque<TraceSimulationStep> steps = new ArrayDeque<>();
 
         pool = new TraceSimulationStepPool(new TraceSimulationStepFactory());
         pool.setMaxTotal(-1);
-
         TraceSimulationStep newStep;
-        for(State s : startStates) {
-            try {
-                newStep = pool.borrowObject();
-            } catch(Exception e) {
-                e.printStackTrace();
-                logger.error("Could not borrow object");
-                return null;
+
+        Set<State> startStates = new HashSet<>();
+        for(State s : origsg.getStates()) {
+            for(Entry<Transition, State> entry2 : s.getNextStates().entrySet()) {
+                if(entry2.getKey().getSignal() == startSig && entry2.getKey().getEdge() == startEdge) {
+                    startStates.add(entry2.getValue());
+                    try {
+                        newStep = pool.borrowObject();
+                    } catch(Exception e) {
+                        e.printStackTrace();
+                        logger.error("Could not borrow object");
+                        return null;
+                    }
+                    newStep.setStart(entry2.getValue());
+                    newStep.setNextState(entry2.getValue());
+                    newStep.getSequence().add(entry2.getKey());
+                    steps.add(newStep);
+                }
             }
-            newStep.setStart(s);
-            newStep.setNextState(s);
-            steps.add(newStep);
         }
+
+//        for(State s : startStates) {
+//            try {
+//                newStep = pool.borrowObject();
+//            } catch(Exception e) {
+//                e.printStackTrace();
+//                logger.error("Could not borrow object");
+//                return null;
+//            }
+//            newStep.setStart(s);
+//            newStep.setNextState(s);
+//            newStep.getSequence().add(e)
+//            steps.add(newStep);
+//        }
 
         if(steps.isEmpty()) {
             return null;
@@ -97,7 +110,7 @@ public class ShortesTracesFinder {
         TraceSimulationStep step = null;
         while(!steps.isEmpty()) {
             step = steps.removeLast();
-            getNewSteps(step, endSig, sequences, steps, startStates);
+            getNewSteps(step, endSig, endEdge, traces, steps, startStates);
 //            stepsEvaledTotal++;
 //            if(stepsEvaledTotal % 100000 == 0) {
 //                logger.debug("Pool: " + "Created: " + pool.getCreatedCount() + ", Borrowed: " + pool.getBorrowedCount() + ", Returned: " + pool.getReturnedCount() + ", Active: " + pool.getNumActive() + ", Idle: " + pool.getNumIdle());
@@ -106,22 +119,22 @@ public class ShortesTracesFinder {
         logger.debug("Pool: " + "Created: " + pool.getCreatedCount() + ", Borrowed: " + pool.getBorrowedCount() + ", Returned: " + pool.getReturnedCount() + ", Active: " + pool.getNumActive() + ", Idle: " + pool.getNumIdle());
         logger.debug("RmSub: " + rmSub + " // RmFall: " + rmFall);
 
-        Queue<Trace> checkQ = new LinkedList<>();
-        Set<Trace> tmpSeq = new HashSet<>();
-        checkQ.addAll(sequences);
-        Trace check = null;
+        Queue<TempTrace> checkQ = new LinkedList<>();
+        Set<TempTrace> tmpSeq = new HashSet<>();
+        checkQ.addAll(traces);
+        TempTrace check = null;
         while((check = checkQ.poll()) != null) {
             tmpSeq.clear();
-            tmpSeq.addAll(sequences);
-            for(Trace beh : tmpSeq) {
+            tmpSeq.addAll(traces);
+            for(TempTrace beh : tmpSeq) {
                 if(beh == check) {
                     continue;
                 }
                 tail.clear();
-                tail.addAll(check.getSequence());
+                tail.addAll(check.getTrace());
                 allcovered = true;
                 tmpindex = 0;
-                for(Transition t : beh.getSequence()) {
+                for(Transition t : beh.getTrace()) {
                     tmpindex = indexOfStart(tail, t, tmpindex);
                     if(tmpindex == -1) {
                         allcovered = false;
@@ -130,17 +143,12 @@ public class ShortesTracesFinder {
                     tmpindex++;
                 }
                 if(allcovered) {
-                    sequences.remove(check);
+                    traces.remove(check);
                 }
             }
         }
 
-        List<List<Transition>> sequences2 = new ArrayList<>();
-        for(Trace beh : sequences) {
-            sequences2.add(beh.getSequence());
-        }
-
-        return sequences2;
+        return traces;
     }
 
     private List<Transition> tail = new ArrayList<>();
@@ -156,8 +164,7 @@ public class ShortesTracesFinder {
         return -1;
     }
 
-    private void getNewSteps(TraceSimulationStep step, Signal sig, Set<Trace> sequences, Deque<TraceSimulationStep> newSteps, Set<State> startStates) {
-
+    private void getNewSteps(TraceSimulationStep step, Signal endSig, Edge endEdge, Set<TempTrace> sequences, Deque<TraceSimulationStep> newSteps, Set<State> startStates) {
         int sum = 0;
         for(State s : startStates) {
             sum += Collections.frequency(step.getStates(), s);
@@ -174,21 +181,22 @@ public class ShortesTracesFinder {
         }
 
         for(Entry<Transition, State> entry : step.getNextState().getNextStates().entrySet()) {
-            if(entry.getKey().getSignal() == sig) {
+            if(entry.getKey().getSignal() == endSig && entry.getKey().getEdge() == endEdge) {
                 List<Transition> seq = new ArrayList<>(step.getSequence());
-                Trace beh = new Trace(seq);
+                seq.add(entry.getKey());
+                TempTrace beh = new TempTrace(seq);
                 sequences.add(beh);
                 pool.returnObject(step);
                 return;
             }
         }
 
-        for(Trace beh : sequences) {
+        for(TempTrace beh : sequences) {
             tail.clear();
             tail.addAll(step.getSequence());
             allcovered = true;
             tmpindex = 0;
-            for(Transition t : beh.getSequence()) {
+            for(Transition t : beh.getTrace()) {
                 tmpindex = indexOfStart(tail, t, tmpindex);
                 if(tmpindex == -1) {
                     allcovered = false;

@@ -108,8 +108,8 @@ public class Transition implements Comparable<Transition> {
         }
         return signal.toString() + ((edge == Edge.falling) ? "-" : "+") + ((id != 0) ? "/" + id : "");
     }
-
-    public void setSignal(Signal signal) {
-        this.signal = signal;
-    }
+//
+//    public void setSignal(Signal signal) {
+//        this.signal = signal;
+//    }
 }

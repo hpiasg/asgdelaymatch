@@ -21,22 +21,22 @@ package de.uni_potsdam.hpi.asg.logictool.trace.tracehelper;
 
 import java.util.Comparator;
 
-public class TraceCmp implements Comparator<Trace> {
+public class TraceCmp implements Comparator<TempTrace> {
 
     @Override
-    public int compare(Trace arg0, Trace arg1) {
+    public int compare(TempTrace arg0, TempTrace arg1) {
         int i = 0;
         while(true) {
-            if(arg0.getSequence().size() == i && arg1.getSequence().size() == i) {
+            if(arg0.getTrace().size() == i && arg1.getTrace().size() == i) {
                 return 0;
             }
-            if(arg0.getSequence().size() == i) {
+            if(arg0.getTrace().size() == i) {
                 return -1;
             }
-            if(arg1.getSequence().size() == i) {
+            if(arg1.getTrace().size() == i) {
                 return 1;
             }
-            int cmpT = arg0.getSequence().get(i).compareTo(arg1.getSequence().get(i));
+            int cmpT = arg0.getTrace().get(i).compareTo(arg1.getTrace().get(i));
             if(cmpT != 0) {
                 return cmpT;
             }

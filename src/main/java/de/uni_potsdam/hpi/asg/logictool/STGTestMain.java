@@ -33,6 +33,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import de.uni_potsdam.hpi.asg.common.iohelper.LoggerHelper;
+import de.uni_potsdam.hpi.asg.logictool.srgraph.GraphicalStateGraph;
 import de.uni_potsdam.hpi.asg.logictool.srgraph.StateGraph;
 import de.uni_potsdam.hpi.asg.logictool.srgraph.StateGraphComputer;
 import de.uni_potsdam.hpi.asg.logictool.stg.GFile;
@@ -40,9 +41,12 @@ import de.uni_potsdam.hpi.asg.logictool.stg.csc.CSCSolver;
 import de.uni_potsdam.hpi.asg.logictool.stg.model.Place;
 import de.uni_potsdam.hpi.asg.logictool.stg.model.STG;
 import de.uni_potsdam.hpi.asg.logictool.stg.model.Signal;
-import de.uni_potsdam.hpi.asg.logictool.stg.model.Signal.SignalType;
 import de.uni_potsdam.hpi.asg.logictool.trace.ShortesTracesFinder;
+import de.uni_potsdam.hpi.asg.logictool.trace.model.SequenceBox;
+import de.uni_potsdam.hpi.asg.logictool.trace.model.Trace;
+import de.uni_potsdam.hpi.asg.logictool.trace.tracehelper.TempTrace;
 import de.uni_potsdam.hpi.asg.logictool.stg.model.Transition;
+import de.uni_potsdam.hpi.asg.logictool.stg.model.Transition.Edge;
 
 public class STGTestMain {
 
@@ -50,51 +54,38 @@ public class STGTestMain {
         LoggerHelper.initLogger(0, null, true);
         long start = System.currentTimeMillis();
 
+//        String filename = "/home/norman/share/testdir/gcd_fordeco.g";
+//        String startSigName = "aD_2";
+//        Edge startEdge = Edge.falling;
+//        String endSigName = "rD_25";
+//        Edge endEdge = Edge.rising;
+
+//        String filename = "/home/norman/share/testdir/gcd_fordeco.g";
+//        String startSigName = "r1";
+//        Edge startEdge = Edge.rising;
+//        String endSigName = "rD_25";
+//        Edge endEdge = Edge.rising;
+
+        String filename = "/home/norman/share/testdir/parallel.g";
+        String startSigName = "a";
+        Edge startEdge = Edge.rising;
+        String endSigName = "i";
+        Edge endEdge = Edge.rising;
+
         // STG import
-        STG stg = GFile.importFromFile(new File("/home/norman/share/testdir/gcd_fordeco.g"));
+        STG stg = GFile.importFromFile(new File(filename));
         if(stg == null) {
             return;
         }
 
-        //dummify
+        //find signals
         Signal startSig = null;
         Signal endSig = null;
-        List<Signal> sigs = new ArrayList<>(stg.getSignals());
-        for(Signal sig : sigs) {
-            if(sig.getName().equals("aD_2")) {
-                // Start
+        for(Signal sig : stg.getSignals()) {
+            if(sig.getName().equals(startSigName)) {
                 startSig = sig;
-                List<Transition> trans = new ArrayList<>(sig.getTransitions());
-                for(Transition t : trans) {
-                    switch(t.getEdge()) {
-                        case falling:
-                            break;
-                        case rising:
-                            stg.addSignal("aD_2_tmp", SignalType.internal);
-                            Signal s2 = stg.getSignal("aD_2_tmp");
-                            t.setSignal(s2);
-                            sig.getTransitions().remove(t);
-                            break;
-                    }
-                }
-            } else if(sig.getName().equals("rD_25")) {
-                // Ende
+            } else if(sig.getName().equals(endSigName)) {
                 endSig = sig;
-                List<Transition> trans = new ArrayList<>(sig.getTransitions());
-                for(Transition t : trans) {
-                    switch(t.getEdge()) {
-                        case falling:
-                            stg.addSignal("rD_25_tmp", SignalType.internal);
-                            Signal s2 = stg.getSignal("rD_25_tmp");
-                            t.setSignal(s2);
-                            sig.getTransitions().remove(t);
-                            break;
-                        case rising:
-                            break;
-                    }
-                }
-            } else {
-//                sig.dummify();
             }
         }
 
@@ -108,7 +99,7 @@ public class STGTestMain {
             queue2.add(t);
             SortedSet<Transition> newseq = new TreeSet<>(new TransitionTraceSort());
             while((t2 = queue2.poll()) != null) {
-                if(t2.getSignal() == startSig || t2.getSignal() == endSig) {
+                if((t2.getSignal() == startSig && t2.getEdge() == startEdge) || (t2.getSignal() == endSig && t2.getEdge() == endEdge)) {
                     continue;
                 }
                 if(alreadyInSeq.contains(t2)) {
@@ -154,7 +145,7 @@ public class STGTestMain {
             }
             sequences2.put(first, seq);
         }
-        System.out.println(sequences2);
+        System.out.println("Seq: " + sequences2);
 
         GFile.writeGFile(stg, new File("/home/norman/workspace/delaymatch/target/test-runs/out.g"));
 
@@ -173,29 +164,56 @@ public class STGTestMain {
         if(stateGraph == null) {
             return;
         }
-//        new GraphicalStateGraph(stateGraph, true, null);
+        new GraphicalStateGraph(stateGraph, true, null);
 
         ShortesTracesFinder comp = new ShortesTracesFinder(stateGraph);
-        List<List<Transition>> sequences3 = comp.decomposeAND(startSig, endSig);
+        SortedSet<TempTrace> tmptraces = comp.findTraces(startSig, startEdge, endSig, endEdge);
+        for(TempTrace tr : tmptraces) {
+            System.out.println(tr);
+        }
 
-        for(List<Transition> seq : sequences3) {
-            for(Entry<Transition, SortedSet<Transition>> entry : sequences2.entrySet()) {
-                int pos = seq.indexOf(entry.getKey());
-                if(pos != -1) {
-                    seq.remove(pos);
-                    for(Transition t8 : entry.getValue()) {
-                        seq.add(pos++, t8);
-                    }
+        //check parallel
+        Map<Integer, List<TempTrace>> equalTransitionTraces = new HashMap<>();
+        for(TempTrace trace : tmptraces) {
+            int hash = trace.getTransitions().hashCode();
+            if(!equalTransitionTraces.containsKey(hash)) {
+                equalTransitionTraces.put(hash, new ArrayList<TempTrace>());
+            }
+            equalTransitionTraces.get(hash).add(trace);
+        }
+        List<Trace> traces = new ArrayList<>();
+        for(List<TempTrace> list : equalTransitionTraces.values()) {
+            if(list.size() == 1) {
+                SequenceBox box = new SequenceBox();
+                for(Transition tx : list.get(0).getTrace()) {
+                    box.getTransitions().add(tx);
                 }
+                traces.add(new Trace(box));
+                continue;
             }
+
         }
 
-        for(List<Transition> seq : sequences3) {
-            System.out.println(seq);
-            for(Transition t9 : seq) {
-                System.out.println(t9);
-            }
-        }
+        //extend shrunk sequences
+        //TODO: fix
+//        for(Trace trace : traces) {
+//            for(Entry<Transition, SortedSet<Transition>> entry : sequences2.entrySet()) {
+//                int pos = trace.getTrace().indexOf(entry.getKey());
+//                if(pos != -1) {
+//                    trace.getTrace().remove(pos);
+//                    for(Transition t8 : entry.getValue()) {
+//                        trace.getTrace().add(pos++, t8);
+//                    }
+//                }
+//            }
+//        }
+
+//        for(List<Transition> seq : sequences3) {
+//            System.out.println(seq);
+//            for(Transition t9 : seq) {
+//                System.out.println(t9);
+//            }
+//        }
 
         long end = System.currentTimeMillis();
         System.out.println(LoggerHelper.formatRuntime(end - start, true));
