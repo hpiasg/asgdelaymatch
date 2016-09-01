@@ -42,8 +42,8 @@ import de.uni_potsdam.hpi.asg.common.stg.model.STG;
 import de.uni_potsdam.hpi.asg.common.stg.model.Signal;
 import de.uni_potsdam.hpi.asg.common.stg.model.Transition;
 import de.uni_potsdam.hpi.asg.common.stg.model.Transition.Edge;
-import de.uni_potsdam.hpi.asg.logictool.srgraph.StateGraph;
-import de.uni_potsdam.hpi.asg.logictool.srgraph.StateGraphComputer;
+import de.uni_potsdam.hpi.asg.logictool.rgraph.ReachabilityGraph;
+import de.uni_potsdam.hpi.asg.logictool.rgraph.ReachabilityGraphComputer;
 import de.uni_potsdam.hpi.asg.logictool.trace.ParallelTraceDetector;
 import de.uni_potsdam.hpi.asg.logictool.trace.ShortesTracesFinder;
 import de.uni_potsdam.hpi.asg.logictool.trace.model.SequenceBox;
@@ -101,7 +101,7 @@ public class STGTestMain {
 //        GFile.writeGFile(stg, new File("/home/norman/workspace/delaymatch/target/test-runs/out.g"));
 
         // State graph generation
-        StateGraph stateGraph = generateMarkingGraph(stg);
+        ReachabilityGraph stateGraph = generateMarkingGraph(stg);
 //        new GraphicalStateGraph(stateGraph, true, null);
 
         ShortesTracesFinder stfinder = new ShortesTracesFinder(stateGraph);
@@ -156,15 +156,9 @@ public class STGTestMain {
         return true;
     }
 
-    private static StateGraph generateMarkingGraph(STG stg) {
-        SortedSet<Signal> sortedSignals = new TreeSet<Signal>();
-        for(Signal sig : stg.getSignals()) {
-            if(!sig.isDummy()) {
-                sortedSignals.add(sig);
-            }
-        }
-        StateGraphComputer graphcomp = new StateGraphComputer(stg, sortedSignals);
-        StateGraph stateGraph = graphcomp.compute();
+    private static ReachabilityGraph generateMarkingGraph(STG stg) {
+        ReachabilityGraphComputer graphcomp = new ReachabilityGraphComputer(stg);
+        ReachabilityGraph stateGraph = graphcomp.compute();
         return stateGraph;
     }
 

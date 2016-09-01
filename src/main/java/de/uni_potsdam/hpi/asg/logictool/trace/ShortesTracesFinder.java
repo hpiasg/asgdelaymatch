@@ -38,8 +38,8 @@ import org.apache.logging.log4j.Logger;
 import de.uni_potsdam.hpi.asg.common.stg.model.Signal;
 import de.uni_potsdam.hpi.asg.common.stg.model.Transition;
 import de.uni_potsdam.hpi.asg.common.stg.model.Transition.Edge;
-import de.uni_potsdam.hpi.asg.logictool.srgraph.State;
-import de.uni_potsdam.hpi.asg.logictool.srgraph.StateGraph;
+import de.uni_potsdam.hpi.asg.logictool.rgraph.MarkingState;
+import de.uni_potsdam.hpi.asg.logictool.rgraph.ReachabilityGraph;
 import de.uni_potsdam.hpi.asg.logictool.trace.tracehelper.TempTrace;
 import de.uni_potsdam.hpi.asg.logictool.trace.tracehelper.TraceCmp;
 import de.uni_potsdam.hpi.asg.logictool.trace.tracehelper.TraceSimulationStep;
@@ -49,14 +49,14 @@ import de.uni_potsdam.hpi.asg.logictool.trace.tracehelper.TraceSimulationStepPoo
 public class ShortesTracesFinder {
     private static final Logger     logger = LogManager.getLogger();
 
-    private StateGraph              origsg;
+    private ReachabilityGraph       origsg;
 
     private TraceSimulationStepPool pool;
     private List<Transition>        tail;
     private int                     tmpindex;
     private boolean                 allcovered;
 
-    public ShortesTracesFinder(StateGraph stategraph) {
+    public ShortesTracesFinder(ReachabilityGraph stategraph) {
         this.origsg = stategraph;
         this.tail = new ArrayList<>();
     }
@@ -68,7 +68,7 @@ public class ShortesTracesFinder {
         pool = new TraceSimulationStepPool(new TraceSimulationStepFactory());
         pool.setMaxTotal(-1);
 
-        Set<State> startStates = findStartStatesAndCreateSteps(startSig, startEdge, steps);
+        Set<MarkingState> startStates = findStartStatesAndCreateSteps(startSig, startEdge, steps);
         if(steps.isEmpty()) {
             return null;
         }
@@ -126,11 +126,11 @@ public class ShortesTracesFinder {
         }
     }
 
-    private Set<State> findStartStatesAndCreateSteps(Signal startSig, Edge startEdge, Deque<TraceSimulationStep> steps) {
-        Set<State> startStates = new HashSet<>();
+    private Set<MarkingState> findStartStatesAndCreateSteps(Signal startSig, Edge startEdge, Deque<TraceSimulationStep> steps) {
+        Set<MarkingState> startStates = new HashSet<>();
         TraceSimulationStep newStep = null;
-        for(State s : origsg.getStates()) {
-            for(Entry<Transition, State> entry2 : s.getNextStates().entrySet()) {
+        for(MarkingState s : origsg.getStates()) {
+            for(Entry<Transition, MarkingState> entry2 : s.getNextStates().entrySet()) {
                 if(entry2.getKey().getSignal() == startSig && entry2.getKey().getEdge() == startEdge) {
                     startStates.add(entry2.getValue());
                     try {
@@ -159,9 +159,9 @@ public class ShortesTracesFinder {
         return -1;
     }
 
-    private void getNewSteps(TraceSimulationStep step, Signal endSig, Edge endEdge, Set<TempTrace> sequences, Deque<TraceSimulationStep> newSteps, Set<State> startStates) {
+    private void getNewSteps(TraceSimulationStep step, Signal endSig, Edge endEdge, Set<TempTrace> sequences, Deque<TraceSimulationStep> newSteps, Set<MarkingState> startStates) {
         int sum = 0;
-        for(State s : startStates) {
+        for(MarkingState s : startStates) {
             sum += Collections.frequency(step.getStates(), s);
         }
         if(sum > 1) {
@@ -175,7 +175,7 @@ public class ShortesTracesFinder {
             return;
         }
 
-        for(Entry<Transition, State> entry : step.getNextState().getNextStates().entrySet()) {
+        for(Entry<Transition, MarkingState> entry : step.getNextState().getNextStates().entrySet()) {
             if(entry.getKey().getSignal() == endSig && entry.getKey().getEdge() == endEdge) {
                 List<Transition> seq = new ArrayList<>(step.getSequence());
                 seq.add(entry.getKey());
@@ -205,7 +205,7 @@ public class ShortesTracesFinder {
             }
         }
 
-        for(Entry<Transition, State> entry : step.getNextState().getNextStates().entrySet()) {
+        for(Entry<Transition, MarkingState> entry : step.getNextState().getNextStates().entrySet()) {
             TraceSimulationStep newStep;
             try {
                 newStep = pool.borrowObject();

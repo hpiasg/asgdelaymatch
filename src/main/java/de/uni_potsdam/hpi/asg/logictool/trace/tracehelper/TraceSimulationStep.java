@@ -23,33 +23,33 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.uni_potsdam.hpi.asg.common.stg.model.Transition;
-import de.uni_potsdam.hpi.asg.logictool.srgraph.State;
+import de.uni_potsdam.hpi.asg.logictool.rgraph.MarkingState;
 
 public class TraceSimulationStep {
 
-    private State            nextState;
-    private List<Transition> sequence;
-    private State            start;
-    private List<State>      states;
+    private MarkingState       nextState;
+    private List<Transition>   sequence;
+    private MarkingState       start;
+    private List<MarkingState> states;
 
     public TraceSimulationStep() {
         sequence = new ArrayList<>();
         states = new ArrayList<>();
     }
 
-    public void setNextState(State state) {
+    public void setNextState(MarkingState state) {
         this.nextState = state;
     }
 
-    public State getNextState() {
+    public MarkingState getNextState() {
         return nextState;
     }
 
-    public void setStart(State start) {
+    public void setStart(MarkingState start) {
         this.start = start;
     }
 
-    public State getStart() {
+    public MarkingState getStart() {
         return start;
     }
 
@@ -57,14 +57,14 @@ public class TraceSimulationStep {
         return sequence;
     }
 
-    public List<State> getStates() {
+    public List<MarkingState> getStates() {
         return states;
     }
 
     @Override
     public String toString() {
         StringBuilder str = new StringBuilder();
-        for(State s : states) {
+        for(MarkingState s : states) {
             if(s == null) {
                 System.out.println("meop");
             }
