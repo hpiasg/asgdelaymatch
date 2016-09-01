@@ -36,14 +36,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import de.uni_potsdam.hpi.asg.common.iohelper.LoggerHelper;
+import de.uni_potsdam.hpi.asg.common.stg.GFile;
+import de.uni_potsdam.hpi.asg.common.stg.model.Place;
+import de.uni_potsdam.hpi.asg.common.stg.model.STG;
+import de.uni_potsdam.hpi.asg.common.stg.model.Signal;
+import de.uni_potsdam.hpi.asg.common.stg.model.Transition;
+import de.uni_potsdam.hpi.asg.common.stg.model.Transition.Edge;
 import de.uni_potsdam.hpi.asg.logictool.srgraph.StateGraph;
 import de.uni_potsdam.hpi.asg.logictool.srgraph.StateGraphComputer;
-import de.uni_potsdam.hpi.asg.logictool.stg.GFile;
-import de.uni_potsdam.hpi.asg.logictool.stg.model.Place;
-import de.uni_potsdam.hpi.asg.logictool.stg.model.STG;
-import de.uni_potsdam.hpi.asg.logictool.stg.model.Signal;
-import de.uni_potsdam.hpi.asg.logictool.stg.model.Transition;
-import de.uni_potsdam.hpi.asg.logictool.stg.model.Transition.Edge;
 import de.uni_potsdam.hpi.asg.logictool.trace.ParallelTraceDetector;
 import de.uni_potsdam.hpi.asg.logictool.trace.ShortesTracesFinder;
 import de.uni_potsdam.hpi.asg.logictool.trace.model.SequenceBox;
@@ -65,16 +65,17 @@ public class STGTestMain {
 //        String endSigName = "rD_25";
 //        Edge endEdge = Edge.rising;
 
-//        String filename = "/home/norman/share/testdir/gcd_fordeco.g";
-//        String startSigName = "r1";
-//        Edge startEdge = Edge.rising;
-//        String endSigName = "rD_25";
-//        Edge endEdge = Edge.rising;
-        String filename = "/home/norman/share/testdir/parallel.g";
-        String startSigName = "a";
+        String filename = "/home/norman/share/testdir/gcd_fordeco.g";
+        String startSigName = "r1";
         Edge startEdge = Edge.rising;
-        String endSigName = "i";
+        String endSigName = "rD_25";
         Edge endEdge = Edge.rising;
+
+//        String filename = "/home/norman/share/testdir/parallel.g";
+//        String startSigName = "a";
+//        Edge startEdge = Edge.rising;
+//        String endSigName = "i";
+//        Edge endEdge = Edge.rising;
 
         // STG import
         STG stg = GFile.importFromFile(new File(filename));
@@ -162,7 +163,7 @@ public class STGTestMain {
                 sortedSignals.add(sig);
             }
         }
-        StateGraphComputer graphcomp = new StateGraphComputer(stg, sortedSignals, null);
+        StateGraphComputer graphcomp = new StateGraphComputer(stg, sortedSignals);
         StateGraph stateGraph = graphcomp.compute();
         return stateGraph;
     }

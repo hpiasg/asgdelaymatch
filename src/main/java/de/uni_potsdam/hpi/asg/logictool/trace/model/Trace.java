@@ -2,7 +2,7 @@ package de.uni_potsdam.hpi.asg.logictool.trace.model;
 
 import java.util.Map;
 
-import de.uni_potsdam.hpi.asg.logictool.stg.model.Transition;
+import de.uni_potsdam.hpi.asg.common.stg.model.Transition;
 
 /*
  * Copyright (C) 2016 Norman Kluge

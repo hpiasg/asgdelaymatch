@@ -21,7 +21,7 @@ package de.uni_potsdam.hpi.asg.logictool;
 
 import java.util.Comparator;
 
-import de.uni_potsdam.hpi.asg.logictool.stg.model.Transition;
+import de.uni_potsdam.hpi.asg.common.stg.model.Transition;
 
 public class TransitionTraceSort implements Comparator<Transition> {
 

@@ -22,8 +22,8 @@ package de.uni_potsdam.hpi.asg.logictool.trace.tracehelper;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.uni_potsdam.hpi.asg.common.stg.model.Transition;
 import de.uni_potsdam.hpi.asg.logictool.srgraph.State;
-import de.uni_potsdam.hpi.asg.logictool.stg.model.Transition;
 
 public class TraceSimulationStep {
 

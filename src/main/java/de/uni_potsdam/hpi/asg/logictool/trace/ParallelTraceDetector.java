@@ -32,7 +32,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.google.common.collect.Lists;
 
-import de.uni_potsdam.hpi.asg.logictool.stg.model.Transition;
+import de.uni_potsdam.hpi.asg.common.stg.model.Transition;
 import de.uni_potsdam.hpi.asg.logictool.trace.model.Box;
 import de.uni_potsdam.hpi.asg.logictool.trace.model.ParallelBox;
 import de.uni_potsdam.hpi.asg.logictool.trace.model.SequenceBox;
