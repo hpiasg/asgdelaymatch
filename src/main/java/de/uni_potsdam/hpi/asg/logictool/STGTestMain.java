@@ -32,32 +32,31 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import com.google.common.collect.Lists;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.uni_potsdam.hpi.asg.common.iohelper.LoggerHelper;
-import de.uni_potsdam.hpi.asg.logictool.srgraph.GraphicalStateGraph;
 import de.uni_potsdam.hpi.asg.logictool.srgraph.StateGraph;
 import de.uni_potsdam.hpi.asg.logictool.srgraph.StateGraphComputer;
 import de.uni_potsdam.hpi.asg.logictool.stg.GFile;
-import de.uni_potsdam.hpi.asg.logictool.stg.csc.CSCSolver;
 import de.uni_potsdam.hpi.asg.logictool.stg.model.Place;
 import de.uni_potsdam.hpi.asg.logictool.stg.model.STG;
 import de.uni_potsdam.hpi.asg.logictool.stg.model.Signal;
+import de.uni_potsdam.hpi.asg.logictool.stg.model.Transition;
+import de.uni_potsdam.hpi.asg.logictool.stg.model.Transition.Edge;
+import de.uni_potsdam.hpi.asg.logictool.trace.ParallelTraceDetector;
 import de.uni_potsdam.hpi.asg.logictool.trace.ShortesTracesFinder;
-import de.uni_potsdam.hpi.asg.logictool.trace.model.Box;
-import de.uni_potsdam.hpi.asg.logictool.trace.model.PTBox;
-import de.uni_potsdam.hpi.asg.logictool.trace.model.ParallelBox;
 import de.uni_potsdam.hpi.asg.logictool.trace.model.SequenceBox;
 import de.uni_potsdam.hpi.asg.logictool.trace.model.Trace;
 import de.uni_potsdam.hpi.asg.logictool.trace.model.TransitionBox;
 import de.uni_potsdam.hpi.asg.logictool.trace.tracehelper.TempTrace;
-import de.uni_potsdam.hpi.asg.logictool.stg.model.Transition;
-import de.uni_potsdam.hpi.asg.logictool.stg.model.Transition.Edge;
 
 public class STGTestMain {
+    private static Logger logger;
 
     public static void main(String[] args) {
         LoggerHelper.initLogger(0, null, true);
+        logger = LogManager.getLogger();
         long start = System.currentTimeMillis();
 
 //        String filename = "/home/norman/share/testdir/gcd_fordeco.g";
@@ -71,7 +70,6 @@ public class STGTestMain {
 //        Edge startEdge = Edge.rising;
 //        String endSigName = "rD_25";
 //        Edge endEdge = Edge.rising;
-
         String filename = "/home/norman/share/testdir/parallel.g";
         String startSigName = "a";
         Edge startEdge = Edge.rising;
@@ -111,178 +109,32 @@ public class STGTestMain {
 //            System.out.println(tr);
 //        }
 
-        //check parallel
-        Map<Integer, List<TempTrace>> equalTransitionTraces = new HashMap<>();
-        for(TempTrace trace : tmptraces) {
-            int hash = trace.getTransitions().hashCode();
-            if(!equalTransitionTraces.containsKey(hash)) {
-                equalTransitionTraces.put(hash, new ArrayList<TempTrace>());
-            }
-            equalTransitionTraces.get(hash).add(trace);
+        ParallelTraceDetector ptd = new ParallelTraceDetector();
+        if(!ptd.detect(tmptraces)) {
+            return;
         }
-        List<Trace> traces = new ArrayList<>();
-        for(List<TempTrace> list : equalTransitionTraces.values()) {
-            Map<Transition, TransitionBox> transmap = new HashMap<>();
+        List<Trace> traces = ptd.getTraces();
 
-            if(list.size() == 1) {
-                SequenceBox box = new SequenceBox(null);
-                for(Transition tx : list.get(0).getTrace()) {
-                    TransitionBox tb = new TransitionBox(box, tx);
-                    box.getContent().add(tb);
-                    transmap.put(tx, tb);
-                }
-                traces.add(new Trace(box, transmap));
-                continue;
-            }
+        System.out.println(traces);
 
-            Map<Transition, Set<Transition>> commonPredecessors = new HashMap<>();
-            Map<Transition, Set<Transition>> directPredecessors = new HashMap<>();
-            Map<Transition, Set<Transition>> predecessors = new HashMap<>();
-            for(Transition tx : list.get(0).getTransitions()) {
-                commonPredecessors.put(tx, new HashSet<Transition>());
-                for(Transition tx2 : list.get(0).getTransitions()) {
-                    commonPredecessors.get(tx).add(tx2);
-                }
-                directPredecessors.put(tx, new HashSet<Transition>());
-            }
-            for(TempTrace ttrace : list) {
-                for(int i = 0; i < ttrace.getTrace().size(); i++) {
-                    Transition curr = ttrace.getTrace().get(i);
-                    commonPredecessors.get(curr).retainAll(ttrace.getTrace().subList(0, i));
-                    if(i > 0) {
-                        directPredecessors.get(curr).add(ttrace.getTrace().get(i - 1));
-                    }
-                }
-            }
-            for(Transition tx : list.get(0).getTransitions()) {
-                predecessors.put(tx, new HashSet<>(commonPredecessors.get(tx)));
-                predecessors.get(tx).retainAll(directPredecessors.get(tx));
-            }
-
-            SequenceBox rootbox = new SequenceBox(null);
-            Set<Transition> transitionsleft = new HashSet<>(list.get(0).getTransitions());
-            Map<Transition, SequenceBox> boxmap = new HashMap<>();
-            while(true) {
-                Set<Transition> currEmpty = new HashSet<>();
-                for(Transition tx : transitionsleft) {
-                    if(commonPredecessors.get(tx).isEmpty()) {
-                        currEmpty.add(tx);
-                    }
-                }
-
-                if(currEmpty.isEmpty()) {
-                    if(!transitionsleft.isEmpty()) {
-                        System.out.println("Error: not all transitions placed!");
-                    }
-                    break;
-                } else if(currEmpty.size() == 1) {
-                    //sequential
-                    Transition trans = currEmpty.iterator().next();
-                    if(predecessors.get(trans).isEmpty()) {
-                        // first
-                        TransitionBox tb = new TransitionBox(rootbox, trans);
-                        rootbox.getContent().add(tb);
-                        boxmap.put(trans, rootbox);
-                        transmap.put(trans, tb);
-                    } else if(predecessors.get(trans).size() == 1) {
-                        // sequential
-                        SequenceBox box = boxmap.get(predecessors.get(trans).iterator().next());
-                        TransitionBox tb = new TransitionBox(box, trans);
-                        box.getContent().add(tb);
-                        boxmap.put(trans, box);
-                        transmap.put(trans, tb);
-                    } else {
-                        // join
-                        List<List<Box>> boxhier = new ArrayList<>();
-                        int min = -1;
-                        for(Transition predecessor : predecessors.get(trans)) {
-                            List<Box> boxlist = getTransitiveBox(boxmap.get(predecessor));
-                            boxhier.add(boxlist);
-                            if(min == -1) {
-                                min = boxlist.size();
-                            }
-                            if(boxlist.size() < min) {
-                                min = boxlist.size();
-                            }
-                        }
-                        int firstuncommon = -1;
-                        for(int i = 0; i < min; i++) {
-                            Box value = null;
-                            for(List<Box> boxes : boxhier) {
-                                if(value == null) {
-                                    value = boxes.get(i);
-                                    continue;
-                                }
-                                if(value != boxes.get(i)) {
-                                    firstuncommon = i;
-                                }
-                            }
-                        }
-                        if(firstuncommon == -1) {
-                            System.out.println("ERROR: common sublist");
-                        } else if(firstuncommon == 0) {
-                            TransitionBox tb = new TransitionBox(rootbox, trans);
-                            rootbox.getContent().add(tb);
-                            boxmap.put(trans, rootbox);
-                            transmap.put(trans, tb);
-                        } else {
-                            Box box = boxhier.get(0).get(firstuncommon - 2); //PBox is last common (-1) -but we need SBox in front of it (-1) = (-2)
-                            if(box instanceof SequenceBox) {
-                                SequenceBox sbox = (SequenceBox)box;
-                                TransitionBox tb = new TransitionBox(sbox, trans);
-                                sbox.getContent().add(tb);
-                                boxmap.put(trans, sbox);
-                                transmap.put(trans, tb);
-                            } else {
-                                System.out.println("ERROR: no sequencebox");
-                            }
-                        }
-                    }
-                } else {
-                    Map<Transition, ParallelBox> parallelBoxes = new HashMap<>();
-                    for(Transition trans : currEmpty) {
-                        if(predecessors.get(trans).isEmpty()) {
-                            System.out.println("ERROR: Parallel Trans with empty predecessor!");
-                        } else if(predecessors.get(trans).size() == 1) {
-                            Transition predecessor = predecessors.get(trans).iterator().next();
-                            SequenceBox prebox = boxmap.get(predecessor);
-                            if(!parallelBoxes.containsKey(predecessor)) {
-                                ParallelBox pbox = new ParallelBox(prebox);
-                                parallelBoxes.put(predecessor, pbox);
-                                prebox.getContent().add(pbox);
-                            }
-                            ParallelBox pbox = parallelBoxes.get(predecessor);
-                            SequenceBox sbox = new SequenceBox(pbox);
-                            pbox.getParallelLines().add(sbox);
-                            TransitionBox tb = new TransitionBox(sbox, trans);
-                            sbox.getContent().add(tb);
-                            boxmap.put(trans, sbox);
-                            transmap.put(trans, tb);
-                        } else {
-                            System.out.println("ERROR: Parallel Trans with multiple predecessors!");
-                        }
-                    }
-                }
-
-                for(Transition tx : currEmpty) {
-                    for(Set<Transition> set : commonPredecessors.values()) {
-                        set.remove(tx);
-                    }
-                    transitionsleft.remove(tx);
-                }
-            }
-            traces.add(new Trace(rootbox, transmap));
+        if(!extendSequences(sequences2, traces)) {
+            return;
         }
 
         System.out.println(traces);
 
-        //extend shrunk sequences
+        long end = System.currentTimeMillis();
+        System.out.println(LoggerHelper.formatRuntime(end - start, true));
+    }
+
+    private static boolean extendSequences(Map<Transition, SortedSet<Transition>> sequences2, List<Trace> traces) {
         for(Trace trace : traces) {
             for(Entry<Transition, SortedSet<Transition>> entry : sequences2.entrySet()) {
                 if(trace.getTransitionMap().containsKey(entry.getKey())) {
                     TransitionBox tb = trace.getTransitionMap().get(entry.getKey());
                     if(!(tb.getSuperBox() instanceof SequenceBox)) {
-                        System.out.println("ERROR: SuperBox of Transition is not Sequence");
+                        logger.error("SuperBox of TransitionBox is not a SequenceBox");
+                        return false;
                     }
                     SequenceBox sb = (SequenceBox)tb.getSuperBox();
                     int pos = sb.getContent().indexOf(tb);
@@ -294,24 +146,13 @@ public class STGTestMain {
                             trace.getTransitionMap().put(t8, tb1);
                         }
                     } else {
-                        System.out.println("ERROR: Index -1 should not happen");
+                        logger.error("Index -1 should not happen");
+                        return false;
                     }
                 }
-
             }
         }
-
-        System.out.println(traces);
-
-//        for(List<Transition> seq : sequences3) {
-//            System.out.println(seq);
-//            for(Transition t9 : seq) {
-//                System.out.println(t9);
-//            }
-//        }
-
-        long end = System.currentTimeMillis();
-        System.out.println(LoggerHelper.formatRuntime(end - start, true));
+        return true;
     }
 
     private static StateGraph generateMarkingGraph(STG stg) {
@@ -386,15 +227,5 @@ public class STGTestMain {
             }
         }
         return sequences;
-    }
-
-    private static List<Box> getTransitiveBox(SequenceBox start) {
-        List<Box> retVal = new ArrayList<>();
-        Box next = start;
-        while(next != null) {
-            retVal.add(next);
-            next = next.getSuperBox();
-        }
-        return Lists.reverse(retVal);
     }
 }
