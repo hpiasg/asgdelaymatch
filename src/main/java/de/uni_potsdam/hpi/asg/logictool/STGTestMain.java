@@ -201,7 +201,7 @@ public class STGTestMain {
         while((t = queue.poll()) != null) {
             Queue<Transition> queue2 = new LinkedList<>();
             queue2.add(t);
-            SortedSet<Transition> newseq = new TreeSet<>(new TransitionTraceSort());
+            SortedSet<Transition> newseq = new TreeSet<>(new TransitionSequenceSort());
             while((t2 = queue2.poll()) != null) {
                 if((t2.getSignal() == startSig && t2.getEdge() == startEdge) || (t2.getSignal() == endSig && t2.getEdge() == endEdge)) {
                     continue;

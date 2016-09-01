@@ -23,7 +23,7 @@ import java.util.Comparator;
 
 import de.uni_potsdam.hpi.asg.common.stg.model.Transition;
 
-public class TransitionTraceSort implements Comparator<Transition> {
+public class TransitionSequenceSort implements Comparator<Transition> {
 
     @Override
     public int compare(Transition o1, Transition o2) {
