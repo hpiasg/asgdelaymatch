@@ -1,5 +1,9 @@
 package de.uni_potsdam.hpi.asg.logictool.trace.model;
 
+import java.util.Map;
+
+import de.uni_potsdam.hpi.asg.logictool.stg.model.Transition;
+
 /*
  * Copyright (C) 2016 Norman Kluge
  * 
@@ -20,14 +24,20 @@ package de.uni_potsdam.hpi.asg.logictool.trace.model;
  */
 
 public class Trace {
-    private SequenceBox trace;
+    private SequenceBox                    trace;
+    private Map<Transition, TransitionBox> transitionMap;
 
-    public Trace(SequenceBox trace) {
+    public Trace(SequenceBox trace, Map<Transition, TransitionBox> transitionMap) {
         this.trace = trace;
+        this.transitionMap = transitionMap;
     }
 
     public SequenceBox getTrace() {
         return trace;
+    }
+
+    public Map<Transition, TransitionBox> getTransitionMap() {
+        return transitionMap;
     }
 
     @Override
