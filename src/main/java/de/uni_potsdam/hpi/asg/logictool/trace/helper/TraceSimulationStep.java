@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.uni_potsdam.hpi.asg.common.stg.model.Transition;
-import de.uni_potsdam.hpi.asg.logictool.rgraph.MarkingState;
+import de.uni_potsdam.hpi.asg.logictool.trace.rgraph.MarkingState;
 
 public class TraceSimulationStep {
 

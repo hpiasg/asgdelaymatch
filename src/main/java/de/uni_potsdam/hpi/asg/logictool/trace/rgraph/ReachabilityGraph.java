@@ -1,4 +1,4 @@
-package de.uni_potsdam.hpi.asg.logictool.rgraph;
+package de.uni_potsdam.hpi.asg.logictool.trace.rgraph;
 
 /*
  * Copyright (C) 2016 Norman Kluge
@@ -19,31 +19,26 @@ package de.uni_potsdam.hpi.asg.logictool.rgraph;
  * along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import java.util.Map;
+import java.util.Set;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import de.uni_potsdam.hpi.asg.common.stg.model.STG;
 
-import de.uni_potsdam.hpi.asg.common.stg.model.Signal;
-import de.uni_potsdam.hpi.asg.common.stggraph.AbstractState;
+public class ReachabilityGraph {
 
-public class MarkingState extends AbstractState<MarkingState> {
-    private static final Logger logger = LogManager.getLogger();
+    private Set<MarkingState> states;
+    private STG               stg;
 
-    @Override
-    public void setSignalState(Signal sig, Value val) {
-        logger.error("Not implemented");
+    public ReachabilityGraph(STG stg, Set<MarkingState> states) {
+        this.states = states;
+        this.stg = stg;
     }
 
-    @Override
-    public Map<Signal, Value> getStateValues() {
-        logger.error("Not implemented");
-        return null;
+    public Set<MarkingState> getStates() {
+        return states;
     }
 
-    @Override
-    public boolean isSignalSet(Signal sig) {
-        logger.error("Not implemented");
-        return false;
+    public STG getSTG() {
+        return stg;
     }
+
 }

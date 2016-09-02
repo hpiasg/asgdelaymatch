@@ -1,4 +1,4 @@
-package de.uni_potsdam.hpi.asg.logictool.rgraph;
+package de.uni_potsdam.hpi.asg.logictool.trace.rgraph;
 
 /*
  * Copyright (C) 2016 Norman Kluge
@@ -19,26 +19,24 @@ package de.uni_potsdam.hpi.asg.logictool.rgraph;
  * along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import java.util.HashSet;
 import java.util.Set;
 
 import de.uni_potsdam.hpi.asg.common.stg.model.STG;
+import de.uni_potsdam.hpi.asg.common.stggraph.AbstractSTGGraphComputer;
 
-public class ReachabilityGraph {
-
-    private Set<MarkingState> states;
-    private STG               stg;
-
-    public ReachabilityGraph(STG stg, Set<MarkingState> states) {
-        this.states = states;
-        this.stg = stg;
+public class ReachabilityGraphComputer extends AbstractSTGGraphComputer<MarkingState> {
+    public ReachabilityGraphComputer(STG stg) {
+        super(MarkingState.class, stg);
     }
 
-    public Set<MarkingState> getStates() {
-        return states;
-    }
+    public ReachabilityGraph compute() {
+        if(!internalCompute(false)) {
+            return null;
+        }
 
-    public STG getSTG() {
-        return stg;
+        Set<MarkingState> states2 = new HashSet<>(states.values());
+        clear();
+        return new ReachabilityGraph(stg, states2);
     }
-
 }
