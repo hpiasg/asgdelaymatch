@@ -40,11 +40,11 @@ import de.uni_potsdam.hpi.asg.common.stg.model.Transition;
 import de.uni_potsdam.hpi.asg.common.stg.model.Transition.Edge;
 import de.uni_potsdam.hpi.asg.logictool.rgraph.MarkingState;
 import de.uni_potsdam.hpi.asg.logictool.rgraph.ReachabilityGraph;
-import de.uni_potsdam.hpi.asg.logictool.trace.tracehelper.TempTrace;
-import de.uni_potsdam.hpi.asg.logictool.trace.tracehelper.TraceCmp;
-import de.uni_potsdam.hpi.asg.logictool.trace.tracehelper.TraceSimulationStep;
-import de.uni_potsdam.hpi.asg.logictool.trace.tracehelper.TraceSimulationStepFactory;
-import de.uni_potsdam.hpi.asg.logictool.trace.tracehelper.TraceSimulationStepPool;
+import de.uni_potsdam.hpi.asg.logictool.trace.helper.TempTrace;
+import de.uni_potsdam.hpi.asg.logictool.trace.helper.TraceCmp;
+import de.uni_potsdam.hpi.asg.logictool.trace.helper.TraceSimulationStep;
+import de.uni_potsdam.hpi.asg.logictool.trace.helper.TraceSimulationStepFactory;
+import de.uni_potsdam.hpi.asg.logictool.trace.helper.TraceSimulationStepPool;
 
 public class ShortesTracesFinder {
     private static final Logger     logger = LogManager.getLogger();

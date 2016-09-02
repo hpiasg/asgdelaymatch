@@ -33,12 +33,12 @@ import org.apache.logging.log4j.Logger;
 import com.google.common.collect.Lists;
 
 import de.uni_potsdam.hpi.asg.common.stg.model.Transition;
+import de.uni_potsdam.hpi.asg.logictool.trace.helper.TempTrace;
 import de.uni_potsdam.hpi.asg.logictool.trace.model.Box;
 import de.uni_potsdam.hpi.asg.logictool.trace.model.ParallelBox;
 import de.uni_potsdam.hpi.asg.logictool.trace.model.SequenceBox;
 import de.uni_potsdam.hpi.asg.logictool.trace.model.Trace;
 import de.uni_potsdam.hpi.asg.logictool.trace.model.TransitionBox;
-import de.uni_potsdam.hpi.asg.logictool.trace.tracehelper.TempTrace;
 
 public class ParallelTraceDetector {
     private static final Logger logger = LogManager.getLogger();

@@ -20,36 +20,24 @@ package de.uni_potsdam.hpi.asg.logictool;
  */
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Queue;
-import java.util.Set;
 import java.util.SortedSet;
-import java.util.TreeSet;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import de.uni_potsdam.hpi.asg.common.iohelper.LoggerHelper;
 import de.uni_potsdam.hpi.asg.common.stg.GFile;
-import de.uni_potsdam.hpi.asg.common.stg.model.Place;
 import de.uni_potsdam.hpi.asg.common.stg.model.STG;
 import de.uni_potsdam.hpi.asg.common.stg.model.Signal;
-import de.uni_potsdam.hpi.asg.common.stg.model.Transition;
 import de.uni_potsdam.hpi.asg.common.stg.model.Transition.Edge;
 import de.uni_potsdam.hpi.asg.logictool.rgraph.ReachabilityGraph;
 import de.uni_potsdam.hpi.asg.logictool.rgraph.ReachabilityGraphComputer;
 import de.uni_potsdam.hpi.asg.logictool.trace.ParallelTraceDetector;
+import de.uni_potsdam.hpi.asg.logictool.trace.SequenceShrinker;
 import de.uni_potsdam.hpi.asg.logictool.trace.ShortesTracesFinder;
-import de.uni_potsdam.hpi.asg.logictool.trace.model.SequenceBox;
+import de.uni_potsdam.hpi.asg.logictool.trace.helper.TempTrace;
 import de.uni_potsdam.hpi.asg.logictool.trace.model.Trace;
-import de.uni_potsdam.hpi.asg.logictool.trace.model.TransitionBox;
-import de.uni_potsdam.hpi.asg.logictool.trace.tracehelper.TempTrace;
 
 public class STGTestMain {
     private static Logger logger;
@@ -95,13 +83,18 @@ public class STGTestMain {
         }
 
         //Sequencing
-        List<SortedSet<Transition>> sequences = findSequences(stg, startEdge, endEdge, startSig, endSig);
-        Map<Transition, SortedSet<Transition>> sequences2 = shrinkSequences(stg, sequences);
-        System.out.println("Seq: " + sequences2);
+        SequenceShrinker sshrink = SequenceShrinker.create(stg, startEdge, endEdge, startSig, endSig);
+        if(sshrink == null) {
+            return;
+        }
+        if(!sshrink.shrinkSequences()) {
+            return;
+        }
 //        GFile.writeGFile(stg, new File("/home/norman/workspace/delaymatch/target/test-runs/out.g"));
 
         // State graph generation
-        ReachabilityGraph stateGraph = generateMarkingGraph(stg);
+        ReachabilityGraphComputer graphcomp = new ReachabilityGraphComputer(stg);
+        ReachabilityGraph stateGraph = graphcomp.compute();
 //        new GraphicalStateGraph(stateGraph, true, null);
 
         ShortesTracesFinder stfinder = new ShortesTracesFinder(stateGraph);
@@ -118,7 +111,7 @@ public class STGTestMain {
 
         System.out.println(traces);
 
-        if(!extendSequences(sequences2, traces)) {
+        if(!sshrink.extendSequences(traces)) {
             return;
         }
 
@@ -126,101 +119,5 @@ public class STGTestMain {
 
         long end = System.currentTimeMillis();
         System.out.println(LoggerHelper.formatRuntime(end - start, true));
-    }
-
-    private static boolean extendSequences(Map<Transition, SortedSet<Transition>> sequences2, List<Trace> traces) {
-        for(Trace trace : traces) {
-            for(Entry<Transition, SortedSet<Transition>> entry : sequences2.entrySet()) {
-                if(trace.getTransitionMap().containsKey(entry.getKey())) {
-                    TransitionBox tb = trace.getTransitionMap().get(entry.getKey());
-                    if(!(tb.getSuperBox() instanceof SequenceBox)) {
-                        logger.error("SuperBox of TransitionBox is not a SequenceBox");
-                        return false;
-                    }
-                    SequenceBox sb = (SequenceBox)tb.getSuperBox();
-                    int pos = sb.getContent().indexOf(tb);
-                    if(pos != -1) {
-                        sb.getContent().remove(pos);
-                        for(Transition t8 : entry.getValue()) {
-                            TransitionBox tb1 = new TransitionBox(sb, t8);
-                            sb.getContent().add(pos++, tb1);
-                            trace.getTransitionMap().put(t8, tb1);
-                        }
-                    } else {
-                        logger.error("Index -1 should not happen");
-                        return false;
-                    }
-                }
-            }
-        }
-        return true;
-    }
-
-    private static ReachabilityGraph generateMarkingGraph(STG stg) {
-        ReachabilityGraphComputer graphcomp = new ReachabilityGraphComputer(stg);
-        ReachabilityGraph stateGraph = graphcomp.compute();
-        return stateGraph;
-    }
-
-    private static Map<Transition, SortedSet<Transition>> shrinkSequences(STG stg, List<SortedSet<Transition>> sequences) {
-        Map<Transition, SortedSet<Transition>> sequences2 = new HashMap<>();
-        for(SortedSet<Transition> seq : sequences) {
-            Transition first = seq.first();
-            Transition last = seq.last();
-            if(first == last) {
-                continue;
-            }
-            first.getPostset().clear();
-            first.getPostset().addAll(last.getPostset());
-            for(Transition t3 : seq) {
-                if(t3 == first) {
-                    continue;
-                }
-                Place p = t3.getPreset().get(0);
-                t3.getPreset().clear();
-                t3.getSignal().getTransitions().remove(t3);
-                stg.getTransitions().remove(t3);
-                stg.getPlaces().remove(p.getId());
-            }
-            sequences2.put(first, seq);
-        }
-        return sequences2;
-    }
-
-    private static List<SortedSet<Transition>> findSequences(STG stg, Edge startEdge, Edge endEdge, Signal startSig, Signal endSig) {
-        List<SortedSet<Transition>> sequences = new ArrayList<>();
-        Set<Transition> alreadyInSeq = new HashSet<>();
-        Queue<Transition> queue = new LinkedList<>(stg.getTransitions());
-        Transition t, t2 = null;
-        while((t = queue.poll()) != null) {
-            Queue<Transition> queue2 = new LinkedList<>();
-            queue2.add(t);
-            SortedSet<Transition> newseq = new TreeSet<>(new TransitionSequenceSort());
-            while((t2 = queue2.poll()) != null) {
-                if((t2.getSignal() == startSig && t2.getEdge() == startEdge) || (t2.getSignal() == endSig && t2.getEdge() == endEdge)) {
-                    continue;
-                }
-                if(alreadyInSeq.contains(t2)) {
-                    continue;
-                }
-                if(t2.getPostset().size() == 1 && t2.getPreset().size() == 1) {
-                    newseq.add(t2);
-                    alreadyInSeq.add(t2);
-                    queue.remove(t2);
-                    Place post = t2.getPostset().get(0);
-                    if(!stg.getInitMarking().contains(post) && post.getPreset().size() == 1 && post.getPostset().size() == 1) {
-                        queue2.addAll(post.getPostset());
-                    }
-                    Place pre = t2.getPreset().get(0);
-                    if(!stg.getInitMarking().contains(pre) && pre.getPreset().size() == 1 && pre.getPostset().size() == 1) {
-                        queue2.addAll(pre.getPreset());
-                    }
-                }
-            }
-            if(!newseq.isEmpty()) {
-                sequences.add(newseq);
-            }
-        }
-        return sequences;
     }
 }

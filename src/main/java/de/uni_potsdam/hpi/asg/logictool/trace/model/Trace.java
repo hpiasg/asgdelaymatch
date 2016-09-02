@@ -1,9 +1,5 @@
 package de.uni_potsdam.hpi.asg.logictool.trace.model;
 
-import java.util.Map;
-
-import de.uni_potsdam.hpi.asg.common.stg.model.Transition;
-
 /*
  * Copyright (C) 2016 Norman Kluge
  * 
@@ -22,6 +18,10 @@ import de.uni_potsdam.hpi.asg.common.stg.model.Transition;
  * You should have received a copy of the GNU General Public License
  * along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+import java.util.Map;
+
+import de.uni_potsdam.hpi.asg.common.stg.model.Transition;
 
 public class Trace {
     private SequenceBox                    trace;
