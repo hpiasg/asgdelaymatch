@@ -1,7 +1,5 @@
 package de.uni_potsdam.hpi.asg.delaymatch.misc;
 
-import java.util.HashMap;
-
 /*
  * Copyright (C) 2016 Norman Kluge
  * 
@@ -21,6 +19,7 @@ import java.util.HashMap;
  * along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import java.util.HashMap;
 import java.util.Map;
 
 import de.uni_potsdam.hpi.asg.delaymatch.profile.ProfileComponent;

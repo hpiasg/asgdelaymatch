@@ -52,7 +52,12 @@ public class MeasureMain {
     }
 
     public boolean measure(File vfile) {
-        MeasureScriptGenerator gen = MeasureScriptGenerator.create(vfile, modules, advanced);
+        MeasureRecordGenerator rec = new MeasureRecordGenerator(modules);
+        if(!rec.generate(advanced)) {
+            return false;
+        }
+
+        MeasureScriptGenerator gen = MeasureScriptGenerator.create(vfile, modules);
         if(!gen.generate()) {
             return false;
         }
