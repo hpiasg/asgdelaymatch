@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +40,7 @@ import de.uni_potsdam.hpi.asg.delaymatch.DelayMatchMain;
 import de.uni_potsdam.hpi.asg.delaymatch.helper.AbstractScriptGenerator;
 import de.uni_potsdam.hpi.asg.delaymatch.helper.PortHelper;
 import de.uni_potsdam.hpi.asg.delaymatch.misc.DelayMatchModule;
+import de.uni_potsdam.hpi.asg.delaymatch.misc.MeasureRecord;
 import de.uni_potsdam.hpi.asg.delaymatch.profile.MatchPath;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogSignalGroup;
 
@@ -141,12 +141,27 @@ public class MatchScriptGenerator extends AbstractScriptGenerator {
     }
 
     private Float computeValue(MatchPath path, DelayMatchModule mod) {
-        Float val = mod.getMeasureValue(path.getMeasure());
-        List<Float> negvals = mod.getNegativeMatchValues(path.getMatch());
-        if(negvals != null && !negvals.isEmpty()) {
-            Float minnegval = Collections.min(negvals);
-            return val - minnegval;
+        MeasureRecord rec = mod.getMeasureAddition(path);
+        if(rec == null) {
+            logger.error("No record for path found");
+            return null;
         }
+        Float val = rec.getValue();
+
+        Float futureSubstraction = null;
+        for(MeasureRecord recF : mod.getFutureSubtractions(path)) {
+            if(futureSubstraction == null) {
+                futureSubstraction = recF.getValue();
+            }
+            if(futureSubstraction > recF.getValue()) {
+                futureSubstraction = recF.getValue();
+            }
+        }
+
+        if(futureSubstraction != null) {
+            val -= futureSubstraction;
+        }
+
         return val;
     }
 

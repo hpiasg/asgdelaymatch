@@ -29,7 +29,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import de.uni_potsdam.hpi.asg.delaymatch.profile.MatchPath;
-import de.uni_potsdam.hpi.asg.delaymatch.profile.Path;
 import de.uni_potsdam.hpi.asg.delaymatch.profile.ProfileComponent;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogModule;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogSignal;
@@ -82,12 +81,12 @@ public class DelayMatchModule {
         return Collections.unmodifiableMap(measureRecords);
     }
 
-    public Map<MatchPath, List<MeasureRecord>> getFutureSubtractions() {
-        return Collections.unmodifiableMap(futureSubtractions);
+    public List<MeasureRecord> getFutureSubtractions(MatchPath path) {
+        return futureSubtractions.get(path);
     }
 
-    public Map<MatchPath, MeasureRecord> getMeasureAdditions() {
-        return Collections.unmodifiableMap(measureAdditions);
+    public MeasureRecord getMeasureAddition(MatchPath path) {
+        return measureAdditions.get(path);
     }
 
     public String getName() {

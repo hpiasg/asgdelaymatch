@@ -105,6 +105,7 @@ public class MeasureScriptGenerator extends AbstractScriptGenerator {
                 for(MeasureRecord rec : mod.getMeasureRecords().values()) {
                     tclfilecontent.addAll(generateMeasureTcl(rec, mod.getName()));
                 }
+                mod.setMeasureOutputfile(name + "_" + mod.getName() + dc_log_file);
             }
         }
 
@@ -208,7 +209,7 @@ public class MeasureScriptGenerator extends AbstractScriptGenerator {
 
     private List<String> generateMeasureCommonTcl(String id, String component, String from, String to, List<String> lines) {
         List<String> newlines = new ArrayList<>();
-        newlines.add("redirect -append " + name + "_" + component + dc_log_file + " {echo ASGdm:" + id + "}");
+        newlines.add("redirect -append " + name + "_" + component + dc_log_file + " {echo ASGdm\\;" + id + "\\;}");
         for(String line : lines) {
             line = line.replace("#*dc_sub_log*#", name + "_" + component + dc_log_file);
             line = line.replace("#*root_sub*#", component);
