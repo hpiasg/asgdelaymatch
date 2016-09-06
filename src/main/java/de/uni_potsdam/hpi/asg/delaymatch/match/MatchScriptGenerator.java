@@ -147,6 +147,8 @@ public class MatchScriptGenerator extends AbstractScriptGenerator {
             return null;
         }
         Float val = rec.getValue();
+        logger.info("Measure path: " + mod.getName() + ": " + rec.getId().replace("max_", "").replaceAll("both_", ""));
+        logger.info("\tValue:  " + String.format("%+2.5f", rec.getValue()));
 
         Float futureSubstraction = null;
         for(MeasureRecord recF : mod.getFutureSubtractions(path)) {
@@ -159,9 +161,11 @@ public class MatchScriptGenerator extends AbstractScriptGenerator {
         }
 
         if(futureSubstraction != null) {
+            logger.info("\tFuture: " + String.format("%+2.5f", (0f - futureSubstraction)));
             val -= futureSubstraction;
         }
 
+        logger.info("\tFinal:  " + String.format("%+2.5f", val));
         return val;
     }
 
