@@ -1,4 +1,4 @@
-package de.uni_potsdam.hpi.asg.logictool.trace.helper;
+package de.uni_potsdam.hpi.asg.delaymatch.trace.helper;
 
 /*
  * Copyright (C) 2016 Norman Kluge
@@ -19,33 +19,28 @@ package de.uni_potsdam.hpi.asg.logictool.trace.helper;
  * along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import java.util.HashSet;
+import java.util.Comparator;
 
-import java.util.List;
-import java.util.Set;
-
-import de.uni_potsdam.hpi.asg.common.stg.model.Transition;
-
-public class TempTrace {
-
-    private List<Transition> trace;
-    private Set<Transition>  transitions;
-
-    public TempTrace(List<Transition> trace) {
-        this.trace = trace;
-        this.transitions = new HashSet<>(trace);
-    }
-
-    public List<Transition> getTrace() {
-        return trace;
-    }
-
-    public Set<Transition> getTransitions() {
-        return transitions;
-    }
+public class TraceCmp implements Comparator<TempTrace> {
 
     @Override
-    public String toString() {
-        return trace.toString();
+    public int compare(TempTrace arg0, TempTrace arg1) {
+        int i = 0;
+        while(true) {
+            if(arg0.getTrace().size() == i && arg1.getTrace().size() == i) {
+                return 0;
+            }
+            if(arg0.getTrace().size() == i) {
+                return -1;
+            }
+            if(arg1.getTrace().size() == i) {
+                return 1;
+            }
+            int cmpT = arg0.getTrace().get(i).compareTo(arg1.getTrace().get(i));
+            if(cmpT != 0) {
+                return cmpT;
+            }
+            i++;
+        }
     }
 }

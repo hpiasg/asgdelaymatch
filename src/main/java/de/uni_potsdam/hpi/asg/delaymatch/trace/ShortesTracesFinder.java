@@ -1,4 +1,4 @@
-package de.uni_potsdam.hpi.asg.logictool.trace;
+package de.uni_potsdam.hpi.asg.delaymatch.trace;
 
 /*
  * Copyright (C) 2016 Norman Kluge
@@ -38,13 +38,13 @@ import org.apache.logging.log4j.Logger;
 import de.uni_potsdam.hpi.asg.common.stg.model.Signal;
 import de.uni_potsdam.hpi.asg.common.stg.model.Transition;
 import de.uni_potsdam.hpi.asg.common.stg.model.Transition.Edge;
-import de.uni_potsdam.hpi.asg.logictool.trace.helper.TempTrace;
-import de.uni_potsdam.hpi.asg.logictool.trace.helper.TraceCmp;
-import de.uni_potsdam.hpi.asg.logictool.trace.helper.TraceSimulationStep;
-import de.uni_potsdam.hpi.asg.logictool.trace.helper.TraceSimulationStepFactory;
-import de.uni_potsdam.hpi.asg.logictool.trace.helper.TraceSimulationStepPool;
-import de.uni_potsdam.hpi.asg.logictool.trace.rgraph.MarkingState;
-import de.uni_potsdam.hpi.asg.logictool.trace.rgraph.ReachabilityGraph;
+import de.uni_potsdam.hpi.asg.delaymatch.trace.helper.TempTrace;
+import de.uni_potsdam.hpi.asg.delaymatch.trace.helper.TraceCmp;
+import de.uni_potsdam.hpi.asg.delaymatch.trace.helper.TraceSimulationStep;
+import de.uni_potsdam.hpi.asg.delaymatch.trace.helper.TraceSimulationStepFactory;
+import de.uni_potsdam.hpi.asg.delaymatch.trace.helper.TraceSimulationStepPool;
+import de.uni_potsdam.hpi.asg.delaymatch.trace.rgraph.MarkingState;
+import de.uni_potsdam.hpi.asg.delaymatch.trace.rgraph.ReachabilityGraph;
 
 public class ShortesTracesFinder {
     private static final Logger     logger = LogManager.getLogger();

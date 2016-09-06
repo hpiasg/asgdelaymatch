@@ -1,4 +1,4 @@
-package de.uni_potsdam.hpi.asg.logictool.trace;
+package de.uni_potsdam.hpi.asg.delaymatch.trace;
 
 /*
  * Copyright (C) 2016 Norman Kluge
@@ -39,10 +39,10 @@ import de.uni_potsdam.hpi.asg.common.stg.model.STG;
 import de.uni_potsdam.hpi.asg.common.stg.model.Signal;
 import de.uni_potsdam.hpi.asg.common.stg.model.Transition;
 import de.uni_potsdam.hpi.asg.common.stg.model.Transition.Edge;
-import de.uni_potsdam.hpi.asg.logictool.trace.helper.TransitionSequenceSort;
-import de.uni_potsdam.hpi.asg.logictool.trace.model.SequenceBox;
-import de.uni_potsdam.hpi.asg.logictool.trace.model.Trace;
-import de.uni_potsdam.hpi.asg.logictool.trace.model.TransitionBox;
+import de.uni_potsdam.hpi.asg.delaymatch.trace.helper.TransitionSequenceSort;
+import de.uni_potsdam.hpi.asg.delaymatch.trace.model.SequenceBox;
+import de.uni_potsdam.hpi.asg.delaymatch.trace.model.Trace;
+import de.uni_potsdam.hpi.asg.delaymatch.trace.model.TransitionBox;
 
 public class SequenceShrinker {
     private static final Logger                    logger = LogManager.getLogger();

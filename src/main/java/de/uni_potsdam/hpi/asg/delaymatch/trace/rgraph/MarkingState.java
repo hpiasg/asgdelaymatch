@@ -1,4 +1,4 @@
-package de.uni_potsdam.hpi.asg.logictool.trace.model;
+package de.uni_potsdam.hpi.asg.delaymatch.trace.rgraph;
 
 /*
  * Copyright (C) 2016 Norman Kluge
@@ -19,30 +19,31 @@ package de.uni_potsdam.hpi.asg.logictool.trace.model;
  * along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 
-public class SequenceBox extends Box {
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-    private List<PTBox> content;
+import de.uni_potsdam.hpi.asg.common.stg.model.Signal;
+import de.uni_potsdam.hpi.asg.common.stggraph.AbstractState;
 
-    public SequenceBox(Box superBox) {
-        super(superBox);
-        this.content = new ArrayList<>();
-    }
+public class MarkingState extends AbstractState<MarkingState> {
+    private static final Logger logger = LogManager.getLogger();
 
-    public List<PTBox> getContent() {
-        return content;
+    @Override
+    public void setSignalState(Signal sig, Value val) {
+        logger.error("Not implemented");
     }
 
     @Override
-    public String toString() {
-        StringBuilder str = new StringBuilder();
-        str.append("[S ");
-        for(PTBox box : content) {
-            str.append(box.toString());
-        }
-        str.append("]");
-        return str.toString();
+    public Map<Signal, Value> getStateValues() {
+        logger.error("Not implemented");
+        return null;
+    }
+
+    @Override
+    public boolean isSignalSet(Signal sig) {
+        logger.error("Not implemented");
+        return false;
     }
 }

@@ -1,4 +1,4 @@
-package de.uni_potsdam.hpi.asg.logictool.trace.model;
+package de.uni_potsdam.hpi.asg.delaymatch.trace.helper;
 
 /*
  * Copyright (C) 2016 Norman Kluge
@@ -19,25 +19,29 @@ package de.uni_potsdam.hpi.asg.logictool.trace.model;
  * along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import java.util.Map;
+import java.util.HashSet;
+
+import java.util.List;
+import java.util.Set;
 
 import de.uni_potsdam.hpi.asg.common.stg.model.Transition;
 
-public class Trace {
-    private SequenceBox                    trace;
-    private Map<Transition, TransitionBox> transitionMap;
+public class TempTrace {
 
-    public Trace(SequenceBox trace, Map<Transition, TransitionBox> transitionMap) {
+    private List<Transition> trace;
+    private Set<Transition>  transitions;
+
+    public TempTrace(List<Transition> trace) {
         this.trace = trace;
-        this.transitionMap = transitionMap;
+        this.transitions = new HashSet<>(trace);
     }
 
-    public SequenceBox getTrace() {
+    public List<Transition> getTrace() {
         return trace;
     }
 
-    public Map<Transition, TransitionBox> getTransitionMap() {
-        return transitionMap;
+    public Set<Transition> getTransitions() {
+        return transitions;
     }
 
     @Override

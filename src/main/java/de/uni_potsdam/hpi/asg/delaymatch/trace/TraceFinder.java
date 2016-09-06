@@ -1,4 +1,4 @@
-package de.uni_potsdam.hpi.asg.logictool.trace;
+package de.uni_potsdam.hpi.asg.delaymatch.trace;
 
 /*
  * Copyright (C) 2016 Norman Kluge
@@ -27,10 +27,10 @@ import de.uni_potsdam.hpi.asg.common.stg.GFile;
 import de.uni_potsdam.hpi.asg.common.stg.model.STG;
 import de.uni_potsdam.hpi.asg.common.stg.model.Signal;
 import de.uni_potsdam.hpi.asg.common.stg.model.Transition.Edge;
-import de.uni_potsdam.hpi.asg.logictool.trace.helper.TempTrace;
-import de.uni_potsdam.hpi.asg.logictool.trace.model.Trace;
-import de.uni_potsdam.hpi.asg.logictool.trace.rgraph.ReachabilityGraph;
-import de.uni_potsdam.hpi.asg.logictool.trace.rgraph.ReachabilityGraphComputer;
+import de.uni_potsdam.hpi.asg.delaymatch.trace.helper.TempTrace;
+import de.uni_potsdam.hpi.asg.delaymatch.trace.model.Trace;
+import de.uni_potsdam.hpi.asg.delaymatch.trace.rgraph.ReachabilityGraph;
+import de.uni_potsdam.hpi.asg.delaymatch.trace.rgraph.ReachabilityGraphComputer;
 
 public class TraceFinder {
 

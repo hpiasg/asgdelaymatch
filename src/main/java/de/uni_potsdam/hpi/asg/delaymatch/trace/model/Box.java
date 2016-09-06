@@ -1,4 +1,4 @@
-package de.uni_potsdam.hpi.asg.logictool.trace.model;
+package de.uni_potsdam.hpi.asg.delaymatch.trace.model;
 
 /*
  * Copyright (C) 2016 Norman Kluge
@@ -19,32 +19,15 @@ package de.uni_potsdam.hpi.asg.logictool.trace.model;
  * along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import java.util.ArrayList;
+public abstract class Box {
 
-import java.util.List;
+    private Box superBox;
 
-public class ParallelBox extends Box implements PTBox {
-
-    private List<SequenceBox> parallelLines;
-
-    public ParallelBox(Box superBox) {
-        super(superBox);
-        this.parallelLines = new ArrayList<>();
+    public Box(Box superBox) {
+        this.superBox = superBox;
     }
 
-    public List<SequenceBox> getParallelLines() {
-        return parallelLines;
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder str = new StringBuilder();
-        str.append("[P ");
-        for(SequenceBox box : parallelLines) {
-            str.append(box.toString() + " | ");
-        }
-        str.setLength(str.length() - 3);
-        str.append("]");
-        return str.toString();
+    public Box getSuperBox() {
+        return superBox;
     }
 }

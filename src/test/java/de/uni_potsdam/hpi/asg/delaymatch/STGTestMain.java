@@ -1,4 +1,4 @@
-package de.uni_potsdam.hpi.asg.logictool;
+package de.uni_potsdam.hpi.asg.delaymatch;
 
 /*
  * Copyright (C) 2016 Norman Kluge
@@ -26,7 +26,7 @@ import org.apache.logging.log4j.Logger;
 
 import de.uni_potsdam.hpi.asg.common.iohelper.LoggerHelper;
 import de.uni_potsdam.hpi.asg.common.stg.model.Transition.Edge;
-import de.uni_potsdam.hpi.asg.logictool.trace.TraceFinder;
+import de.uni_potsdam.hpi.asg.delaymatch.trace.TraceFinder;
 
 public class STGTestMain {
     private static Logger logger;

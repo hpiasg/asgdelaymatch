@@ -1,4 +1,4 @@
-package de.uni_potsdam.hpi.asg.logictool.trace.helper;
+package de.uni_potsdam.hpi.asg.delaymatch.trace.helper;
 
 /*
  * Copyright (C) 2016 Norman Kluge
@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.uni_potsdam.hpi.asg.common.stg.model.Transition;
-import de.uni_potsdam.hpi.asg.logictool.trace.rgraph.MarkingState;
+import de.uni_potsdam.hpi.asg.delaymatch.trace.rgraph.MarkingState;
 
 public class TraceSimulationStep {
 

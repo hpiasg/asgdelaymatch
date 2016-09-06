@@ -1,4 +1,4 @@
-package de.uni_potsdam.hpi.asg.logictool.trace.rgraph;
+package de.uni_potsdam.hpi.asg.delaymatch.trace.model;
 
 /*
  * Copyright (C) 2016 Norman Kluge
@@ -19,31 +19,32 @@ package de.uni_potsdam.hpi.asg.logictool.trace.rgraph;
  * along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import java.util.Map;
+import java.util.ArrayList;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.List;
 
-import de.uni_potsdam.hpi.asg.common.stg.model.Signal;
-import de.uni_potsdam.hpi.asg.common.stggraph.AbstractState;
+public class ParallelBox extends Box implements PTBox {
 
-public class MarkingState extends AbstractState<MarkingState> {
-    private static final Logger logger = LogManager.getLogger();
+    private List<SequenceBox> parallelLines;
 
-    @Override
-    public void setSignalState(Signal sig, Value val) {
-        logger.error("Not implemented");
+    public ParallelBox(Box superBox) {
+        super(superBox);
+        this.parallelLines = new ArrayList<>();
+    }
+
+    public List<SequenceBox> getParallelLines() {
+        return parallelLines;
     }
 
     @Override
-    public Map<Signal, Value> getStateValues() {
-        logger.error("Not implemented");
-        return null;
-    }
-
-    @Override
-    public boolean isSignalSet(Signal sig) {
-        logger.error("Not implemented");
-        return false;
+    public String toString() {
+        StringBuilder str = new StringBuilder();
+        str.append("[P ");
+        for(SequenceBox box : parallelLines) {
+            str.append(box.toString() + " | ");
+        }
+        str.setLength(str.length() - 3);
+        str.append("]");
+        return str.toString();
     }
 }

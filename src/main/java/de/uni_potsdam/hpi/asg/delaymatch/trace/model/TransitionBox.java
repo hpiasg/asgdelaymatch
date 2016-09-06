@@ -1,4 +1,4 @@
-package de.uni_potsdam.hpi.asg.logictool.trace.model;
+package de.uni_potsdam.hpi.asg.delaymatch.trace.model;
 
 /*
  * Copyright (C) 2016 Norman Kluge
