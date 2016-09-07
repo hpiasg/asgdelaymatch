@@ -122,7 +122,6 @@ public class SequenceShrinker {
             }
             sequences2.put(first, seq);
         }
-        System.out.println(sequences2);
         return true;
     }
 

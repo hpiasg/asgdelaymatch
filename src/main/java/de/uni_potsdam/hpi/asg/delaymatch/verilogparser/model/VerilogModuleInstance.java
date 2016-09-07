@@ -66,6 +66,6 @@ public class VerilogModuleInstance {
 
     @Override
     public String toString() {
-        return "ModInst:" + module.getModulename();
+        return "ModInst:" + module.getModulename() + "(" + instName + ")";
     }
 }

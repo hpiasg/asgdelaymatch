@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import de.uni_potsdam.hpi.asg.delaymatch.profile.MatchPath;
+import de.uni_potsdam.hpi.asg.delaymatch.trace.model.Trace;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogModuleInstance;
 
 public class DelayMatchModuleInst {
@@ -32,6 +33,7 @@ public class DelayMatchModuleInst {
     private DelayMatchModule                    dmmodule;
     private Map<MatchPath, MeasureRecord>       measureAdditions;
     private Map<MatchPath, List<MeasureRecord>> futureSubtractions;
+    private Map<MatchPath, List<Trace>>         pastSubstrationTraces;
 
     public DelayMatchModuleInst(VerilogModuleInstance inst, DelayMatchModule dmmodule) {
         this.inst = inst;
@@ -51,12 +53,23 @@ public class DelayMatchModuleInst {
         futureSubtractions.get(p).add(rec);
     }
 
+    public void addPastSubstractionTraces(MatchPath p, List<Trace> t) {
+        if(!pastSubstrationTraces.containsKey(p)) {
+            pastSubstrationTraces.put(p, new ArrayList<Trace>());
+        }
+        pastSubstrationTraces.get(p).addAll(t);
+    }
+
     public List<MeasureRecord> getFutureSubtractions(MatchPath path) {
         return futureSubtractions.get(path);
     }
 
     public MeasureRecord getMeasureAddition(MatchPath path) {
         return measureAdditions.get(path);
+    }
+
+    public List<Trace> getPastSubstrationTraces(MatchPath path) {
+        return pastSubstrationTraces.get(path);
     }
 
     public DelayMatchModule getDMmodule() {
