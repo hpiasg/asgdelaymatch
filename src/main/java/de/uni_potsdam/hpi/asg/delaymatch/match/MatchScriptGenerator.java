@@ -175,7 +175,7 @@ public class MatchScriptGenerator extends AbstractScriptGenerator {
             values.add(val);
         }
         Float retVal = Collections.max(values);
-        logger.info("\tFinal module: " + String.format("%+2.5f", retVal));
+        logger.info("\tFinal module:   " + String.format("%+2.5f", retVal));
         return retVal;
     }
 

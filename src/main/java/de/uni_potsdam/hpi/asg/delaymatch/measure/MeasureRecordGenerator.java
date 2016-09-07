@@ -72,11 +72,13 @@ public class MeasureRecordGenerator {
                         for(DelayMatchModuleInst inst : mod.getInstances()) {
                             if(future) {
                                 if(!generateFutureRecords(inst, path)) {
+                                    logger.error("Generate future substraction for " + mod.getModuleName() + "(" + inst.getInstName() + ") failed");
                                     return false;
                                 }
                             }
                             if(past) {
                                 if(!generatePastRecords(mod, path)) {
+                                    logger.error("Generate past substraction for " + mod.getModuleName() + "(" + inst.getInstName() + ") failed");
                                     return false;
                                 }
                             }

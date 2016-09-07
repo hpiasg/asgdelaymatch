@@ -46,6 +46,7 @@ public class EligibleModuleFinder {
                     mod.addInstance(dminst);
                 }
             }
+            retVal.put(module.getModulename(), mod);
         }
         return retVal;
     }
