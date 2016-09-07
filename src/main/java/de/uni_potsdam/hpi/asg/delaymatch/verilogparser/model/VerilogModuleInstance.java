@@ -30,10 +30,12 @@ public class VerilogModuleInstance {
     private static final Logger                         logger = LogManager.getLogger();
 
     private VerilogModule                               module;
+    private String                                      instName;
     private Map<VerilogSignal, VerilogModuleConnection> connections;
 
-    public VerilogModuleInstance(VerilogModule module) {
+    public VerilogModuleInstance(VerilogModule module, String instName) {
         this.module = module;
+        this.instName = instName;
         this.connections = new HashMap<>();
     }
 
@@ -56,6 +58,10 @@ public class VerilogModuleInstance {
 
     public Map<VerilogSignal, VerilogModuleConnection> getConnections() {
         return connections;
+    }
+
+    public String getInstName() {
+        return instName;
     }
 
     @Override

@@ -29,6 +29,7 @@ import org.apache.logging.log4j.Logger;
 
 import de.uni_potsdam.hpi.asg.delaymatch.helper.PortHelper;
 import de.uni_potsdam.hpi.asg.delaymatch.misc.DelayMatchModule;
+import de.uni_potsdam.hpi.asg.delaymatch.misc.DelayMatchModuleInst;
 import de.uni_potsdam.hpi.asg.delaymatch.misc.MeasureRecord;
 import de.uni_potsdam.hpi.asg.delaymatch.misc.MeasureRecord.MeasureEdge;
 import de.uni_potsdam.hpi.asg.delaymatch.misc.MeasureRecord.MeasureType;
@@ -49,7 +50,7 @@ public class MeasureRecordGenerator {
         this.modules = modules;
     }
 
-    public boolean generate(boolean future) {
+    public boolean generate(boolean future, boolean past) {
         for(DelayMatchModule mod : modules.values()) {
             if(mod.getProfilecomp() != null) {
                 for(MatchPath path : mod.getProfilecomp().getMatchpaths()) {
@@ -67,9 +68,18 @@ public class MeasureRecordGenerator {
                         addMeasureAddition(mod, path, null);
                     }
 
-                    if(future) {
-                        if(!generateFutureRecords(mod, path)) {
-                            return false;
+                    if(future || past) {
+                        for(DelayMatchModuleInst inst : mod.getInstances()) {
+                            if(future) {
+                                if(!generateFutureRecords(inst, path)) {
+                                    return false;
+                                }
+                            }
+                            if(past) {
+                                if(!generatePastRecords(mod, path)) {
+                                    return false;
+                                }
+                            }
                         }
                     }
                 }
@@ -78,35 +88,39 @@ public class MeasureRecordGenerator {
         return true;
     }
 
-    private boolean generateFutureRecords(DelayMatchModule mod, MatchPath path) {
+    private boolean generatePastRecords(DelayMatchModule mod, MatchPath path) {
+
+        return true;
+    }
+
+    private boolean generateFutureRecords(DelayMatchModuleInst dminst, MatchPath path) {
         Set<VerilogSignal> sigs = new HashSet<>();
         for(Port p : path.getMatch().getTo()) {
-            sigs.addAll(p.getCorrespondingSignals(mod.getVerilogModule()));
+            sigs.addAll(p.getCorrespondingSignals(dminst.getDMmodule().getVerilogModule()));
         }
-        for(VerilogModuleInstance inst : mod.getVerilogModule().getInstances()) {
-            for(VerilogSignal sig : sigs) {
-                VerilogModuleConnection con = inst.getConnections().get(sig);
-                if(con == null) {
-                    return false;
-                }
-                Map<VerilogModuleInstance, VerilogSignal> others = con.getReader();
-                if(others == null) {
-                    return false;
-                }
-                for(Entry<VerilogModuleInstance, VerilogSignal> otherinst : others.entrySet()) {
-                    String othermodulename = otherinst.getKey().getModule().getModulename();
-                    StringBuilder to = new StringBuilder();
-                    for(VerilogSignal sig2 : otherinst.getKey().getModule().getSignals().values()) {
-                        if(sig2.getDirection() == Direction.output) {
-                            to.append(sig2.getName() + " ");
-                        }
+        VerilogModuleInstance inst = dminst.getVerilogModuleInst();
+        for(VerilogSignal sig : sigs) {
+            VerilogModuleConnection con = inst.getConnections().get(sig);
+            if(con == null) {
+                return false;
+            }
+            Map<VerilogModuleInstance, VerilogSignal> others = con.getReader();
+            if(others == null) {
+                return false;
+            }
+            for(Entry<VerilogModuleInstance, VerilogSignal> otherinst : others.entrySet()) {
+                String othermodulename = otherinst.getKey().getModule().getModulename();
+                StringBuilder to = new StringBuilder();
+                for(VerilogSignal sig2 : otherinst.getKey().getModule().getSignals().values()) {
+                    if(sig2.getDirection() == Direction.output) {
+                        to.append(sig2.getName() + " ");
                     }
-                    to.setLength(to.length() - 1);
-                    DelayMatchModule othermodule = modules.get(othermodulename);
-                    MeasureRecord rec = new MeasureRecord(MeasureEdge.both, otherinst.getValue().getName(), MeasureEdge.both, to.toString(), MeasureType.min);
-                    othermodule.addMeasureRecord(rec);
-                    mod.addFutureSubstraction(path, rec);
                 }
+                to.setLength(to.length() - 1);
+                DelayMatchModule othermodule = modules.get(othermodulename);
+                MeasureRecord rec = new MeasureRecord(MeasureEdge.both, otherinst.getValue().getName(), MeasureEdge.both, to.toString(), MeasureType.min);
+                othermodule.addMeasureRecord(rec);
+                dminst.addFutureSubstraction(path, rec);
             }
         }
         return true;
@@ -117,6 +131,8 @@ public class MeasureRecordGenerator {
         String to = PortHelper.getPortListAsDCString(path.getMeasure().getTo(), eachid, mod.getSignals());
         MeasureRecord rec = new MeasureRecord(MeasureEdge.both, from, MeasureEdge.both, to, MeasureType.max);
         mod.addMeasureRecord(rec);
-        mod.addMeasureAddition(path, rec);
+        for(DelayMatchModuleInst inst : mod.getInstances()) {
+            inst.addMeasureAddition(path, rec);
+        }
     }
 }

@@ -28,29 +28,25 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import de.uni_potsdam.hpi.asg.delaymatch.profile.MatchPath;
 import de.uni_potsdam.hpi.asg.delaymatch.profile.ProfileComponent;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogModule;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogSignal;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogSignalGroup;
 
 public class DelayMatchModule {
-    private static final Logger                 logger = LogManager.getLogger();
+    private static final Logger        logger = LogManager.getLogger();
 
-    private VerilogModule                       module;
-    private ProfileComponent                    profilecomp;
-    private String                              measureOutputfile;
-    private Map<String, MeasureRecord>          measureRecords;
-
-    private Map<MatchPath, MeasureRecord>       measureAdditions;
-    private Map<MatchPath, List<MeasureRecord>> futureSubtractions;
+    private VerilogModule              module;
+    private ProfileComponent           profilecomp;
+    private List<DelayMatchModuleInst> instances;
+    private String                     measureOutputfile;
+    private Map<String, MeasureRecord> measureRecords;
 
     public DelayMatchModule(VerilogModule module, ProfileComponent profilecomp) {
         this.module = module;
         this.profilecomp = profilecomp;
         this.measureRecords = new HashMap<>();
-        this.measureAdditions = new HashMap<>();
-        this.futureSubtractions = new HashMap<>();
+        this.instances = new ArrayList<>();
     }
 
     public boolean addValue(String id, Float value) {
@@ -66,30 +62,11 @@ public class DelayMatchModule {
         measureRecords.put(rec.getId(), rec);
     }
 
-    public void addMeasureAddition(MatchPath p, MeasureRecord rec) {
-        measureAdditions.put(p, rec);
-    }
-
-    public void addFutureSubstraction(MatchPath p, MeasureRecord rec) {
-        if(!futureSubtractions.containsKey(p)) {
-            futureSubtractions.put(p, new ArrayList<MeasureRecord>());
-        }
-        futureSubtractions.get(p).add(rec);
-    }
-
     public Map<String, MeasureRecord> getMeasureRecords() {
         return Collections.unmodifiableMap(measureRecords);
     }
 
-    public List<MeasureRecord> getFutureSubtractions(MatchPath path) {
-        return futureSubtractions.get(path);
-    }
-
-    public MeasureRecord getMeasureAddition(MatchPath path) {
-        return measureAdditions.get(path);
-    }
-
-    public String getName() {
+    public String getModuleName() {
         return module.getModulename();
     }
 
@@ -111,6 +88,14 @@ public class DelayMatchModule {
 
     public String getMeasureOutputfile() {
         return measureOutputfile;
+    }
+
+    public List<DelayMatchModuleInst> getInstances() {
+        return instances;
+    }
+
+    public boolean addInstance(DelayMatchModuleInst inst) {
+        return this.instances.add(inst);
     }
 
     public VerilogModule getVerilogModule() {

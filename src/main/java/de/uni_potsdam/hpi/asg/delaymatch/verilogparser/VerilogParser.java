@@ -164,7 +164,7 @@ public class VerilogParser {
             for(VerilogModuleInstanceTemp tinst : moduleparser.getInstances()) {
                 if(parserMap.containsKey(tinst.getModuleName())) {
                     VerilogModule submodule = modules.get(tinst.getModuleName());
-                    VerilogModuleInstance submoduleinst = submodule.getNewInstance();
+                    VerilogModuleInstance submoduleinst = submodule.getNewInstance(tinst.getInstanceName());
                     module.addSubmodule(submoduleinst);
                     for(VerilogModuleInstanceConnectionTemp tcon : tinst.getInterfaceSignals()) {
                         VerilogSignal moduleSignal = tcon.getLocalSig();

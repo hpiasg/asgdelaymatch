@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,7 @@ import de.uni_potsdam.hpi.asg.delaymatch.DelayMatchMain;
 import de.uni_potsdam.hpi.asg.delaymatch.helper.AbstractScriptGenerator;
 import de.uni_potsdam.hpi.asg.delaymatch.helper.PortHelper;
 import de.uni_potsdam.hpi.asg.delaymatch.misc.DelayMatchModule;
+import de.uni_potsdam.hpi.asg.delaymatch.misc.DelayMatchModuleInst;
 import de.uni_potsdam.hpi.asg.delaymatch.misc.MeasureRecord;
 import de.uni_potsdam.hpi.asg.delaymatch.profile.MatchPath;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogSignalGroup;
@@ -102,7 +104,7 @@ public class MatchScriptGenerator extends AbstractScriptGenerator {
 
         for(DelayMatchModule mod : modules.values()) {
             if(mod.getProfilecomp() != null) {
-                tclfilecontent.addAll(generateElabTcl(mod.getName()));
+                tclfilecontent.addAll(generateElabTcl(mod.getModuleName()));
                 for(MatchPath path : mod.getProfilecomp().getMatchpaths()) {
                     if(path.getForeach() != null) {
                         VerilogSignalGroup group = mod.getSignalGroups().get(path.getForeach());
@@ -128,7 +130,7 @@ public class MatchScriptGenerator extends AbstractScriptGenerator {
                         tclfilecontent.addAll(generateDontTouch(mod, path, null));
                     }
                 }
-                tclfilecontent.addAll(generatCompileTcl(mod.getName()));
+                tclfilecontent.addAll(generatCompileTcl(mod.getModuleName()));
             }
         }
         tclfilecontent.addAll(generateFinalTcl());
@@ -141,43 +143,51 @@ public class MatchScriptGenerator extends AbstractScriptGenerator {
     }
 
     private Float computeValue(MatchPath path, DelayMatchModule mod) {
-        MeasureRecord rec = mod.getMeasureAddition(path);
-        if(rec == null) {
-            logger.error("No record for path found");
-            return null;
-        }
-        Float val = rec.getValue();
-        logger.info("Measure path: " + mod.getName() + ": " + rec.getId().replace("max_", "").replaceAll("both_", ""));
-        logger.info("\tValue:  " + String.format("%+2.5f", rec.getValue()));
-
-        Float futureSubstraction = null;
-        for(MeasureRecord recF : mod.getFutureSubtractions(path)) {
-            if(futureSubstraction == null) {
-                futureSubstraction = recF.getValue();
+        Set<Float> values = new HashSet<>();
+        logger.info("Module " + mod.getModuleName());
+        for(DelayMatchModuleInst inst : mod.getInstances()) {
+            MeasureRecord rec = inst.getMeasureAddition(path);
+            if(rec == null) {
+                logger.error("No record for path found");
+                return null;
             }
-            if(futureSubstraction > recF.getValue()) {
-                futureSubstraction = recF.getValue();
+            Float val = rec.getValue();
+            logger.info("\tInstance " + inst.getInstName());
+            logger.info("\tMeasure path: " + rec.getId().replace("max_", "").replaceAll("both_", ""));
+            logger.info("\t\tValue:  " + String.format("%+2.5f", rec.getValue()));
+
+            Float futureSubstraction = null;
+            for(MeasureRecord recF : inst.getFutureSubtractions(path)) {
+                if(futureSubstraction == null) {
+                    futureSubstraction = recF.getValue();
+                }
+                if(futureSubstraction > recF.getValue()) {
+                    futureSubstraction = recF.getValue();
+                }
             }
-        }
 
-        if(futureSubstraction != null) {
-            logger.info("\tFuture: " + String.format("%+2.5f", (0f - futureSubstraction)));
-            val -= futureSubstraction;
-        }
+            if(futureSubstraction != null) {
+                logger.info("\t\tFuture: " + String.format("%+2.5f", (0f - futureSubstraction)));
+                val -= futureSubstraction;
+            }
 
-        logger.info("\tFinal:  " + String.format("%+2.5f", val));
-        return val;
+            logger.info("\t\tFinal:  " + String.format("%+2.5f", val));
+            values.add(val);
+        }
+        Float retVal = Collections.max(values);
+        logger.info("\tFinal module: " + String.format("%+2.5f", retVal));
+        return retVal;
     }
 
     private List<String> generateMatch(DelayMatchModule plan, MatchPath path, Integer eachid, Float value) {
         String from = PortHelper.getPortListAsDCString(path.getMatch().getFrom(), eachid, plan.getSignals());
         String to = PortHelper.getPortListAsDCString(path.getMatch().getTo(), eachid, plan.getSignals());
-        return generateSetDelayTcl(plan.getName(), from, to, value);
+        return generateSetDelayTcl(plan.getModuleName(), from, to, value);
     }
 
     private List<String> generateDontTouch(DelayMatchModule plan, MatchPath path, Integer eachid) {
         String touch = PortHelper.getPortListAsDCString(path.getMeasure().getFrom(), eachid, plan.getSignals());
-        return generatSetTouchTcl(plan.getName(), touch);
+        return generatSetTouchTcl(plan.getModuleName(), touch);
     }
 
     private void replaceInSh(String filename) {

@@ -101,11 +101,11 @@ public class MeasureScriptGenerator extends AbstractScriptGenerator {
 
         for(DelayMatchModule mod : modules.values()) {
             if(!mod.getMeasureRecords().isEmpty()) {
-                tclfilecontent.addAll(generateElabTcl(mod.getName()));
+                tclfilecontent.addAll(generateElabTcl(mod.getModuleName()));
                 for(MeasureRecord rec : mod.getMeasureRecords().values()) {
-                    tclfilecontent.addAll(generateMeasureTcl(rec, mod.getName()));
+                    tclfilecontent.addAll(generateMeasureTcl(rec, mod.getModuleName()));
                 }
-                mod.setMeasureOutputfile(name + "_" + mod.getName() + dc_log_file);
+                mod.setMeasureOutputfile(name + "_" + mod.getModuleName() + dc_log_file);
             }
         }
 

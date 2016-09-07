@@ -53,7 +53,7 @@ public class MeasureMain {
 
     public boolean measure(File vfile) {
         MeasureRecordGenerator rec = new MeasureRecordGenerator(modules);
-        if(!rec.generate(advanced)) {
+        if(!rec.generate(advanced, advanced)) {
             return false;
         }
 
