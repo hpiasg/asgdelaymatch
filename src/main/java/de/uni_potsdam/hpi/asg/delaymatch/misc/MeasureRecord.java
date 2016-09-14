@@ -38,13 +38,17 @@ public class MeasureRecord {
     private String      id;
     private Float       value;
 
+    public static String getID(MeasureEdge fromEdge, String fromSignals, MeasureEdge toEdge, String toSignals, MeasureType type) {
+        return type.toString() + "_from_" + fromEdge + "_" + fromSignals.replace(" ", "_") + "_to_" + toEdge + "_" + toSignals.replace(" ", "_");
+    }
+
     public MeasureRecord(MeasureEdge fromEdge, String fromSignals, MeasureEdge toEdge, String toSignals, MeasureType type) {
         this.type = type;
         this.fromEdge = fromEdge;
         this.fromSignals = fromSignals;
         this.toEdge = toEdge;
         this.toSignals = toSignals;
-        this.id = type.toString() + "_from_" + fromEdge + "_" + fromSignals.replace(" ", "_") + "_to_" + toEdge + "_" + toSignals.replace(" ", "_");
+        this.id = MeasureRecord.getID(fromEdge, fromSignals, toEdge, toSignals, type);
     }
 
     public MeasureEdge getFromEdge() {

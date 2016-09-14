@@ -113,7 +113,7 @@ public class DelayMatchMain {
         }
 
         logger.info("Match phase");
-        MatchMain mamain = new MatchMain(rinfo, modules);
+        MatchMain mamain = new MatchMain(rinfo, modules, memain.getTransTable());
         if(!mamain.match(options.getVfile())) {
             return 1;
         }

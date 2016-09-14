@@ -22,7 +22,7 @@ package de.uni_potsdam.hpi.asg.delaymatch.misc;
 public class MeasureEntry {
 
     public enum EntryType {
-        recordDelay, externalDelay, datapathDelay
+        recordDelay, externalDelay, datapathDelay, unknown
     }
 
     private MeasureRecord rec;

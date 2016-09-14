@@ -177,16 +177,15 @@ public class MeasureRecordGenerator {
         TraceFinder tf = new TraceFinder(file);
         for(String start : startSigNames) {
             for(String end : endSigNames) {
-                dminst.addPastSubstractionTraces(path, tf.find(start, Edge.falling, end, Edge.rising));
+                dminst.addPastSubtractionTraces(path, tf.find(start, Edge.falling, end, Edge.rising));
 //                dminst.addPastSubstractionTraces(path, tf.find("r1", Edge.rising, end, Edge.rising));
             }
         }
 
-        for(Trace tr : dminst.getPastSubstrationTraces(path)) {
+        for(Trace tr : dminst.getPastSubtrationTraces(path)) {
             if(!generateMeasures(tr.getTrace())) {
                 return false;
             }
-            System.out.println("------");
         }
 
         return true;
@@ -214,7 +213,14 @@ public class MeasureRecordGenerator {
                     m2 = dpSigPattern.matcher(prev.getTransition().getSignal().getName());
                     if(m.matches() && m2.matches()) {
                         if(!m.group(1).equals(m2.group(1)) && m.group(3).equals(m2.group(3))) { // one must be r, one a && same HS component id
-                            transtable.put(prev.getTransition(), tinner.getTransition(), new MeasureEntry(EntryType.datapathDelay));
+                            if(transtable.contains(prev.getTransition(), tinner.getTransition())) {
+                                if(transtable.get(prev.getTransition(), tinner.getTransition()).getType() != EntryType.datapathDelay) {
+                                    logger.error("Entry type contradiction");
+                                    return false;
+                                }
+                            } else {
+                                transtable.put(prev.getTransition(), tinner.getTransition(), new MeasureEntry(EntryType.datapathDelay));
+                            }
 //                            System.out.println("## DP: " + prev.getTransition().getSignal().getName() + " > " + tinner.getTransition().getSignal().getName());
                             continue;
                         }
@@ -224,14 +230,29 @@ public class MeasureRecordGenerator {
                     m2 = hsSigPattern.matcher(prev.getTransition().getSignal().getName());
                     if(m.matches() && m2.matches()) {
                         if(!m.group(1).equals(m2.group(1)) && m.group(2).equals(m2.group(2))) { // one must be r, one a && same HS channel
-                            transtable.put(prev.getTransition(), tinner.getTransition(), new MeasureEntry(EntryType.externalDelay));
+                            if(transtable.contains(prev.getTransition(), tinner.getTransition())) {
+                                if(transtable.get(prev.getTransition(), tinner.getTransition()).getType() != EntryType.externalDelay) {
+                                    logger.error("Entry type contradiction");
+                                    return false;
+                                }
+                            } else {
+                                transtable.put(prev.getTransition(), tinner.getTransition(), new MeasureEntry(EntryType.externalDelay));
+                            }
 //                            System.out.println("## External: " + prev.getTransition().getSignal().getName() + " > " + tinner.getTransition().getSignal().getName());
                             continue;
                         }
                     }
-                    //TODO: internal signals (-> jump over) 
 
+                    //TODO: internal signals (-> jump over) 
                     logger.warn("Module for " + prev.getTransition().getSignal().getName() + " > " + tinner.getTransition().getSignal().getName() + " not found");
+                    if(transtable.contains(prev.getTransition(), tinner.getTransition())) {
+                        if(transtable.get(prev.getTransition(), tinner.getTransition()).getType() != EntryType.unknown) {
+                            logger.error("Entry type contradiction");
+                            return false;
+                        }
+                    } else {
+                        transtable.put(prev.getTransition(), tinner.getTransition(), new MeasureEntry(EntryType.unknown));
+                    }
                 }
             } else if(inner instanceof ParallelBox) {
                 ParallelBox pinner = (ParallelBox)inner;
@@ -243,17 +264,22 @@ public class MeasureRecordGenerator {
             }
         }
         return true;
-
     }
 
     private boolean createMeasureRecord(TransitionBox curr, TransitionBox prev, DelayMatchModule mod) {
-        MeasureEdge fromEdge = convertEdge(prev.getTransition().getEdge());
-        String fromSignals = prev.getTransition().getSignal().getName();
-        MeasureEdge toEdge = convertEdge(curr.getTransition().getEdge());
-        String toSignals = curr.getTransition().getSignal().getName();
-        MeasureRecord rec = new MeasureRecord(fromEdge, fromSignals, toEdge, toSignals, MeasureType.min);
-        mod.addMeasureRecord(rec);
-        transtable.put(prev.getTransition(), curr.getTransition(), new MeasureEntry(rec));
+        if(transtable.contains(prev.getTransition(), curr.getTransition())) {
+            if(transtable.get(prev.getTransition(), curr.getTransition()).getType() != EntryType.recordDelay) {
+                logger.error("Entry type contradiction");
+                return false;
+            }
+        } else {
+            MeasureEdge fromEdge = convertEdge(prev.getTransition().getEdge());
+            String fromSignals = prev.getTransition().getSignal().getName();
+            MeasureEdge toEdge = convertEdge(curr.getTransition().getEdge());
+            String toSignals = curr.getTransition().getSignal().getName();
+            MeasureRecord rec = mod.getMeasureRecord(fromEdge, fromSignals, toEdge, toSignals, MeasureType.min);
+            transtable.put(prev.getTransition(), curr.getTransition(), new MeasureEntry(rec));
+        }
         return true;
     }
 
@@ -307,9 +333,8 @@ public class MeasureRecordGenerator {
                 }
                 to.setLength(to.length() - 1);
                 DelayMatchModule othermodule = modules.get(othermodulename);
-                MeasureRecord rec = new MeasureRecord(MeasureEdge.both, otherinst.getValue().getName(), MeasureEdge.both, to.toString(), MeasureType.min);
-                othermodule.addMeasureRecord(rec);
-                dminst.addFutureSubstraction(path, rec);
+                MeasureRecord rec = othermodule.getMeasureRecord(MeasureEdge.both, otherinst.getValue().getName(), MeasureEdge.both, to.toString(), MeasureType.min);
+                dminst.addFutureSubtraction(path, rec);
             }
         }
         return true;
@@ -318,8 +343,7 @@ public class MeasureRecordGenerator {
     private void addMeasureAddition(DelayMatchModule mod, MatchPath path, Integer eachid) {
         String from = PortHelper.getPortListAsDCString(path.getMeasure().getFrom(), eachid, mod.getSignals());
         String to = PortHelper.getPortListAsDCString(path.getMeasure().getTo(), eachid, mod.getSignals());
-        MeasureRecord rec = new MeasureRecord(MeasureEdge.both, from, MeasureEdge.both, to, MeasureType.max);
-        mod.addMeasureRecord(rec);
+        MeasureRecord rec = mod.getMeasureRecord(MeasureEdge.both, from, MeasureEdge.both, to, MeasureType.max);
         for(DelayMatchModuleInst inst : mod.getInstances()) {
             inst.addMeasureAddition(path, rec);
         }

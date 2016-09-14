@@ -28,6 +28,8 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import de.uni_potsdam.hpi.asg.delaymatch.misc.MeasureRecord.MeasureEdge;
+import de.uni_potsdam.hpi.asg.delaymatch.misc.MeasureRecord.MeasureType;
 import de.uni_potsdam.hpi.asg.delaymatch.profile.ProfileComponent;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogModule;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogSignal;
@@ -58,8 +60,12 @@ public class DelayMatchModule {
         return false;
     }
 
-    public void addMeasureRecord(MeasureRecord rec) {
-        measureRecords.put(rec.getId(), rec);
+    public MeasureRecord getMeasureRecord(MeasureEdge fromEdge, String fromSignals, MeasureEdge toEdge, String toSignals, MeasureType type) {
+        String id = MeasureRecord.getID(fromEdge, fromSignals, toEdge, toSignals, type);
+        if(!measureRecords.containsKey(id)) {
+            measureRecords.put(id, new MeasureRecord(fromEdge, fromSignals, toEdge, toSignals, type));
+        }
+        return measureRecords.get(id);
     }
 
     public Map<String, MeasureRecord> getMeasureRecords() {

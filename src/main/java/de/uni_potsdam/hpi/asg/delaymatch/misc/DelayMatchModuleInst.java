@@ -33,32 +33,32 @@ public class DelayMatchModuleInst {
     private DelayMatchModule                    dmmodule;
     private Map<MatchPath, MeasureRecord>       measureAdditions;
     private Map<MatchPath, List<MeasureRecord>> futureSubtractions;
-    private Map<MatchPath, List<Trace>>         pastSubstrationTraces;
+    private Map<MatchPath, List<Trace>>         pastSubtrationTraces;
 
     public DelayMatchModuleInst(VerilogModuleInstance inst, DelayMatchModule dmmodule) {
         this.inst = inst;
         this.dmmodule = dmmodule;
         this.measureAdditions = new HashMap<>();
         this.futureSubtractions = new HashMap<>();
-        this.pastSubstrationTraces = new HashMap<>();
+        this.pastSubtrationTraces = new HashMap<>();
     }
 
     public void addMeasureAddition(MatchPath p, MeasureRecord rec) {
         measureAdditions.put(p, rec);
     }
 
-    public void addFutureSubstraction(MatchPath p, MeasureRecord rec) {
+    public void addFutureSubtraction(MatchPath p, MeasureRecord rec) {
         if(!futureSubtractions.containsKey(p)) {
             futureSubtractions.put(p, new ArrayList<MeasureRecord>());
         }
         futureSubtractions.get(p).add(rec);
     }
 
-    public void addPastSubstractionTraces(MatchPath p, List<Trace> t) {
-        if(!pastSubstrationTraces.containsKey(p)) {
-            pastSubstrationTraces.put(p, new ArrayList<Trace>());
+    public void addPastSubtractionTraces(MatchPath p, List<Trace> t) {
+        if(!pastSubtrationTraces.containsKey(p)) {
+            pastSubtrationTraces.put(p, new ArrayList<Trace>());
         }
-        pastSubstrationTraces.get(p).addAll(t);
+        pastSubtrationTraces.get(p).addAll(t);
     }
 
     public List<MeasureRecord> getFutureSubtractions(MatchPath path) {
@@ -69,8 +69,8 @@ public class DelayMatchModuleInst {
         return measureAdditions.get(path);
     }
 
-    public List<Trace> getPastSubstrationTraces(MatchPath path) {
-        return pastSubstrationTraces.get(path);
+    public List<Trace> getPastSubtrationTraces(MatchPath path) {
+        return pastSubtrationTraces.get(path);
     }
 
     public DelayMatchModule getDMmodule() {
