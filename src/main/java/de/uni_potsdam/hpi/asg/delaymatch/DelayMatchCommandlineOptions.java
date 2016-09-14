@@ -50,6 +50,8 @@ public class DelayMatchCommandlineOptions extends CommandlineOptions {
     private File profilefile = null;
     @Option(name = "-out", metaVar = "<outfile>", usage = "Outfile", required = true)
     private File outfile = null;
+    @Option(name = "-stg", metaVar = "<gfile>", usage = "STG file for past algorithm")
+    private File stgfile = null;
     
     @Option(name = "-adv", usage = "Use advanced delay matching")
     private boolean advanced = false;
@@ -100,5 +102,9 @@ public class DelayMatchCommandlineOptions extends CommandlineOptions {
 
     public boolean isAdvanced() {
         return advanced;
+    }
+
+    public File getSTGfile() {
+        return stgfile;
     }
 }

@@ -35,17 +35,26 @@ import org.apache.logging.log4j.Logger;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 
+import de.uni_potsdam.hpi.asg.common.stg.model.Signal;
 import de.uni_potsdam.hpi.asg.common.stg.model.Transition;
 import de.uni_potsdam.hpi.asg.common.stg.model.Transition.Edge;
 import de.uni_potsdam.hpi.asg.delaymatch.helper.PortHelper;
 import de.uni_potsdam.hpi.asg.delaymatch.misc.DelayMatchModule;
 import de.uni_potsdam.hpi.asg.delaymatch.misc.DelayMatchModuleInst;
+import de.uni_potsdam.hpi.asg.delaymatch.misc.MeasureEntry;
+import de.uni_potsdam.hpi.asg.delaymatch.misc.MeasureEntry.EntryType;
 import de.uni_potsdam.hpi.asg.delaymatch.misc.MeasureRecord;
 import de.uni_potsdam.hpi.asg.delaymatch.misc.MeasureRecord.MeasureEdge;
 import de.uni_potsdam.hpi.asg.delaymatch.misc.MeasureRecord.MeasureType;
 import de.uni_potsdam.hpi.asg.delaymatch.profile.MatchPath;
 import de.uni_potsdam.hpi.asg.delaymatch.profile.Port;
 import de.uni_potsdam.hpi.asg.delaymatch.trace.TraceFinder;
+import de.uni_potsdam.hpi.asg.delaymatch.trace.model.PTBox;
+import de.uni_potsdam.hpi.asg.delaymatch.trace.model.ParallelBox;
+import de.uni_potsdam.hpi.asg.delaymatch.trace.model.SequenceBox;
+import de.uni_potsdam.hpi.asg.delaymatch.trace.model.Trace;
+import de.uni_potsdam.hpi.asg.delaymatch.trace.model.TransitionBox;
+import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogModule;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogModuleConnection;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogModuleInstance;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogSignal;
@@ -53,13 +62,17 @@ import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogSignalGroup;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogSignal.Direction;
 
 public class MeasureRecordGenerator {
-    private static final Logger                          logger = LogManager.getLogger();
+    private static final Logger                         logger = LogManager.getLogger();
 
-    private Map<String, DelayMatchModule>                modules;
-    private Table<Transition, Transition, MeasureRecord> transtable;
+    private Map<String, DelayMatchModule>               modules;
+    private File                                        file;
+    private VerilogModule                               rootModule;
+    private Table<Transition, Transition, MeasureEntry> transtable;
 
-    public MeasureRecordGenerator(Map<String, DelayMatchModule> modules) {
+    public MeasureRecordGenerator(Map<String, DelayMatchModule> modules, File file, VerilogModule rootModule) {
         this.modules = modules;
+        this.file = file;
+        this.rootModule = rootModule;
         this.transtable = HashBasedTable.create();
     }
 
@@ -100,7 +113,7 @@ public class MeasureRecordGenerator {
                 }
             }
         }
-        return false;//true;
+        return true;
     }
 
     private boolean generatePastRecords(DelayMatchModuleInst dminst, MatchPath path) {
@@ -161,14 +174,112 @@ public class MeasureRecordGenerator {
 //        System.out.println(startSigNames);
 
         // Traces
-        TraceFinder tf = new TraceFinder(new File("/home/norman/share/testdir/gcd_fordeco.g"));
+        TraceFinder tf = new TraceFinder(file);
         for(String start : startSigNames) {
             for(String end : endSigNames) {
                 dminst.addPastSubstractionTraces(path, tf.find(start, Edge.falling, end, Edge.rising));
+//                dminst.addPastSubstractionTraces(path, tf.find("r1", Edge.rising, end, Edge.rising));
             }
         }
 
+        for(Trace tr : dminst.getPastSubstrationTraces(path)) {
+            if(!generateMeasures(tr.getTrace())) {
+                return false;
+            }
+            System.out.println("------");
+        }
+
         return true;
+    }
+
+    private static final Pattern dpSigPattern = Pattern.compile("([ra])[A-Z]([0-9]*)_([0-9]+)");
+    private static final Pattern hsSigPattern = Pattern.compile("([ra])([0-9]+)");
+
+    private boolean generateMeasures(SequenceBox box) {
+        Matcher m = null, m2 = null;
+        for(PTBox inner : box.getContent()) {
+            if(inner instanceof TransitionBox) {
+                TransitionBox tinner = (TransitionBox)inner;
+                for(TransitionBox prev : tinner.getPrevs()) {
+                    DelayMatchModule mod = findModule(prev.getTransition().getSignal(), tinner.getTransition().getSignal());
+                    if(mod != null) {
+                        if(!createMeasureRecord(tinner, prev, mod)) {
+                            return false;
+                        }
+                        continue;
+                    }
+                    // no module found
+                    // check dp
+                    m = dpSigPattern.matcher(tinner.getTransition().getSignal().getName());
+                    m2 = dpSigPattern.matcher(prev.getTransition().getSignal().getName());
+                    if(m.matches() && m2.matches()) {
+                        if(!m.group(1).equals(m2.group(1)) && m.group(3).equals(m2.group(3))) { // one must be r, one a && same HS component id
+                            transtable.put(prev.getTransition(), tinner.getTransition(), new MeasureEntry(EntryType.datapathDelay));
+//                            System.out.println("## DP: " + prev.getTransition().getSignal().getName() + " > " + tinner.getTransition().getSignal().getName());
+                            continue;
+                        }
+                    }
+                    // external check
+                    m = hsSigPattern.matcher(tinner.getTransition().getSignal().getName());
+                    m2 = hsSigPattern.matcher(prev.getTransition().getSignal().getName());
+                    if(m.matches() && m2.matches()) {
+                        if(!m.group(1).equals(m2.group(1)) && m.group(2).equals(m2.group(2))) { // one must be r, one a && same HS channel
+                            transtable.put(prev.getTransition(), tinner.getTransition(), new MeasureEntry(EntryType.externalDelay));
+//                            System.out.println("## External: " + prev.getTransition().getSignal().getName() + " > " + tinner.getTransition().getSignal().getName());
+                            continue;
+                        }
+                    }
+                    //TODO: internal signals (-> jump over) 
+
+                    logger.warn("Module for " + prev.getTransition().getSignal().getName() + " > " + tinner.getTransition().getSignal().getName() + " not found");
+                }
+            } else if(inner instanceof ParallelBox) {
+                ParallelBox pinner = (ParallelBox)inner;
+                for(SequenceBox sb : pinner.getParallelLines()) {
+                    if(!generateMeasures(sb)) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+
+    }
+
+    private boolean createMeasureRecord(TransitionBox curr, TransitionBox prev, DelayMatchModule mod) {
+        MeasureEdge fromEdge = convertEdge(prev.getTransition().getEdge());
+        String fromSignals = prev.getTransition().getSignal().getName();
+        MeasureEdge toEdge = convertEdge(curr.getTransition().getEdge());
+        String toSignals = curr.getTransition().getSignal().getName();
+        MeasureRecord rec = new MeasureRecord(fromEdge, fromSignals, toEdge, toSignals, MeasureType.min);
+        mod.addMeasureRecord(rec);
+        transtable.put(prev.getTransition(), curr.getTransition(), new MeasureEntry(rec));
+        return true;
+    }
+
+    private DelayMatchModule findModule(Signal input, Signal output) {
+        for(VerilogModuleInstance inst : rootModule.getSubmodules()) {
+            VerilogSignal inpSig = inst.getModule().getSignal(input.getName());
+            VerilogSignal outSig = inst.getModule().getSignal(output.getName());
+            if(inpSig != null && outSig != null) {
+                if(inpSig.getDirection() == Direction.input && outSig.getDirection() == Direction.output) {
+//                    System.out.println(inst.getModule().getModulename() + ": " + input.getName() + ";" + output.getName());
+                    return modules.get(inst.getModule().getModulename());
+                }
+            }
+        }
+        return null;
+    }
+
+    private MeasureEdge convertEdge(Edge edge) {
+        switch(edge) {
+            case falling:
+                return MeasureEdge.falling;
+            case rising:
+                return MeasureEdge.rising;
+        }
+        logger.warn("Unregcognised edge");
+        return MeasureEdge.both;
     }
 
     private boolean generateFutureRecords(DelayMatchModuleInst dminst, MatchPath path) {
@@ -212,5 +323,9 @@ public class MeasureRecordGenerator {
         for(DelayMatchModuleInst inst : mod.getInstances()) {
             inst.addMeasureAddition(path, rec);
         }
+    }
+
+    public Table<Transition, Transition, MeasureEntry> getTransTable() {
+        return transtable;
     }
 }

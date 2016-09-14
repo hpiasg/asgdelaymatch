@@ -40,6 +40,7 @@ public class DelayMatchModuleInst {
         this.dmmodule = dmmodule;
         this.measureAdditions = new HashMap<>();
         this.futureSubtractions = new HashMap<>();
+        this.pastSubstrationTraces = new HashMap<>();
     }
 
     public void addMeasureAddition(MatchPath p, MeasureRecord rec) {

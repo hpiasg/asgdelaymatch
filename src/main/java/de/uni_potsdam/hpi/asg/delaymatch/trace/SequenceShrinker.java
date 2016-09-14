@@ -134,15 +134,32 @@ public class SequenceShrinker {
                         logger.error("SuperBox of TransitionBox is not a SequenceBox");
                         return false;
                     }
+                    Set<TransitionBox> prevs = tb.getPrevs();
+                    TransitionBox prev = null;
                     SequenceBox sb = (SequenceBox)tb.getSuperBox();
                     int pos = sb.getContent().indexOf(tb);
                     if(pos != -1) {
                         sb.getContent().remove(pos);
                         for(Transition t8 : entry.getValue()) {
-                            TransitionBox tb1 = new TransitionBox(sb, t8);
+                            TransitionBox tb1 = null;
+                            if(prevs != null) {
+                                tb1 = new TransitionBox(sb, t8, prevs);
+                                prevs = null;
+                            } else {
+                                tb1 = new TransitionBox(sb, t8, prev);
+                            }
                             sb.getContent().add(pos++, tb1);
                             trace.getTransitionMap().put(t8, tb1);
+                            prev = tb1;
                         }
+                        // fix prev
+                        for(TransitionBox tbx : trace.getTransitionMap().values()) {
+                            if(tbx.getPrevs().contains(tb)) {
+                                tbx.getPrevs().remove(tb);
+                                tbx.getPrevs().add(prev);
+                            }
+                        }
+
                     } else {
                         logger.error("Index -1 should not happen");
                         return false;

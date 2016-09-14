@@ -34,6 +34,7 @@ import org.apache.logging.log4j.Logger;
 import de.uni_potsdam.hpi.asg.common.iohelper.FileHelper;
 import de.uni_potsdam.hpi.asg.common.remote.RemoteInformation;
 import de.uni_potsdam.hpi.asg.delaymatch.misc.DelayMatchModule;
+import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogModule;
 
 public class MeasureMain {
     private static final Logger           logger      = LogManager.getLogger();
@@ -44,15 +45,17 @@ public class MeasureMain {
     private RemoteInformation             rinfo;
     private Map<String, DelayMatchModule> modules;
     private boolean                       advanced;
+    private VerilogModule                 rootModule;
 
-    public MeasureMain(RemoteInformation rinfo, Map<String, DelayMatchModule> modules, boolean advanced) {
+    public MeasureMain(RemoteInformation rinfo, Map<String, DelayMatchModule> modules, VerilogModule rootModule, boolean advanced) {
         this.rinfo = rinfo;
         this.modules = modules;
         this.advanced = advanced;
+        this.rootModule = rootModule;
     }
 
-    public boolean measure(File vfile) {
-        MeasureRecordGenerator rec = new MeasureRecordGenerator(modules);
+    public boolean measure(File vfile, File stgFile) {
+        MeasureRecordGenerator rec = new MeasureRecordGenerator(modules, stgFile, rootModule);
         if(!rec.generate(advanced, advanced)) {
             return false;
         }

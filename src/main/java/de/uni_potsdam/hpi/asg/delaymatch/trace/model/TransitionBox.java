@@ -1,5 +1,8 @@
 package de.uni_potsdam.hpi.asg.delaymatch.trace.model;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /*
  * Copyright (C) 2016 Norman Kluge
  * 
@@ -23,11 +26,22 @@ import de.uni_potsdam.hpi.asg.common.stg.model.Transition;
 
 public class TransitionBox extends Box implements PTBox {
 
-    private Transition trans;
+    private Transition         trans;
+    private Set<TransitionBox> prevs;
 
-    public TransitionBox(Box superBox, Transition trans) {
+    public TransitionBox(Box superBox, Transition trans, TransitionBox prev) {
         super(superBox);
         this.trans = trans;
+        this.prevs = new HashSet<>();
+        if(prev != null) {
+            this.prevs.add(prev);
+        }
+    }
+
+    public TransitionBox(Box superBox, Transition trans, Set<TransitionBox> prevs) {
+        super(superBox);
+        this.trans = trans;
+        this.prevs = prevs;
     }
 
     public Transition getTransition() {
@@ -37,5 +51,9 @@ public class TransitionBox extends Box implements PTBox {
     @Override
     public String toString() {
         return "[T " + trans.toString() + "]";
+    }
+
+    public Set<TransitionBox> getPrevs() {
+        return prevs;
     }
 }

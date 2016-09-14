@@ -63,10 +63,12 @@ public class ParallelTraceDetector {
 
             if(list.size() == 1) {
                 SequenceBox box = new SequenceBox(null);
+                TransitionBox prev = null;
                 for(Transition tx : list.get(0).getTrace()) {
-                    TransitionBox tb = new TransitionBox(box, tx);
+                    TransitionBox tb = new TransitionBox(box, tx, prev);
                     box.getContent().add(tb);
                     transmap.put(tx, tb);
+                    prev = tb;
                 }
                 traces.add(new Trace(box, transmap));
                 continue;
@@ -118,14 +120,16 @@ public class ParallelTraceDetector {
                     Transition trans = currEmpty.iterator().next();
                     if(predecessors.get(trans).isEmpty()) {
                         // first
-                        TransitionBox tb = new TransitionBox(rootbox, trans);
+                        TransitionBox prev = null;
+                        TransitionBox tb = new TransitionBox(rootbox, trans, prev);
                         rootbox.getContent().add(tb);
                         boxmap.put(trans, rootbox);
                         transmap.put(trans, tb);
                     } else if(predecessors.get(trans).size() == 1) {
                         // sequential
                         SequenceBox box = boxmap.get(predecessors.get(trans).iterator().next());
-                        TransitionBox tb = new TransitionBox(box, trans);
+                        TransitionBox prev = transmap.get(predecessors.get(trans).iterator().next());
+                        TransitionBox tb = new TransitionBox(box, trans, prev);
                         box.getContent().add(tb);
                         boxmap.put(trans, box);
                         transmap.put(trans, tb);
@@ -156,11 +160,16 @@ public class ParallelTraceDetector {
                                 }
                             }
                         }
+                        Set<TransitionBox> prevs = new HashSet<>();
+                        for(Transition predecessor : predecessors.get(trans)) {
+                            prevs.add(transmap.get(predecessor));
+                        }
+
                         if(firstuncommon == -1) {
                             logger.error("Common sublist -1");
                             return false;
                         } else if(firstuncommon == 0) {
-                            TransitionBox tb = new TransitionBox(rootbox, trans);
+                            TransitionBox tb = new TransitionBox(rootbox, trans, prevs);
                             rootbox.getContent().add(tb);
                             boxmap.put(trans, rootbox);
                             transmap.put(trans, tb);
@@ -168,7 +177,7 @@ public class ParallelTraceDetector {
                             Box box = boxhier.get(0).get(firstuncommon - 2); //PBox is last common (-1) -but we need SBox in front of it (-1) = (-2)
                             if(box instanceof SequenceBox) {
                                 SequenceBox sbox = (SequenceBox)box;
-                                TransitionBox tb = new TransitionBox(sbox, trans);
+                                TransitionBox tb = new TransitionBox(sbox, trans, prevs);
                                 sbox.getContent().add(tb);
                                 boxmap.put(trans, sbox);
                                 transmap.put(trans, tb);
@@ -195,7 +204,8 @@ public class ParallelTraceDetector {
                             ParallelBox pbox = parallelBoxes.get(predecessor);
                             SequenceBox sbox = new SequenceBox(pbox);
                             pbox.getParallelLines().add(sbox);
-                            TransitionBox tb = new TransitionBox(sbox, trans);
+                            TransitionBox prev = transmap.get(predecessor);
+                            TransitionBox tb = new TransitionBox(sbox, trans, prev);
                             sbox.getContent().add(tb);
                             boxmap.put(trans, sbox);
                             transmap.put(trans, tb);

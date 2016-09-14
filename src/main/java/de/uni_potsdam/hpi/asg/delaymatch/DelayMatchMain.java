@@ -107,8 +107,8 @@ public class DelayMatchMain {
         }
 
         logger.info("Measure phase");
-        MeasureMain memain = new MeasureMain(rinfo, modules, options.isAdvanced());
-        if(!memain.measure(options.getVfile())) {
+        MeasureMain memain = new MeasureMain(rinfo, modules, vparser.getRootModule(), options.isAdvanced());
+        if(!memain.measure(options.getVfile(), options.getSTGfile())) {
             return 1;
         }
 
