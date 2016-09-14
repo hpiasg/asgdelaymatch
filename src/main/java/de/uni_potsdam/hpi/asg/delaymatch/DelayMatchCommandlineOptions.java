@@ -50,11 +50,12 @@ public class DelayMatchCommandlineOptions extends CommandlineOptions {
     private File profilefile = null;
     @Option(name = "-out", metaVar = "<outfile>", usage = "Outfile", required = true)
     private File outfile = null;
-    @Option(name = "-stg", metaVar = "<gfile>", usage = "STG file for past algorithm")
+    
+    @Option(name = "-future", usage = "Use future alorithm (Resyn only!)")
+    private boolean future = false;
+    @Option(name = "-past", metaVar = "<gfile>", usage = "Use past algorithm (STG file needed; Resyn only!)")
     private File stgfile = null;
     
-    @Option(name = "-adv", usage = "Use advanced delay matching")
-    private boolean advanced = false;
 
     @Argument(metaVar = "Verilog File", required = true)
     private File vfile;
@@ -100,8 +101,8 @@ public class DelayMatchCommandlineOptions extends CommandlineOptions {
         return outfile;
     }
 
-    public boolean isAdvanced() {
-        return advanced;
+    public boolean isFuture() {
+        return future;
     }
 
     public File getSTGfile() {

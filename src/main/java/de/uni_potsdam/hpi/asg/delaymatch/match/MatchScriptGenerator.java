@@ -206,6 +206,9 @@ public class MatchScriptGenerator extends AbstractScriptGenerator {
 
     private Float computePastSubtraction(MatchPath path, DelayMatchModuleInst inst) {
         Float pastSubtraction = null;
+        if(inst.getPastSubtrationTraces(path) == null) {
+            return null;
+        }
         for(Trace trace : inst.getPastSubtrationTraces(path)) {
             Float tval = computeTraceValue(trace);
             if(tval == null) {

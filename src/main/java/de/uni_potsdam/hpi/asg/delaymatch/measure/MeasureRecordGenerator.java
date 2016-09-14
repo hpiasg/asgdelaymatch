@@ -147,7 +147,28 @@ public class MeasureRecordGenerator {
             dpModules.add(con.getWriter());
         }
 
-        // End sigs
+//        // FetchHack
+//        boolean fetchhackpossible = true;
+//        List<VerilogModuleInstance> fetchHackDpModules = new ArrayList<>();
+//        for(VerilogModuleInstance vmi : dpModules) {
+//            if(vmi.getModule().getModulename().contains("Fetch")) {
+//                for(VerilogModuleConnection con : vmi.getConnections().values()) {
+//                    if(con.getWriter() == vmi) {
+//                        continue;
+//                    }
+//                    if(con.getWriter() == null) { //external
+//                        fetchhackpossible = false;
+//                        break;
+//                    }
+//                    fetchHackDpModules.add(con.getWriter());
+//                }
+//            }
+//        }
+//        if(fetchhackpossible) {
+//            dpModules.addAll(fetchHackDpModules);
+//        }
+
+        // Start sigs
         List<String> startSigNames = new ArrayList<>();
         final Pattern sigNamePattern = Pattern.compile(".+_\\d+");
         for(VerilogModuleInstance dpinst : dpModules) {
@@ -180,6 +201,10 @@ public class MeasureRecordGenerator {
                 dminst.addPastSubtractionTraces(path, tf.find(start, Edge.falling, end, Edge.rising));
 //                dminst.addPastSubstractionTraces(path, tf.find("r1", Edge.rising, end, Edge.rising));
             }
+        }
+
+        if(dminst.getPastSubtrationTraces(path) == null) {
+            return true;
         }
 
         for(Trace tr : dminst.getPastSubtrationTraces(path)) {
