@@ -88,27 +88,32 @@ public class MeasureRecordGenerator {
                         }
                         int num = group.getCount();
                         for(int eachid = 0; eachid < num; eachid++) {
-                            addMeasureAddition(mod, path, eachid);
+                            generateMeasures(future, past, mod, path, eachid);
                         }
                     } else {
-                        addMeasureAddition(mod, path, null);
+                        generateMeasures(future, past, mod, path, null);
                     }
 
-                    if(future || past) {
-                        for(DelayMatchModuleInst inst : mod.getInstances()) {
-                            if(future) {
-                                if(!generateFutureRecords(inst, path)) {
-                                    logger.error("Generate future substraction for " + mod.getModuleName() + "(" + inst.getInstName() + ") failed");
-                                    return false;
-                                }
-                            }
-                            if(past) {
-                                if(!generatePastRecords(inst, path)) {
-                                    logger.error("Generate past substraction for " + mod.getModuleName() + "(" + inst.getInstName() + ") failed");
-                                    return false;
-                                }
-                            }
-                        }
+                }
+            }
+        }
+        return true;
+    }
+
+    private boolean generateMeasures(boolean future, boolean past, DelayMatchModule mod, MatchPath path, Integer eachid) {
+        addMeasureAddition(mod, path, eachid);
+        if(future || past) {
+            for(DelayMatchModuleInst inst : mod.getInstances()) {
+                if(future) {
+                    if(!generateFutureRecords(inst, path, eachid)) {
+                        logger.error("Generate future substraction for " + mod.getModuleName() + "(" + inst.getInstName() + ") failed");
+                        return false;
+                    }
+                }
+                if(past) {
+                    if(!generatePastRecords(inst, path, eachid)) {
+                        logger.error("Generate past substraction for " + mod.getModuleName() + "(" + inst.getInstName() + ") failed");
+                        return false;
                     }
                 }
             }
@@ -116,7 +121,7 @@ public class MeasureRecordGenerator {
         return true;
     }
 
-    private boolean generatePastRecords(DelayMatchModuleInst dminst, MatchPath path) {
+    private boolean generatePastRecords(DelayMatchModuleInst dminst, MatchPath path, Integer eachid) {
         VerilogModuleInstance inst = dminst.getVerilogModuleInst();
 
         // End signals
@@ -198,16 +203,16 @@ public class MeasureRecordGenerator {
         TraceFinder tf = new TraceFinder(file);
         for(String start : startSigNames) {
             for(String end : endSigNames) {
-                dminst.addPastSubtractionTraces(path, tf.find(start, Edge.falling, end, Edge.rising));
+                dminst.addPastSubtractionTraces(path, eachid, tf.find(start, Edge.falling, end, Edge.rising));
 //                dminst.addPastSubstractionTraces(path, tf.find("r1", Edge.rising, end, Edge.rising));
             }
         }
 
-        if(dminst.getPastSubtrationTraces(path) == null) {
+        if(dminst.getPastSubtrationTraces(path, eachid) == null) {
             return true;
         }
 
-        for(Trace tr : dminst.getPastSubtrationTraces(path)) {
+        for(Trace tr : dminst.getPastSubtrationTraces(path, eachid)) {
             if(!generateMeasures(tr.getTrace())) {
                 return false;
             }
@@ -333,7 +338,7 @@ public class MeasureRecordGenerator {
         return MeasureEdge.both;
     }
 
-    private boolean generateFutureRecords(DelayMatchModuleInst dminst, MatchPath path) {
+    private boolean generateFutureRecords(DelayMatchModuleInst dminst, MatchPath path, Integer eachid) {
         Set<VerilogSignal> sigs = new HashSet<>();
         for(Port p : path.getMatch().getTo()) {
             sigs.addAll(p.getCorrespondingSignals(dminst.getDMmodule().getVerilogModule()));
@@ -359,7 +364,7 @@ public class MeasureRecordGenerator {
                 to.setLength(to.length() - 1);
                 DelayMatchModule othermodule = modules.get(othermodulename);
                 MeasureRecord rec = othermodule.getMeasureRecord(MeasureEdge.both, otherinst.getValue().getName(), MeasureEdge.both, to.toString(), MeasureType.min);
-                dminst.addFutureSubtraction(path, rec);
+                dminst.addFutureSubtraction(path, eachid, rec);
             }
         }
         return true;
@@ -370,7 +375,7 @@ public class MeasureRecordGenerator {
         String to = PortHelper.getPortListAsDCString(path.getMeasure().getTo(), eachid, mod.getSignals());
         MeasureRecord rec = mod.getMeasureRecord(MeasureEdge.both, from, MeasureEdge.both, to, MeasureType.max);
         for(DelayMatchModuleInst inst : mod.getInstances()) {
-            inst.addMeasureAddition(path, rec);
+            inst.addMeasureAddition(path, eachid, rec);
         }
     }
 

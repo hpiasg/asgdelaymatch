@@ -24,53 +24,60 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
+
 import de.uni_potsdam.hpi.asg.delaymatch.profile.MatchPath;
 import de.uni_potsdam.hpi.asg.delaymatch.trace.model.Trace;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogModuleInstance;
 
 public class DelayMatchModuleInst {
-    private VerilogModuleInstance               inst;
-    private DelayMatchModule                    dmmodule;
-    private Map<MatchPath, MeasureRecord>       measureAdditions;
-    private Map<MatchPath, List<MeasureRecord>> futureSubtractions;
-    private Map<MatchPath, List<Trace>>         pastSubtrationTraces;
+    private VerilogModuleInstance                          inst;
+    private DelayMatchModule                               dmmodule;
+    private Table<MatchPath, Integer, MeasureRecord>       measureAdditions;
+    private Table<MatchPath, Integer, List<MeasureRecord>> futureSubtractions;
+    private Table<MatchPath, Integer, List<Trace>>         pastSubtrationTraces;
 
     public DelayMatchModuleInst(VerilogModuleInstance inst, DelayMatchModule dmmodule) {
         this.inst = inst;
         this.dmmodule = dmmodule;
-        this.measureAdditions = new HashMap<>();
-        this.futureSubtractions = new HashMap<>();
-        this.pastSubtrationTraces = new HashMap<>();
+        this.measureAdditions = HashBasedTable.create();
+        this.futureSubtractions = HashBasedTable.create();
+        this.pastSubtrationTraces = HashBasedTable.create();
     }
 
-    public void addMeasureAddition(MatchPath p, MeasureRecord rec) {
-        measureAdditions.put(p, rec);
+    public void addMeasureAddition(MatchPath p, Integer eachid, MeasureRecord rec) {
+        measureAdditions.put(p, convertEachId(eachid), rec);
     }
 
-    public void addFutureSubtraction(MatchPath p, MeasureRecord rec) {
-        if(!futureSubtractions.containsKey(p)) {
-            futureSubtractions.put(p, new ArrayList<MeasureRecord>());
+    public void addFutureSubtraction(MatchPath p, Integer eachid, MeasureRecord rec) {
+        if(!futureSubtractions.contains(p, convertEachId(eachid))) {
+            futureSubtractions.put(p, convertEachId(eachid), new ArrayList<MeasureRecord>());
         }
-        futureSubtractions.get(p).add(rec);
+        futureSubtractions.get(p, convertEachId(eachid)).add(rec);
     }
 
-    public void addPastSubtractionTraces(MatchPath p, List<Trace> t) {
-        if(!pastSubtrationTraces.containsKey(p)) {
-            pastSubtrationTraces.put(p, new ArrayList<Trace>());
+    public void addPastSubtractionTraces(MatchPath p, Integer eachid, List<Trace> t) {
+        if(!pastSubtrationTraces.contains(p, convertEachId(eachid))) {
+            pastSubtrationTraces.put(p, convertEachId(eachid), new ArrayList<Trace>());
         }
-        pastSubtrationTraces.get(p).addAll(t);
+        pastSubtrationTraces.get(p, convertEachId(eachid)).addAll(t);
     }
 
-    public List<MeasureRecord> getFutureSubtractions(MatchPath path) {
-        return futureSubtractions.get(path);
+    public List<MeasureRecord> getFutureSubtractions(MatchPath path, Integer eachid) {
+        return futureSubtractions.get(path, convertEachId(eachid));
     }
 
-    public MeasureRecord getMeasureAddition(MatchPath path) {
-        return measureAdditions.get(path);
+    public MeasureRecord getMeasureAddition(MatchPath path, Integer eachid) {
+        return measureAdditions.get(path, convertEachId(eachid));
     }
 
-    public List<Trace> getPastSubtrationTraces(MatchPath path) {
-        return pastSubtrationTraces.get(path);
+    public List<Trace> getPastSubtrationTraces(MatchPath path, Integer eachid) {
+        return pastSubtrationTraces.get(path, convertEachId(eachid));
+    }
+
+    private int convertEachId(Integer eachid) {
+        return eachid == null ? -1 : eachid;
     }
 
     public DelayMatchModule getDMmodule() {

@@ -130,7 +130,7 @@ public class MatchScriptGenerator extends AbstractScriptGenerator {
                         }
                         int num = group.getCount();
                         for(int eachid = 0; eachid < num; eachid++) {
-                            Float val = computeValue(path, mod);
+                            Float val = computeValue(path, eachid, mod);
                             if(val == null) {
                                 return false;
                             }
@@ -142,7 +142,7 @@ public class MatchScriptGenerator extends AbstractScriptGenerator {
                             moduleHasMatch = true;
                         }
                     } else {
-                        Float val = computeValue(path, mod);
+                        Float val = computeValue(path, null, mod);
                         if(val == null) {
                             return false;
                         }
@@ -170,11 +170,11 @@ public class MatchScriptGenerator extends AbstractScriptGenerator {
         return true;
     }
 
-    private Float computeValue(MatchPath path, DelayMatchModule mod) {
+    private Float computeValue(MatchPath path, Integer eachid, DelayMatchModule mod) {
         Set<Float> values = new HashSet<>();
         logger.info("Module " + mod.getModuleName());
         for(DelayMatchModuleInst inst : mod.getInstances()) {
-            MeasureRecord rec = inst.getMeasureAddition(path);
+            MeasureRecord rec = inst.getMeasureAddition(path, eachid);
             if(rec == null) {
                 logger.error("No record for path found");
                 return null;
@@ -184,13 +184,13 @@ public class MatchScriptGenerator extends AbstractScriptGenerator {
             logger.info("\tMeasure path: " + rec.getId().replace("max_", "").replaceAll("both_", ""));
             logger.info("\t\tValue:  " + String.format("%+2.5f", rec.getValue()));
 
-            Float futureSubtraction = computeFutureSubtraction(path, inst);
+            Float futureSubtraction = computeFutureSubtraction(path, eachid, inst);
             if(futureSubtraction != null && futureSubtraction != 0f) {
                 logger.info("\t\tFuture: " + String.format("%+2.5f", (0f - futureSubtraction)));
                 val -= futureSubtraction;
             }
 
-            Float pastSubtraction = computePastSubtraction(path, inst);
+            Float pastSubtraction = computePastSubtraction(path, eachid, inst);
             if(pastSubtraction != null && pastSubtraction != 0f) {
                 logger.info("\t\tPast:   " + String.format("%+2.5f", (0f - pastSubtraction)));
                 val -= pastSubtraction;
@@ -204,12 +204,12 @@ public class MatchScriptGenerator extends AbstractScriptGenerator {
         return retVal;
     }
 
-    private Float computePastSubtraction(MatchPath path, DelayMatchModuleInst inst) {
+    private Float computePastSubtraction(MatchPath path, Integer eachid, DelayMatchModuleInst inst) {
         Float pastSubtraction = null;
-        if(inst.getPastSubtrationTraces(path) == null) {
+        if(inst.getPastSubtrationTraces(path, eachid) == null) {
             return null;
         }
-        for(Trace trace : inst.getPastSubtrationTraces(path)) {
+        for(Trace trace : inst.getPastSubtrationTraces(path, eachid)) {
             Float tval = computeTraceValue(trace);
             if(tval == null) {
                 continue;
@@ -269,9 +269,9 @@ public class MatchScriptGenerator extends AbstractScriptGenerator {
         return seqVal;
     }
 
-    private Float computeFutureSubtraction(MatchPath path, DelayMatchModuleInst inst) {
+    private Float computeFutureSubtraction(MatchPath path, Integer eachid, DelayMatchModuleInst inst) {
         Float futureSubtraction = null;
-        for(MeasureRecord recF : inst.getFutureSubtractions(path)) {
+        for(MeasureRecord recF : inst.getFutureSubtractions(path, eachid)) {
             if(futureSubtraction == null) {
                 futureSubtraction = recF.getValue();
             }
