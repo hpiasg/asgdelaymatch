@@ -271,6 +271,9 @@ public class MatchScriptGenerator extends AbstractScriptGenerator {
 
     private Float computeFutureSubtraction(MatchPath path, Integer eachid, DelayMatchModuleInst inst) {
         Float futureSubtraction = null;
+        if(inst.getFutureSubtractions(path, eachid) == null) {
+            return null;
+        }
         for(MeasureRecord recF : inst.getFutureSubtractions(path, eachid)) {
             if(futureSubtraction == null) {
                 futureSubtraction = recF.getValue();
