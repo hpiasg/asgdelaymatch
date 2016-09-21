@@ -46,7 +46,7 @@ public class VerilogParser {
 
     private static final Pattern       modulepattern    = Pattern.compile("^\\s*module (.*) \\((.*)\\);\\s*$");
     private static final Pattern       endmodulepattern = Pattern.compile("^\\s*endmodule\\s*$");
-    private static final Pattern       linepattern      = Pattern.compile("^.*;$");
+    private static final Pattern       linepattern      = Pattern.compile("^.*;\\s*$");
 
     private Map<String, VerilogModule> modules;
     private VerilogModule              rootModule;
