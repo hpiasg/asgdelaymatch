@@ -20,10 +20,18 @@ package de.uni_potsdam.hpi.asg.delaymatch.trace.helper;
  */
 
 import java.util.Comparator;
+import java.util.List;
 
+import de.uni_potsdam.hpi.asg.common.stg.model.Place;
 import de.uni_potsdam.hpi.asg.common.stg.model.Transition;
 
 public class TransitionSequenceSort implements Comparator<Transition> {
+
+    private List<Place> initMarking;
+
+    public TransitionSequenceSort(List<Place> initMarking) {
+        this.initMarking = initMarking;
+    }
 
     @Override
     public int compare(Transition o1, Transition o2) {
@@ -42,6 +50,9 @@ public class TransitionSequenceSort implements Comparator<Transition> {
 
     private boolean findPost(Transition o1, Transition find) {
         if(o1.getPostset().size() == 1) {
+            if(initMarking.contains(o1.getPostset().get(0))) {
+                return false;
+            }
             if(o1.getPostset().get(0).getPostset().size() == 1) {
                 if(o1.getPostset().get(0).getPostset().get(0) == find) {
                     return true;
@@ -55,6 +66,9 @@ public class TransitionSequenceSort implements Comparator<Transition> {
 
     private boolean findPre(Transition o1, Transition find) {
         if(o1.getPreset().size() == 1) {
+            if(initMarking.contains(o1.getPreset().get(0))) {
+                return false;
+            }
             if(o1.getPreset().get(0).getPreset().size() == 1) {
                 if(o1.getPreset().get(0).getPreset().get(0) == find) {
                     return true;
