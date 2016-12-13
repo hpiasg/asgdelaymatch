@@ -75,8 +75,8 @@ public class VerilogModule {
 //        return connections.get(sig);
 //    }
 
-    public VerilogModuleInstance getNewInstance() {
-        VerilogModuleInstance inst = new VerilogModuleInstance(this);
+    public VerilogModuleInstance getNewInstance(String id) {
+        VerilogModuleInstance inst = new VerilogModuleInstance(this, id);
         this.instances.add(inst);
         return inst;
     }

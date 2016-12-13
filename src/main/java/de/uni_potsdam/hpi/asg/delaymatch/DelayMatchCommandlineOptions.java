@@ -24,7 +24,7 @@ import java.io.File;
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.Option;
 
-import de.uni_potsdam.hpi.asg.common.io.CommandlineOptions;
+import de.uni_potsdam.hpi.asg.common.iohelper.CommandlineOptions;
 
 public class DelayMatchCommandlineOptions extends CommandlineOptions {
 
@@ -51,8 +51,11 @@ public class DelayMatchCommandlineOptions extends CommandlineOptions {
     @Option(name = "-out", metaVar = "<outfile>", usage = "Outfile", required = true)
     private File outfile = null;
     
-    @Option(name = "-adv", usage = "Use advanced delay matching")
-    private boolean advanced = false;
+    @Option(name = "-future", usage = "Use future alorithm (Resyn only!)")
+    private boolean future = false;
+    @Option(name = "-past", metaVar = "<gfile>", usage = "Use past algorithm (STG file needed; Resyn only!)")
+    private File stgfile = null;
+    
 
     @Argument(metaVar = "Verilog File", required = true)
     private File vfile;
@@ -98,7 +101,11 @@ public class DelayMatchCommandlineOptions extends CommandlineOptions {
         return outfile;
     }
 
-    public boolean isAdvanced() {
-        return advanced;
+    public boolean isFuture() {
+        return future;
+    }
+
+    public File getSTGfile() {
+        return stgfile;
     }
 }

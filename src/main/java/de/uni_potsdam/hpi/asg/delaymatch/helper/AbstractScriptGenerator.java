@@ -28,7 +28,7 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import de.uni_potsdam.hpi.asg.common.io.FileHelper;
+import de.uni_potsdam.hpi.asg.common.iohelper.FileHelper;
 
 public abstract class AbstractScriptGenerator {
     private static final Logger logger = LogManager.getLogger();

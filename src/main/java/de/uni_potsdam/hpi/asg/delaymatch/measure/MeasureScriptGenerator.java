@@ -27,25 +27,16 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import de.uni_potsdam.hpi.asg.common.io.FileHelper;
-import de.uni_potsdam.hpi.asg.common.io.WorkingdirGenerator;
+import de.uni_potsdam.hpi.asg.common.iohelper.FileHelper;
+import de.uni_potsdam.hpi.asg.common.iohelper.WorkingdirGenerator;
 import de.uni_potsdam.hpi.asg.delaymatch.helper.AbstractScriptGenerator;
-import de.uni_potsdam.hpi.asg.delaymatch.helper.PortHelper;
 import de.uni_potsdam.hpi.asg.delaymatch.misc.DelayMatchModule;
-import de.uni_potsdam.hpi.asg.delaymatch.profile.MatchPath;
-import de.uni_potsdam.hpi.asg.delaymatch.profile.Path;
-import de.uni_potsdam.hpi.asg.delaymatch.profile.Port;
-import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogModuleConnection;
-import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogModuleInstance;
-import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogSignal;
-import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogSignal.Direction;
-import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogSignalGroup;
+import de.uni_potsdam.hpi.asg.delaymatch.misc.MeasureRecord;
 
 public class MeasureScriptGenerator extends AbstractScriptGenerator {
     private static final Logger              logger              = LogManager.getLogger();
@@ -70,21 +61,29 @@ public class MeasureScriptGenerator extends AbstractScriptGenerator {
     private String                           localfolder;
 
     private Map<String, DelayMatchModule>    modules;
-    private boolean                          advanced;
 
-    public static MeasureScriptGenerator create(File arg_origfile, Map<String, DelayMatchModule> modules, boolean advanced) {
+    public static MeasureScriptGenerator create(File arg_origfile, Map<String, DelayMatchModule> modules) {
         if(templates == null) {
-            templates = readTemplateCodeSnippets(dc_tcl_templatefile, new String[]{"setup", "elab", "measure_min", "measure_max", "final"});
+            //@formatter:off
+            templates = readTemplateCodeSnippets(dc_tcl_templatefile, new String[]{
+                "setup", "elab", "final",
+                "measure_min_rise_rise", "measure_min_rise_fall", "measure_min_rise_both",
+                "measure_min_fall_rise", "measure_min_fall_fall", "measure_min_fall_both",
+                "measure_min_both_rise", "measure_min_both_fall", "measure_min_both_both",
+                "measure_max_rise_rise", "measure_max_rise_fall", "measure_max_rise_both",
+                "measure_max_fall_rise", "measure_max_fall_fall", "measure_max_fall_both",
+                "measure_max_both_rise", "measure_max_both_fall", "measure_max_both_both",
+            });
+            //@formatter:on
             if(templates == null) {
                 return null;
             }
         }
-        return new MeasureScriptGenerator(arg_origfile, modules, advanced);
+        return new MeasureScriptGenerator(arg_origfile, modules);
     }
 
-    private MeasureScriptGenerator(File arg_origfile, Map<String, DelayMatchModule> modules, boolean advanced) {
+    private MeasureScriptGenerator(File arg_origfile, Map<String, DelayMatchModule> modules) {
         this.modules = modules;
-        this.advanced = advanced;
         localfolder = WorkingdirGenerator.getInstance().getWorkingdir();
         localfile = new File(localfolder + arg_origfile);
         name = localfile.getName().split("\\.")[0];
@@ -96,91 +95,26 @@ public class MeasureScriptGenerator extends AbstractScriptGenerator {
         FileHelper.getInstance().copyfile(dc_sh_templatefile, new File(dcshfile));
         replaceInSh(localfolder + name + dc_sh_file);
 
-        for(DelayMatchModule mod : modules.values()) {
-            if(mod.getProfilecomp() != null) {
-                mod.addMeasureTclLines(generateElabTcl(mod.getName()));
-                for(MatchPath path : mod.getProfilecomp().getMatchpaths()) {
-                    if(path.getForeach() != null) {
-                        VerilogSignalGroup group = mod.getSignalGroups().get(path.getForeach());
-                        if(group == null) {
-                            logger.error("Signal must be group signal!");
-                            return false;
-                        }
-                        int num = group.getCount();
-                        for(int eachid = 0; eachid < num; eachid++) {
-                            addMeasureMax(mod, path.getMeasure(), eachid);
-                        }
-                    } else {
-                        addMeasureMax(mod, path.getMeasure(), null);
-                    }
-
-                    if(advanced) {
-//                      System.out.println("----------");
-//                      System.out.println(mod.getName());
-//                      System.out.println("----------");
-                        Set<VerilogSignal> sigs = new HashSet<>();
-                        for(Port p : path.getMatch().getTo()) {
-                            sigs.addAll(p.getCorrespondingSignals(mod.getVerilogModule()));
-                        }
-                        for(VerilogModuleInstance inst : mod.getVerilogModule().getInstances()) {
-                            for(VerilogSignal sig : sigs) {
-                                VerilogModuleConnection con = inst.getConnections().get(sig);
-                                if(con == null) {
-                                    return false;
-                                }
-                                Map<VerilogModuleInstance, VerilogSignal> others = con.getReader();
-                                if(others == null) {
-                                    return false;
-                                }
-                                for(Entry<VerilogModuleInstance, VerilogSignal> otherinst : others.entrySet()) {
-                                    String othermodulename = otherinst.getKey().getModule().getModulename();
-                                    //                                System.out.println(othermodulename);
-                                    //                                System.out.println("in: " + otherinst.getValue().getName());
-                                    StringBuilder to = new StringBuilder();
-                                    for(VerilogSignal sig2 : otherinst.getKey().getModule().getSignals().values()) {
-                                        if(sig2.getDirection() == Direction.output) {
-                                            to.append(sig2.getName() + " ");
-                                            //                                        System.out.println("out: " + sig2.getName());
-                                        }
-                                    }
-                                    to.setLength(to.length() - 1);
-                                    DelayMatchModule othermodule = modules.get(othermodulename);
-                                    if(othermodule.getMeasuretcl() == null) {
-                                        othermodule.addMeasureTclLines(generateElabTcl(othermodulename));
-                                        othermodule.setMeasureOutputfile(name + "_" + othermodulename + dc_log_file);
-                                    }
-                                    othermodule.addMeasureTclLines(generateMeasureMinTcl(othermodulename, otherinst.getValue().getName(), to.toString()));
-                                    mod.addNegativeMatchPath(path.getMatch(), "from:" + otherinst.getValue().getName() + ";to:" + to.toString(), othermodule);
-                                }
-                            }
-                        }
-                    }
-                }
-                mod.setMeasureOutputfile(name + "_" + mod.getName() + dc_log_file);
-            }
-        }
-
         String dctclfile = localfolder + name + dc_tcl_file;
         List<String> tclfilecontent = new ArrayList<>();
         tclfilecontent.addAll(generateSetupTcl());
+
         for(DelayMatchModule mod : modules.values()) {
-            if(mod.getMeasuretcl() != null) {
-                tclfilecontent.addAll(mod.getMeasuretcl());
+            if(!mod.getMeasureRecords().isEmpty()) {
+                tclfilecontent.addAll(generateElabTcl(mod.getModuleName()));
+                for(MeasureRecord rec : mod.getMeasureRecords().values()) {
+                    tclfilecontent.addAll(generateMeasureTcl(rec, mod.getModuleName()));
+                }
+                mod.setMeasureOutputfile(name + "_" + mod.getModuleName() + dc_log_file);
             }
         }
+
         tclfilecontent.addAll(generateFinalTcl());
         if(!FileHelper.getInstance().writeFile(new File(dctclfile), tclfilecontent)) {
             return false;
         }
 
         return true;
-    }
-
-    private void addMeasureMax(DelayMatchModule mod, Path measure, Integer eachid) {
-        String from = PortHelper.getPortListAsDCString(measure.getFrom(), eachid, mod.getSignals());
-        String to = PortHelper.getPortListAsDCString(measure.getTo(), eachid, mod.getSignals());
-        mod.addMeasureTclLines(generateMeasureMaxTcl(mod.getName(), from, to));
-        mod.addMeasurePath("from:" + from + ";to:" + to, measure);
     }
 
     private void replaceInSh(String filename) {
@@ -228,25 +162,54 @@ public class MeasureScriptGenerator extends AbstractScriptGenerator {
         return newlines;
     }
 
-    private List<String> generateMeasureMinTcl(String component, String from, String to) {
-        if(!templates.containsKey("measure_min")) {
-            logger.error("Measure_min template code not found");
+    private List<String> generateMeasureTcl(MeasureRecord rec, String component) {
+        StringBuilder templateName = new StringBuilder();
+        templateName.append("measure_");
+        switch(rec.getType()) {
+            case max:
+                templateName.append("max_");
+                break;
+            case min:
+                templateName.append("min_");
+                break;
+        }
+        switch(rec.getFromEdge()) {
+            case both:
+                templateName.append("both_");
+                break;
+            case falling:
+                templateName.append("fall_");
+                break;
+            case rising:
+                templateName.append("rise_");
+                break;
+        }
+        switch(rec.getToEdge()) {
+            case both:
+                templateName.append("both");
+                break;
+            case falling:
+                templateName.append("fall");
+                break;
+            case rising:
+                templateName.append("rise");
+                break;
+        }
+
+        if(!templates.containsKey(templateName.toString())) {
+            logger.error("Template code for " + templateName.toString() + " not found");
             return null;
         }
-        return generateMeasureCommonTcl(component, from, to, templates.get("measure_min"));
+
+        String from = rec.getFromSignals();
+        String to = rec.getToSignals();
+
+        return generateMeasureCommonTcl(rec.getId(), component, from, to, templates.get(templateName.toString()));
     }
 
-    private List<String> generateMeasureMaxTcl(String component, String from, String to) {
-        if(!templates.containsKey("measure_max")) {
-            logger.error("Measure_max template code not found");
-            return null;
-        }
-        return generateMeasureCommonTcl(component, from, to, templates.get("measure_max"));
-    }
-
-    private List<String> generateMeasureCommonTcl(String component, String from, String to, List<String> lines) {
+    private List<String> generateMeasureCommonTcl(String id, String component, String from, String to, List<String> lines) {
         List<String> newlines = new ArrayList<>();
-        newlines.add("redirect -append " + name + "_" + component + dc_log_file + " {echo ASGdm\\;from:" + from + "\\;to:" + to + "\\;}");
+        newlines.add("redirect -append " + name + "_" + component + dc_log_file + " {echo ASGdm\\;" + id + "\\;}");
         for(String line : lines) {
             line = line.replace("#*dc_sub_log*#", name + "_" + component + dc_log_file);
             line = line.replace("#*root_sub*#", component);

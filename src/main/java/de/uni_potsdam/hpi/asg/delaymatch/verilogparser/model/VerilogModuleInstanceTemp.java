@@ -23,8 +23,8 @@ import java.util.List;
 
 public class VerilogModuleInstanceTemp {
 
-    private String                             modulename;
-    private String                             instancename;
+    private String                                    modulename;
+    private String                                    instancename;
     private List<VerilogModuleInstanceConnectionTemp> interfaceSignals;
 
     public VerilogModuleInstanceTemp(String modulename, String instancename, List<VerilogModuleInstanceConnectionTemp> interfaceSignals) {
@@ -44,5 +44,9 @@ public class VerilogModuleInstanceTemp {
 
     public List<VerilogModuleInstanceConnectionTemp> getInterfaceSignals() {
         return interfaceSignals;
+    }
+
+    public String getInstanceName() {
+        return instancename;
     }
 }

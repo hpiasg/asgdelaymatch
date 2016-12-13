@@ -24,11 +24,11 @@ import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
 
-import de.uni_potsdam.hpi.asg.common.io.FileHelper;
-import de.uni_potsdam.hpi.asg.common.io.LoggerHelper;
-import de.uni_potsdam.hpi.asg.common.io.WorkingdirGenerator;
-import de.uni_potsdam.hpi.asg.common.io.Zipper;
-import de.uni_potsdam.hpi.asg.common.io.remote.RemoteInformation;
+import de.uni_potsdam.hpi.asg.common.iohelper.FileHelper;
+import de.uni_potsdam.hpi.asg.common.iohelper.LoggerHelper;
+import de.uni_potsdam.hpi.asg.common.iohelper.WorkingdirGenerator;
+import de.uni_potsdam.hpi.asg.common.iohelper.Zipper;
+import de.uni_potsdam.hpi.asg.common.remote.RemoteInformation;
 import de.uni_potsdam.hpi.asg.delaymatch.io.Config;
 import de.uni_potsdam.hpi.asg.delaymatch.io.RemoteInvocation;
 import de.uni_potsdam.hpi.asg.delaymatch.match.MatchMain;
@@ -107,13 +107,13 @@ public class DelayMatchMain {
         }
 
         logger.info("Measure phase");
-        MeasureMain memain = new MeasureMain(rinfo, modules, options.isAdvanced());
+        MeasureMain memain = new MeasureMain(rinfo, modules, vparser.getRootModule(), options.isFuture(), options.getSTGfile());
         if(!memain.measure(options.getVfile())) {
             return 1;
         }
 
         logger.info("Match phase");
-        MatchMain mamain = new MatchMain(rinfo, modules);
+        MatchMain mamain = new MatchMain(rinfo, modules, memain.getTransTable());
         if(!mamain.match(options.getVfile())) {
             return 1;
         }

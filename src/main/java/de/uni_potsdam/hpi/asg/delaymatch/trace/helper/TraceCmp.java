@@ -1,4 +1,4 @@
-package de.uni_potsdam.hpi.asg.delaymatch.match;
+package de.uni_potsdam.hpi.asg.delaymatch.trace.helper;
 
 /*
  * Copyright (C) 2016 Norman Kluge
@@ -19,21 +19,28 @@ package de.uni_potsdam.hpi.asg.delaymatch.match;
  * along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import de.uni_potsdam.hpi.asg.common.remote.RemoteInformation;
-import de.uni_potsdam.hpi.asg.common.remote.SimpleRemoteOperationWorkflow;
+import java.util.Comparator;
 
-public class MatchRemoteOperationWorkflow extends SimpleRemoteOperationWorkflow {
-
-    public MatchRemoteOperationWorkflow(RemoteInformation rinfo, String subdir) {
-        super(rinfo, subdir);
-    }
+public class TraceCmp implements Comparator<TempTrace> {
 
     @Override
-    protected boolean executeCallBack(String script, int code) {
-        if(code == 0) {
-            return true;
+    public int compare(TempTrace arg0, TempTrace arg1) {
+        int i = 0;
+        while(true) {
+            if(arg0.getTrace().size() == i && arg1.getTrace().size() == i) {
+                return 0;
+            }
+            if(arg0.getTrace().size() == i) {
+                return -1;
+            }
+            if(arg1.getTrace().size() == i) {
+                return 1;
+            }
+            int cmpT = arg0.getTrace().get(i).compareTo(arg1.getTrace().get(i));
+            if(cmpT != 0) {
+                return cmpT;
+            }
+            i++;
         }
-        return false;
     }
-
 }

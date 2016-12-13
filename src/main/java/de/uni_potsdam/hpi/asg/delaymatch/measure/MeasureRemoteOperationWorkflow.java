@@ -19,8 +19,8 @@ package de.uni_potsdam.hpi.asg.delaymatch.measure;
  * along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import de.uni_potsdam.hpi.asg.common.io.remote.RemoteInformation;
-import de.uni_potsdam.hpi.asg.common.io.remote.SimpleRemoteOperationWorkflow;
+import de.uni_potsdam.hpi.asg.common.remote.RemoteInformation;
+import de.uni_potsdam.hpi.asg.common.remote.SimpleRemoteOperationWorkflow;
 
 public class MeasureRemoteOperationWorkflow extends SimpleRemoteOperationWorkflow {
 

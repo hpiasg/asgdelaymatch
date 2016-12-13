@@ -1,4 +1,4 @@
-ASGresyn
+ASGdelaymatch
 Copyright (C) 2016 Hasso-Plattner-Institut fuer Softwaresystemtechnik GmbH
 
 This product includes software developed at Hasso-Plattner-Institut fuer Softwaresystemtechnik GmbH.
@@ -6,23 +6,41 @@ The Software developed and owned by the Hasso-Plattner-Institut fuer Softwaresys
 
 This software makes use of the following libraries:
 
-args4j v2.0.29
-http://args4j.kohsuke.org/
-Copyright (C) 2003-2014 Kohsuke Kawaguchi
-Licensed under the MIT license
-
-JUnit v4.11
-http://junit.org/
-Licensed under Common Public License Version 1.0
+Apache Commons Pool v2.3
+https://commons.apache.org/proper/commons-pool/
+Copyright 2001-2015 The Apache Software Foundatio
+Licensed under Apache License, Version 2.0
 
 Apache log4j(TM) v2.1
 http://logging.apache.org/log4j/2.x/
 Copyright (C) 1999-2014 Apache Software Foundation
 Licensed under Apache License, Version 2.0
 
-ASGcommon v1.1
+args4j v2.0.29
+http://args4j.kohsuke.org/
+Copyright (C) 2003-2014 Kohsuke Kawaguchi
+Licensed under the MIT license
+
+ASGcommon v2.0
 https://github.com/hpiasg
-Copyright (C) 2012-2015 Universitaet Augsburg, Hasso-Plattner-Institut fuer Softwaresystemtechnik GmbH
+Copyright (C) 2012-2016 Universitaet Augsburg, Hasso-Plattner-Institut fuer Softwaresystemtechnik GmbH
 Licensed under GNU General Public License (GPL), Version 3.0
 
-This software makes use of the following external software:
+Guava v18.0
+https://github.com/google/guava
+Copyright (C) The Guava Authors
+Licensed under Apache License, Version 2.0
+
+JGraphX v3.1.2.1
+http://www.jgraph.com/
+Copyright (c) 2001-2014, JGraph Ltd
+Licensed under the 3 clause BSD license
+
+JUnit v4.11
+http://junit.org/
+Licensed under Common Public License Version 1.0
+
+Trove4J v3.0.3
+http://trove.starlight-systems.com/
+Copyright (C) 2009-2012 Trove Development Team
+Licensed under the Lesser GNU Public License

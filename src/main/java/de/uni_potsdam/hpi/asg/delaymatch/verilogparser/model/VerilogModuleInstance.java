@@ -1,7 +1,5 @@
 package de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model;
 
-import java.util.HashMap;
-
 /*
  * Copyright (C) 2016 Norman Kluge
  * 
@@ -21,6 +19,7 @@ import java.util.HashMap;
  * along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
@@ -30,10 +29,12 @@ public class VerilogModuleInstance {
     private static final Logger                         logger = LogManager.getLogger();
 
     private VerilogModule                               module;
+    private String                                      instName;
     private Map<VerilogSignal, VerilogModuleConnection> connections;
 
-    public VerilogModuleInstance(VerilogModule module) {
+    public VerilogModuleInstance(VerilogModule module, String instName) {
         this.module = module;
+        this.instName = instName;
         this.connections = new HashMap<>();
     }
 
@@ -58,8 +59,12 @@ public class VerilogModuleInstance {
         return connections;
     }
 
+    public String getInstName() {
+        return instName;
+    }
+
     @Override
     public String toString() {
-        return "ModInst:" + module.getModulename();
+        return "ModInst:" + module.getModulename() + "(" + instName + ")";
     }
 }

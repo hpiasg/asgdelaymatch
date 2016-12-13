@@ -1,4 +1,4 @@
-package de.uni_potsdam.hpi.asg.delaymatch.match;
+package de.uni_potsdam.hpi.asg.delaymatch.trace.rgraph;
 
 /*
  * Copyright (C) 2016 Norman Kluge
@@ -19,21 +19,31 @@ package de.uni_potsdam.hpi.asg.delaymatch.match;
  * along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import de.uni_potsdam.hpi.asg.common.remote.RemoteInformation;
-import de.uni_potsdam.hpi.asg.common.remote.SimpleRemoteOperationWorkflow;
+import java.util.Map;
 
-public class MatchRemoteOperationWorkflow extends SimpleRemoteOperationWorkflow {
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-    public MatchRemoteOperationWorkflow(RemoteInformation rinfo, String subdir) {
-        super(rinfo, subdir);
+import de.uni_potsdam.hpi.asg.common.stg.model.Signal;
+import de.uni_potsdam.hpi.asg.common.stggraph.AbstractState;
+
+public class MarkingState extends AbstractState<MarkingState> {
+    private static final Logger logger = LogManager.getLogger();
+
+    @Override
+    public void setSignalState(Signal sig, Value val) {
+        logger.error("Not implemented");
     }
 
     @Override
-    protected boolean executeCallBack(String script, int code) {
-        if(code == 0) {
-            return true;
-        }
-        return false;
+    public Map<Signal, Value> getStateValues() {
+        logger.error("Not implemented");
+        return null;
     }
 
+    @Override
+    public boolean isSignalSet(Signal sig) {
+        logger.error("Not implemented");
+        return false;
+    }
 }

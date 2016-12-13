@@ -1,7 +1,5 @@
 package de.uni_potsdam.hpi.asg.delaymatch.misc;
 
-import java.util.ArrayList;
-
 /*
  * Copyright (C) 2016 Norman Kluge
  * 
@@ -21,89 +19,60 @@ import java.util.ArrayList;
  * along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
-import de.uni_potsdam.hpi.asg.delaymatch.profile.Path;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import de.uni_potsdam.hpi.asg.delaymatch.misc.MeasureRecord.MeasureEdge;
+import de.uni_potsdam.hpi.asg.delaymatch.misc.MeasureRecord.MeasureType;
 import de.uni_potsdam.hpi.asg.delaymatch.profile.ProfileComponent;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogModule;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogSignal;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogSignalGroup;
 
 public class DelayMatchModule {
+    private static final Logger        logger = LogManager.getLogger();
 
-    private VerilogModule                            module;
-    private ProfileComponent                         profilecomp;
-    private String                                   measureOutputfile;
-    private Map<String, Float>                       values;
-    private Map<Path, String>                        measureids;
-    private Map<Path, Map<String, DelayMatchModule>> negids;
-    private List<String>                             measuretcl;
+    private VerilogModule              module;
+    private ProfileComponent           profilecomp;
+    private List<DelayMatchModuleInst> instances;
+    private String                     measureOutputfile;
+    private Map<String, MeasureRecord> measureRecords;
 
     public DelayMatchModule(VerilogModule module, ProfileComponent profilecomp) {
         this.module = module;
         this.profilecomp = profilecomp;
-        this.values = new HashMap<>();
-        this.measureids = new HashMap<>();
-        this.negids = new HashMap<>();
+        this.measureRecords = new HashMap<>();
+        this.instances = new ArrayList<>();
     }
 
-    public void addValue(String id, Float value) {
-        this.values.put(id, value);
-    }
-
-    public Float getValue(String id) {
-        return values.get(id);
-    }
-
-    public void addMeasurePath(String id, Path p) {
-        this.measureids.put(p, id);
-    }
-
-    public Float getMeasureValue(Path p) {
-        if(!measureids.containsKey(p)) {
-            return null;
+    public boolean addValue(String id, Float value) {
+        if(measureRecords.containsKey(id)) {
+            measureRecords.get(id).setValue(value);
+            return true;
         }
-        String id = measureids.get(p);
-        if(!values.containsKey(id)) {
-            return null;
-        }
-        return values.get(id);
+        logger.error("Id not defined: " + id);
+        return false;
     }
 
-    public void addNegativeMatchPath(Path p, String id, DelayMatchModule module) {
-        if(!negids.containsKey(p)) {
-            negids.put(p, new HashMap<String, DelayMatchModule>());
+    public MeasureRecord getMeasureRecord(MeasureEdge fromEdge, String fromSignals, MeasureEdge toEdge, String toSignals, MeasureType type) {
+        String id = MeasureRecord.getID(fromEdge, fromSignals, toEdge, toSignals, type);
+        if(!measureRecords.containsKey(id)) {
+            measureRecords.put(id, new MeasureRecord(fromEdge, fromSignals, toEdge, toSignals, type));
         }
-        negids.get(p).put(id, module);
+        return measureRecords.get(id);
     }
 
-    public List<Float> getNegativeMatchValues(Path p) {
-        if(!negids.containsKey(p)) {
-            return null;
-        }
-        List<Float> retVal = new ArrayList<>();
-        Map<String, DelayMatchModule> map = negids.get(p);
-        for(Entry<String, DelayMatchModule> entry : map.entrySet()) {
-            Float val = entry.getValue().getValue(entry.getKey());
-            if(val == null) {
-                return null;
-            }
-            retVal.add(val);
-        }
-        return retVal;
+    public Map<String, MeasureRecord> getMeasureRecords() {
+        return Collections.unmodifiableMap(measureRecords);
     }
 
-    public void addMeasureTclLines(List<String> lines) {
-        if(measuretcl == null) {
-            measuretcl = new ArrayList<>();
-        }
-        measuretcl.addAll(lines);
-    }
-
-    public String getName() {
+    public String getModuleName() {
         return module.getModulename();
     }
 
@@ -127,11 +96,15 @@ public class DelayMatchModule {
         return measureOutputfile;
     }
 
-    public VerilogModule getVerilogModule() {
-        return module;
+    public List<DelayMatchModuleInst> getInstances() {
+        return instances;
     }
 
-    public List<String> getMeasuretcl() {
-        return measuretcl;
+    public boolean addInstance(DelayMatchModuleInst inst) {
+        return this.instances.add(inst);
+    }
+
+    public VerilogModule getVerilogModule() {
+        return module;
     }
 }

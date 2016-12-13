@@ -1,4 +1,4 @@
-package de.uni_potsdam.hpi.asg.delaymatch.match;
+package de.uni_potsdam.hpi.asg.delaymatch.trace.model;
 
 /*
  * Copyright (C) 2016 Norman Kluge
@@ -19,21 +19,32 @@ package de.uni_potsdam.hpi.asg.delaymatch.match;
  * along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import de.uni_potsdam.hpi.asg.common.remote.RemoteInformation;
-import de.uni_potsdam.hpi.asg.common.remote.SimpleRemoteOperationWorkflow;
+import java.util.ArrayList;
 
-public class MatchRemoteOperationWorkflow extends SimpleRemoteOperationWorkflow {
+import java.util.List;
 
-    public MatchRemoteOperationWorkflow(RemoteInformation rinfo, String subdir) {
-        super(rinfo, subdir);
+public class ParallelBox extends Box implements PTBox {
+
+    private List<SequenceBox> parallelLines;
+
+    public ParallelBox(Box superBox) {
+        super(superBox);
+        this.parallelLines = new ArrayList<>();
+    }
+
+    public List<SequenceBox> getParallelLines() {
+        return parallelLines;
     }
 
     @Override
-    protected boolean executeCallBack(String script, int code) {
-        if(code == 0) {
-            return true;
+    public String toString() {
+        StringBuilder str = new StringBuilder();
+        str.append("[P ");
+        for(SequenceBox box : parallelLines) {
+            str.append(box.toString() + " | ");
         }
-        return false;
+        str.setLength(str.length() - 3);
+        str.append("]");
+        return str.toString();
     }
-
 }

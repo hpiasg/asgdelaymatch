@@ -39,9 +39,10 @@ import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogSignalGroupS
 public class VerilogModuleContentParser {
     private static final Logger             logger                = LogManager.getLogger();
 
-    private static final Pattern            linebuspattern        = Pattern.compile("\\s*(input|output|wire)\\s*\\[\\s*(\\d+):(\\d+)\\]\\s*(.*);");
-    private static final Pattern            linepattern           = Pattern.compile("\\s*(input|output|wire)\\s*(.*);");
-    private static final Pattern            instancePattern       = Pattern.compile("\\s*(.*)\\s+([A-Za-z0-9]+)\\s+\\((.*)\\);\\s*");
+    private static final String             commentBehindLine     = "\\s*(\\/\\/.*)?";
+    private static final Pattern            linebuspattern        = Pattern.compile("\\s*(input|output|wire)\\s*\\[\\s*(\\d+):(\\d+)\\]\\s*(.*);\\s*");
+    private static final Pattern            linepattern           = Pattern.compile("\\s*(input|output|wire)\\s*(.*);\\s*");
+    private static final Pattern            instancePattern       = Pattern.compile("\\s*(.*)\\s+([A-Za-z0-9_]+)\\s+\\((.*)\\);\\s*");
     private static final Pattern            mappedPositionPattern = Pattern.compile("\\.(.*)\\((.*)\\)");
 
     private static final Pattern            hssignalpattern       = Pattern.compile("(.*)\\_(\\d+)(r|a|d)");
@@ -86,8 +87,9 @@ public class VerilogModuleContentParser {
                     String localSigName = m2.group(2).trim();
                     localSigName = localSigName.replaceAll("\\[.*\\]", ""); //TODO: ??
                     if(!signals.containsKey(localSigName)) {
-                        logger.error("Signal " + localSigName + " not found");
-                        return false;
+//                        logger.error("Signal " + localSigName + " not found");
+//                        return false;
+                        signals.put(localSigName, new VerilogSignal(localSigName, Direction.wire));
                     }
                     interfaceSignals.add(new VerilogModuleInstanceConnectionTemp(signals.get(localSigName), moduleSigName));
                 } else {
@@ -95,8 +97,9 @@ public class VerilogModuleContentParser {
                     String localSigName = str.trim();
                     localSigName = localSigName.replaceAll("\\[.*\\]", ""); //TODO: ??
                     if(!signals.containsKey(localSigName)) {
-                        logger.error("Signal " + localSigName + " not found");
-                        return false;
+//                        logger.error("Signal " + localSigName + " not found");
+//                        return false;
+                        signals.put(localSigName, new VerilogSignal(localSigName, Direction.wire));
                     }
                     interfaceSignals.add(new VerilogModuleInstanceConnectionTemp(signals.get(localSigName), id));
                 }

@@ -1,4 +1,4 @@
-package de.uni_potsdam.hpi.asg.delaymatch.match;
+package de.uni_potsdam.hpi.asg.delaymatch.trace.rgraph;
 
 /*
  * Copyright (C) 2016 Norman Kluge
@@ -19,21 +19,26 @@ package de.uni_potsdam.hpi.asg.delaymatch.match;
  * along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import de.uni_potsdam.hpi.asg.common.remote.RemoteInformation;
-import de.uni_potsdam.hpi.asg.common.remote.SimpleRemoteOperationWorkflow;
+import java.util.Set;
 
-public class MatchRemoteOperationWorkflow extends SimpleRemoteOperationWorkflow {
+import de.uni_potsdam.hpi.asg.common.stg.model.STG;
 
-    public MatchRemoteOperationWorkflow(RemoteInformation rinfo, String subdir) {
-        super(rinfo, subdir);
+public class ReachabilityGraph {
+
+    private Set<MarkingState> states;
+    private STG               stg;
+
+    public ReachabilityGraph(STG stg, Set<MarkingState> states) {
+        this.states = states;
+        this.stg = stg;
     }
 
-    @Override
-    protected boolean executeCallBack(String script, int code) {
-        if(code == 0) {
-            return true;
-        }
-        return false;
+    public Set<MarkingState> getStates() {
+        return states;
+    }
+
+    public STG getSTG() {
+        return stg;
     }
 
 }
