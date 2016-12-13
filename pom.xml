@@ -22,7 +22,7 @@ along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.uni_potsdam.hpi.asg</groupId>
 	<artifactId>asgdelaymatch</artifactId>
-	<version>1.2.0-SNAPSHOT</version>
+	<version>1.2.1-SNAPSHOT</version>
 	<organization>
 		<name>Hasso-Plattner-Institut fuer Softwaresystemtechnik GmbH</name>
 		<url>http://www.hpi.uni-potsdam.de</url>
@@ -43,7 +43,7 @@ along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
 	</licenses>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<common.version>2.0.0-SNAPSHOT</common.version>
+		<common.version>2.0.1-SNAPSHOT</common.version>
 	</properties>
 	<build>
 		<resources>
