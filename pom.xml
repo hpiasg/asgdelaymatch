@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-Copyright 2016 Norman Kluge
+Copyright 2016 - 2017 Norman Kluge
  
 This file is part of ASGdelaymatch.
  
@@ -43,7 +43,7 @@ along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
 	</licenses>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<common.version>2.0.1-SNAPSHOT</common.version>
+		<common.version>2.0.0</common.version>
 	</properties>
 	<build>
 		<resources>

@@ -1,7 +1,7 @@
 package de.uni_potsdam.hpi.asg.delaymatch;
 
 /*
- * Copyright (C) 2016 Norman Kluge
+ * Copyright (C) 2016 - 2017 Norman Kluge
  * 
  * This file is part of ASGdelaymatch.
  * 
@@ -30,6 +30,7 @@ import de.uni_potsdam.hpi.asg.common.iohelper.WorkingdirGenerator;
 import de.uni_potsdam.hpi.asg.common.iohelper.Zipper;
 import de.uni_potsdam.hpi.asg.common.remote.RemoteInformation;
 import de.uni_potsdam.hpi.asg.delaymatch.io.Config;
+import de.uni_potsdam.hpi.asg.delaymatch.io.ConfigFile;
 import de.uni_potsdam.hpi.asg.delaymatch.io.RemoteInvocation;
 import de.uni_potsdam.hpi.asg.delaymatch.match.MatchMain;
 import de.uni_potsdam.hpi.asg.delaymatch.measure.MeasureMain;
@@ -58,7 +59,7 @@ public class DelayMatchMain {
             if(options.parseCmdLine(args)) {
                 logger = LoggerHelper.initLogger(options.getOutputlevel(), options.getLogfile(), options.isDebug());
                 logger.debug("Args: " + Arrays.asList(args).toString());
-                config = Config.readIn(options.getConfigfile());
+                config = ConfigFile.readIn(options.getConfigfile());
                 if(config == null) {
                     logger.error("Could not read config");
                     return 1;
