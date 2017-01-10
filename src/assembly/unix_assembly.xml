@@ -25,6 +25,23 @@ along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
 		<format>tar.gz</format>
 		<format>dir</format>
 	</formats>
+	<files>
+		<file>
+			<source>LICENSE.txt</source>
+			<outputDirectory>legal</outputDirectory>
+			<destName>ASGdelaymatch_LICENSE.txt</destName>
+		</file>
+		<file>
+			<source>NOTICE.txt</source>
+			<outputDirectory>legal</outputDirectory>
+			<destName>ASGdelaymatch_NOTICE.txt</destName>
+		</file>
+		<file>
+			<source>README.md</source>
+			<outputDirectory>readme</outputDirectory>
+			<destName>ASGdelaymatch_README.md</destName>
+		</file>
+	</files>
 	<fileSets>
 		<fileSet>
 			<directory>.</directory>
