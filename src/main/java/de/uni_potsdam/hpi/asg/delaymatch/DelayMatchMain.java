@@ -87,8 +87,14 @@ public class DelayMatchMain {
             return 1;
         }
 
+        if(config.toolconfig == null) {
+            logger.error("External tools (remote login) not configured");
+            return 1;
+        }
+
         RemoteInvocation rinv = config.toolconfig.designCompilerCmd;
         if(rinv == null) {
+            logger.error("Remote login not configured");
             return 1;
         }
         RemoteInformation rinfo = new RemoteInformation(rinv.hostname, rinv.username, rinv.password, rinv.workingdir);
