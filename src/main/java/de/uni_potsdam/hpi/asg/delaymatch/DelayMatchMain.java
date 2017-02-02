@@ -22,7 +22,9 @@ package de.uni_potsdam.hpi.asg.delaymatch;
 import java.util.Arrays;
 import java.util.Map;
 
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.status.StatusLogger;
 
 import de.uni_potsdam.hpi.asg.common.iohelper.FileHelper;
 import de.uni_potsdam.hpi.asg.common.iohelper.LoggerHelper;
@@ -45,6 +47,10 @@ public class DelayMatchMain {
     public static Config                        config;
 
     public static float                         matchMaxFactor = 1.1f;
+
+    static {
+        StatusLogger.getLogger().setLevel(Level.OFF);
+    }
 
     public static void main(String[] args) {
         int status = main2(args);
