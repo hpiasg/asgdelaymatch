@@ -29,7 +29,7 @@ import de.uni_potsdam.hpi.asg.common.iohelper.CommandlineOptions;
 public class DelayMatchCommandlineOptions extends CommandlineOptions {
 
     public boolean parseCmdLine(String[] args) {
-        return super.parseCmdLine(args, "Usage: ASGdelaymatch -p <profilefile> [options] <verilog file>\nOptions:");
+        return super.parseCmdLine(args, "Usage: ASGdelaymatch -p <profilefile> -out <outfile> [options] <verilog file>\nOptions:");
     }
 
     //@formatter:off
