@@ -68,12 +68,6 @@ along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
 				</excludes>
 			</resource>
 			<resource>
-				<directory>src/main/resources/jar</directory>
-				<includes>
-					<include>**/*</include>
-				</includes>
-			</resource>
-			<resource>
 				<directory>src/main/resources/schema</directory>
 				<includes>
 					<include>**/*</include>
@@ -161,6 +155,11 @@ along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
 							<commandLineArguments>
 								<commandLineArgument>-cfg "$BASEDIR"/config/delaymatchconfig.xml</commandLineArgument>
 							</commandLineArguments>
+							<jvmSettings>
+								<extraArguments>
+									<extraArgument>-Dlog4j.configurationFile=@BASEDIR@/config/delaymatch_log4j2.xml</extraArgument>
+								</extraArguments>
+							</jvmSettings>
 						</program>
 					</programs>
 					<repositoryLayout>flat</repositoryLayout>
