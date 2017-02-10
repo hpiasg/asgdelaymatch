@@ -29,6 +29,8 @@ import de.uni_potsdam.hpi.asg.common.iohelper.LoggerHelper;
 import de.uni_potsdam.hpi.asg.common.iohelper.WorkingdirGenerator;
 import de.uni_potsdam.hpi.asg.common.iohelper.Zipper;
 import de.uni_potsdam.hpi.asg.common.remote.RemoteInformation;
+import de.uni_potsdam.hpi.asg.common.technology.ReadTechnologyHelper;
+import de.uni_potsdam.hpi.asg.common.technology.Technology;
 import de.uni_potsdam.hpi.asg.delaymatch.io.Config;
 import de.uni_potsdam.hpi.asg.delaymatch.io.ConfigFile;
 import de.uni_potsdam.hpi.asg.delaymatch.io.RemoteInvocation;
@@ -82,6 +84,12 @@ public class DelayMatchMain {
     }
 
     private static int execute() {
+        Technology tech = ReadTechnologyHelper.read(options.getTechnology(), config.defaultTech);
+        if(tech == null) {
+            logger.error("No technology found");
+            return 1;
+        }
+
         ProfileComponents comps = ProfileComponents.readIn(options.getProfilefile());
         if(comps == null) {
             return 1;
@@ -104,9 +112,6 @@ public class DelayMatchMain {
             return 1;
         }
 
-//        VerilogModule rootModule = vparser.getRootModule();
-//        new VerilogGraph(rootModule, true, null);
-
         EligibleModuleFinder find = new EligibleModuleFinder(comps);
         Map<String, DelayMatchModule> modules = find.find(vparser.getModules());
         if(modules == null) {
@@ -114,13 +119,13 @@ public class DelayMatchMain {
         }
 
         logger.info("Measure phase");
-        MeasureMain memain = new MeasureMain(rinfo, modules, vparser.getRootModule(), options.isFuture(), options.getSTGfile());
+        MeasureMain memain = new MeasureMain(rinfo, modules, vparser.getRootModule(), options.isFuture(), options.getSTGfile(), tech);
         if(!memain.measure(options.getVfile())) {
             return 1;
         }
 
         logger.info("Match phase");
-        MatchMain mamain = new MatchMain(rinfo, modules, memain.getTransTable());
+        MatchMain mamain = new MatchMain(rinfo, modules, memain.getTransTable(), tech);
         if(!mamain.match(options.getVfile())) {
             return 1;
         }

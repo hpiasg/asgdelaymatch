@@ -1,7 +1,7 @@
 package de.uni_potsdam.hpi.asg.delaymatch.measure;
 
 /*
- * Copyright (C) 2016 Norman Kluge
+ * Copyright (C) 2016 - 2017 Norman Kluge
  * 
  * This file is part of ASGdelaymatch.
  * 
@@ -36,6 +36,7 @@ import com.google.common.collect.Table;
 import de.uni_potsdam.hpi.asg.common.iohelper.FileHelper;
 import de.uni_potsdam.hpi.asg.common.remote.RemoteInformation;
 import de.uni_potsdam.hpi.asg.common.stg.model.Transition;
+import de.uni_potsdam.hpi.asg.common.technology.Technology;
 import de.uni_potsdam.hpi.asg.delaymatch.misc.DelayMatchModule;
 import de.uni_potsdam.hpi.asg.delaymatch.misc.MeasureEntry;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogModule;
@@ -51,15 +52,17 @@ public class MeasureMain {
     private boolean                                     future;
     private File                                        stgFile;
     private VerilogModule                               rootModule;
+    private Technology                                  tech;
 
     private Table<Transition, Transition, MeasureEntry> transtable;
 
-    public MeasureMain(RemoteInformation rinfo, Map<String, DelayMatchModule> modules, VerilogModule rootModule, boolean future, File stgFile) {
+    public MeasureMain(RemoteInformation rinfo, Map<String, DelayMatchModule> modules, VerilogModule rootModule, boolean future, File stgFile, Technology tech) {
         this.rinfo = rinfo;
         this.modules = modules;
         this.future = future;
         this.rootModule = rootModule;
         this.stgFile = stgFile;
+        this.tech = tech;
     }
 
     public boolean measure(File vfile) {
@@ -69,7 +72,7 @@ public class MeasureMain {
         }
         this.transtable = rec.getTransTable();
 
-        MeasureScriptGenerator gen = MeasureScriptGenerator.create(vfile, modules);
+        MeasureScriptGenerator gen = MeasureScriptGenerator.create(vfile, modules, tech);
         if(!gen.generate()) {
             return false;
         }

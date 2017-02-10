@@ -1,7 +1,7 @@
 package de.uni_potsdam.hpi.asg.delaymatch.measure;
 
 /*
- * Copyright (C) 2016 Norman Kluge
+ * Copyright (C) 2016 - 2017 Norman Kluge
  * 
  * This file is part of ASGdelaymatch.
  * 
@@ -34,6 +34,7 @@ import org.apache.logging.log4j.Logger;
 
 import de.uni_potsdam.hpi.asg.common.iohelper.FileHelper;
 import de.uni_potsdam.hpi.asg.common.iohelper.WorkingdirGenerator;
+import de.uni_potsdam.hpi.asg.common.technology.Technology;
 import de.uni_potsdam.hpi.asg.delaymatch.helper.AbstractScriptGenerator;
 import de.uni_potsdam.hpi.asg.delaymatch.misc.DelayMatchModule;
 import de.uni_potsdam.hpi.asg.delaymatch.misc.MeasureRecord;
@@ -59,10 +60,11 @@ public class MeasureScriptGenerator extends AbstractScriptGenerator {
     private String                           name;
     private File                             localfile;
     private String                           localfolder;
+    private Technology                       tech;
 
     private Map<String, DelayMatchModule>    modules;
 
-    public static MeasureScriptGenerator create(File arg_origfile, Map<String, DelayMatchModule> modules) {
+    public static MeasureScriptGenerator create(File arg_origfile, Map<String, DelayMatchModule> modules, Technology tech) {
         if(templates == null) {
             //@formatter:off
             templates = readTemplateCodeSnippets(dc_tcl_templatefile, new String[]{
@@ -79,11 +81,12 @@ public class MeasureScriptGenerator extends AbstractScriptGenerator {
                 return null;
             }
         }
-        return new MeasureScriptGenerator(arg_origfile, modules);
+        return new MeasureScriptGenerator(arg_origfile, modules, tech);
     }
 
-    private MeasureScriptGenerator(File arg_origfile, Map<String, DelayMatchModule> modules) {
+    private MeasureScriptGenerator(File arg_origfile, Map<String, DelayMatchModule> modules, Technology tech) {
         this.modules = modules;
+        this.tech = tech;
         localfolder = WorkingdirGenerator.getInstance().getWorkingdir();
         localfile = new File(localfolder + arg_origfile);
         name = localfile.getName().split("\\.")[0];
@@ -143,6 +146,8 @@ public class MeasureScriptGenerator extends AbstractScriptGenerator {
         for(String line : templates.get("setup")) {
             line = line.replace("#*orig*#", name + v_file);
             line = line.replace("#*dc_log*#", name + dc_log_file);
+            line = line.replace("#*search_path*#", tech.getSynctool().getSearchPaths());
+            line = line.replace("#*libraries*#", tech.getSynctool().getLibraries());
             newlines.add(line);
         }
         return newlines;

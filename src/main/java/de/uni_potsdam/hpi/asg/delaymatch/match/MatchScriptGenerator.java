@@ -1,7 +1,7 @@
 package de.uni_potsdam.hpi.asg.delaymatch.match;
 
 /*
- * Copyright (C) 2016 Norman Kluge
+ * Copyright (C) 2016 - 2017 Norman Kluge
  * 
  * This file is part of ASGdelaymatch.
  * 
@@ -40,6 +40,7 @@ import com.google.common.collect.Table;
 import de.uni_potsdam.hpi.asg.common.iohelper.FileHelper;
 import de.uni_potsdam.hpi.asg.common.iohelper.WorkingdirGenerator;
 import de.uni_potsdam.hpi.asg.common.stg.model.Transition;
+import de.uni_potsdam.hpi.asg.common.technology.Technology;
 import de.uni_potsdam.hpi.asg.delaymatch.DelayMatchMain;
 import de.uni_potsdam.hpi.asg.delaymatch.helper.AbstractScriptGenerator;
 import de.uni_potsdam.hpi.asg.delaymatch.helper.PortHelper;
@@ -80,25 +81,27 @@ public class MatchScriptGenerator extends AbstractScriptGenerator {
     private File                                        localfile;
     private String                                      localfolder;
     private String                                      root;
+    private Technology                                  tech;
 
     private Map<String, DelayMatchModule>               modules;
     private Table<Transition, Transition, MeasureEntry> transtable;
 
     private boolean                                     mustRun;
 
-    public static MatchScriptGenerator create(File arg_origfile, Map<String, DelayMatchModule> modules, Table<Transition, Transition, MeasureEntry> transtable) {
+    public static MatchScriptGenerator create(File arg_origfile, Map<String, DelayMatchModule> modules, Table<Transition, Transition, MeasureEntry> transtable, Technology tech) {
         if(templates == null) {
             templates = readTemplateCodeSnippets(dc_tcl_templatefile, new String[]{"setup", "elab", "setdelay", "settouch", "compile", "final"});
             if(templates == null) {
                 return null;
             }
         }
-        return new MatchScriptGenerator(arg_origfile, modules, transtable);
+        return new MatchScriptGenerator(arg_origfile, modules, transtable, tech);
     }
 
-    private MatchScriptGenerator(File arg_origfile, Map<String, DelayMatchModule> modules, Table<Transition, Transition, MeasureEntry> transtable) {
+    private MatchScriptGenerator(File arg_origfile, Map<String, DelayMatchModule> modules, Table<Transition, Transition, MeasureEntry> transtable, Technology tech) {
         this.modules = modules;
         this.transtable = transtable;
+        this.tech = tech;
         localfolder = WorkingdirGenerator.getInstance().getWorkingdir();
         localfile = new File(localfolder + arg_origfile);
         name = localfile.getName().split("\\.")[0];
@@ -323,6 +326,8 @@ public class MatchScriptGenerator extends AbstractScriptGenerator {
             line = line.replace("#*orig*#", name + v_file);
             line = line.replace("#*dc_log*#", name + dc_log_file);
             line = line.replace("#*root*#", root);
+            line = line.replace("#*search_path*#", tech.getSynctool().getSearchPaths());
+            line = line.replace("#*libraries*#", tech.getSynctool().getLibraries());
             newlines.add(line);
         }
         return newlines;

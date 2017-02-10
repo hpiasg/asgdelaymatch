@@ -3,6 +3,11 @@ sh rm -f default.svf
 sh rm -rf dccompile
 sh mkdir dccompile
 define_design_lib WORK -path ./dccompile
+
+lappend search_path #*search_path*#
+set link_library { #*libraries*# }
+set target_library { #*libraries*# }
+
 redirect #*dc_log*# {
 	set rvs [analyze -library WORK -format verilog {#*orig*#}]
 }

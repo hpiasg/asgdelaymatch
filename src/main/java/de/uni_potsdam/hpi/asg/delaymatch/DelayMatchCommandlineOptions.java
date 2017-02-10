@@ -1,7 +1,7 @@
 package de.uni_potsdam.hpi.asg.delaymatch;
 
 /*
- * Copyright (C) 2016 Norman Kluge
+ * Copyright (C) 2016 - 2017 Norman Kluge
  * 
  * This file is part of ASGdelaymatch.
  * 
@@ -50,6 +50,8 @@ public class DelayMatchCommandlineOptions extends CommandlineOptions {
     private File profilefile = null;
     @Option(name = "-out", metaVar = "<outfile>", usage = "Outfile", required = true)
     private File outfile = null;
+    @Option(name = "-lib", metaVar = "<technologyfile>", usage = "technology description for implementation")
+    private File technology;
     
     @Option(name = "-future", usage = "Use future alorithm (Resyn only!)")
     private boolean future = false;
@@ -107,5 +109,9 @@ public class DelayMatchCommandlineOptions extends CommandlineOptions {
 
     public File getSTGfile() {
         return stgfile;
+    }
+
+    public File getTechnology() {
+        return technology;
     }
 }

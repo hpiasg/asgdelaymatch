@@ -1,7 +1,7 @@
 package de.uni_potsdam.hpi.asg.delaymatch.match;
 
 /*
- * Copyright (C) 2016 Norman Kluge
+ * Copyright (C) 2016 - 2017 Norman Kluge
  * 
  * This file is part of ASGdelaymatch.
  * 
@@ -34,6 +34,7 @@ import com.google.common.collect.Table;
 import de.uni_potsdam.hpi.asg.common.iohelper.FileHelper;
 import de.uni_potsdam.hpi.asg.common.remote.RemoteInformation;
 import de.uni_potsdam.hpi.asg.common.stg.model.Transition;
+import de.uni_potsdam.hpi.asg.common.technology.Technology;
 import de.uni_potsdam.hpi.asg.delaymatch.misc.DelayMatchModule;
 import de.uni_potsdam.hpi.asg.delaymatch.misc.MeasureEntry;
 
@@ -44,15 +45,17 @@ public class MatchMain {
     private Map<String, DelayMatchModule>               modules;
     private String                                      matchedfilename;
     private Table<Transition, Transition, MeasureEntry> transtable;
+    private Technology                                  tech;
 
-    public MatchMain(RemoteInformation rinfo, Map<String, DelayMatchModule> modules, Table<Transition, Transition, MeasureEntry> transtable) {
+    public MatchMain(RemoteInformation rinfo, Map<String, DelayMatchModule> modules, Table<Transition, Transition, MeasureEntry> transtable, Technology tech) {
         this.rinfo = rinfo;
         this.modules = modules;
         this.transtable = transtable;
+        this.tech = tech;
     }
 
     public boolean match(File vfile) {
-        MatchScriptGenerator gen = MatchScriptGenerator.create(vfile, modules, transtable);
+        MatchScriptGenerator gen = MatchScriptGenerator.create(vfile, modules, transtable, tech);
         if(!gen.generate()) {
             return false;
         }
