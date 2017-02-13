@@ -33,9 +33,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import de.uni_potsdam.hpi.asg.common.gui.PropertiesPanel;
-import de.uni_potsdam.hpi.asg.common.gui.runner.AbstractParameters;
 import de.uni_potsdam.hpi.asg.common.gui.runner.AbstractParameters.GeneralBooleanParam;
 import de.uni_potsdam.hpi.asg.common.gui.runner.AbstractRunFrame;
+import de.uni_potsdam.hpi.asg.delaymatch.DelayMatchMain;
 import de.uni_potsdam.hpi.asg.delaymatch.gui.DelayMatchParameters.BooleanParam;
 import de.uni_potsdam.hpi.asg.delaymatch.gui.DelayMatchParameters.EnumParam;
 import de.uni_potsdam.hpi.asg.delaymatch.gui.DelayMatchParameters.TextParam;
@@ -89,7 +89,7 @@ public class RunDelayMatchFrame extends AbstractRunFrame {
         panel.addTechnologyChooserWithDefaultEntry(2, "Technology library", techs, defTech, EnumParam.TechLib, BooleanParam.TechLibDef, "Use default");
         addOutSection(panel, 3, "delaymatched.v");
         // 4: blank
-        addIOSection(panel, 6, AbstractParameters.basedirStr + "/config/delaymatchconfig.xml");
+        addIOSection(panel, 6, DelayMatchMain.CONFIG_FILE_NAME);
 
         getDataFromPanel(panel);
     }

@@ -25,6 +25,7 @@ import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.Option;
 
 import de.uni_potsdam.hpi.asg.common.iohelper.CommandlineOptions;
+import de.uni_potsdam.hpi.asg.common.misc.CommonConstants;
 
 public class DelayMatchCommandlineOptions extends CommandlineOptions {
 
@@ -36,13 +37,13 @@ public class DelayMatchCommandlineOptions extends CommandlineOptions {
     
     @Option(name = "-o", metaVar = "<level>", usage = "Outputlevel: 0:nothing\n1:errors\n[2:+warnings]\n3:+info")
     private int outputlevel             = 2;
-    @Option(name = "-log", metaVar = "<logfile>", usage = "Define output Logfile, default is delaymatch.log")
-    private File logfile = new File("delaymatch.log");
-    @Option(name = "-zip", metaVar = "<zipfile>", usage = "Define the zip file with all temp files, default is delaymatch.zip")
-    private File workfile = new File(System.getProperty("user.dir") + File.separator + "delaymatch.zip");
+    @Option(name = "-log", metaVar = "<logfile>", usage = "Define output Logfile, default is delaymatch" + CommonConstants.LOG_FILE_EXTENSION)
+    private File logfile = new File(System.getProperty("user.dir"), "delaymatch" + CommonConstants.LOG_FILE_EXTENSION);
+    @Option(name = "-zip", metaVar = "<zipfile>", usage = "Define the zip file with all temp files, default is delaymatch" + CommonConstants.ZIP_FILE_EXTENSION)
+    private File workfile = new File(System.getProperty("user.dir"), "delaymatch" + CommonConstants.ZIP_FILE_EXTENSION);
     
-    @Option(name = "-cfg", metaVar = "<configfile>", usage = "Config file, default is delaymatchconfig.xml")
-    private File configfile = new File("delaymatchconfig.xml");
+    @Option(name = "-cfg", metaVar = "<configfile>", usage = "Config file, default is " + DelayMatchMain.CONFIG_FILE_NAME)
+    private File configfile = DelayMatchMain.CONFIG_FILE;
     @Option(name = "-w", metaVar = "<workingdir>", usage = "Working directory. If not given, the value in configfile is used. If there is no entry, 'delaywork*' in the os default tmp dir is used.")
     private File workingdir = null;
     

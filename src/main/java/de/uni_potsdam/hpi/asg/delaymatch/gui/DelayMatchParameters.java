@@ -23,6 +23,7 @@ import de.uni_potsdam.hpi.asg.common.gui.PropertiesPanel.AbstractBooleanParam;
 import de.uni_potsdam.hpi.asg.common.gui.PropertiesPanel.AbstractEnumParam;
 import de.uni_potsdam.hpi.asg.common.gui.PropertiesPanel.AbstractTextParam;
 import de.uni_potsdam.hpi.asg.common.gui.runner.AbstractParameters;
+import de.uni_potsdam.hpi.asg.common.misc.CommonConstants;
 import de.uni_potsdam.hpi.asg.common.technology.TechnologyDirectory;
 
 public class DelayMatchParameters extends AbstractParameters {
@@ -46,6 +47,7 @@ public class DelayMatchParameters extends AbstractParameters {
     private String[] techs;
 
     public DelayMatchParameters(String defTech, TechnologyDirectory techDir) {
+        super(CommonConstants.VERILOG_FILE_EXTENSION);
         this.defTech = defTech;
         this.techs = techDir.getTechNames();
     }

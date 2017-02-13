@@ -27,6 +27,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import de.uni_potsdam.hpi.asg.common.gui.WatchForCloseWindowAdapter;
 import de.uni_potsdam.hpi.asg.common.iohelper.FileHelper;
+import de.uni_potsdam.hpi.asg.common.misc.CommonConstants;
 import de.uni_potsdam.hpi.asg.common.technology.Technology;
 import de.uni_potsdam.hpi.asg.common.technology.TechnologyDirectory;
 import de.uni_potsdam.hpi.asg.delaymatch.gui.DelayMatchParameters;
@@ -36,9 +37,7 @@ import de.uni_potsdam.hpi.asg.delaymatch.io.ConfigFile;
 
 public class DelayMatchGuiMain {
 
-    public static final String techdir  = "$BASEDIR/tech";
-    public static final String dmconfig = "$BASEDIR/config/delaymatchconfig.xml";
-    public static final String dmbin    = "$BASEDIR/bin/ASGdelaymatch";
+    public static final File DELAYMATCH_BIN = new File(CommonConstants.DEF_BIN_DIR_FILE, "ASGdelaymatch");
 
     public static void main(String[] args) {
         int status = main2(args);
@@ -59,8 +58,7 @@ public class DelayMatchGuiMain {
             return 1;
         }
 
-        File cfgFile = FileHelper.getInstance().replaceBasedir(dmconfig);
-        Config cfg = ConfigFile.readIn(cfgFile);
+        Config cfg = ConfigFile.readIn(DelayMatchMain.CONFIG_FILE);
         String defTechName = null;
         if(cfg.defaultTech != null) {
             File defTechFile = FileHelper.getInstance().replaceBasedir(cfg.defaultTech);
@@ -71,7 +69,7 @@ public class DelayMatchGuiMain {
                 }
             }
         }
-        TechnologyDirectory techDir = TechnologyDirectory.create(techdir, null);
+        TechnologyDirectory techDir = TechnologyDirectory.createDefault();
         if(techDir == null) {
             return 1;
         }

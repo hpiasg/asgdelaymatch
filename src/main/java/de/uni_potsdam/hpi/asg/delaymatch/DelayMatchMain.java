@@ -1,5 +1,7 @@
 package de.uni_potsdam.hpi.asg.delaymatch;
 
+import java.io.File;
+
 /*
  * Copyright (C) 2016 - 2017 Norman Kluge
  * 
@@ -28,6 +30,7 @@ import de.uni_potsdam.hpi.asg.common.iohelper.FileHelper;
 import de.uni_potsdam.hpi.asg.common.iohelper.LoggerHelper;
 import de.uni_potsdam.hpi.asg.common.iohelper.WorkingdirGenerator;
 import de.uni_potsdam.hpi.asg.common.iohelper.Zipper;
+import de.uni_potsdam.hpi.asg.common.misc.CommonConstants;
 import de.uni_potsdam.hpi.asg.common.remote.RemoteInformation;
 import de.uni_potsdam.hpi.asg.common.technology.ReadTechnologyHelper;
 import de.uni_potsdam.hpi.asg.common.technology.Technology;
@@ -42,11 +45,15 @@ import de.uni_potsdam.hpi.asg.delaymatch.profile.ProfileComponents;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.VerilogParser;
 
 public class DelayMatchMain {
+
+    public static final String                  CONFIG_FILE_NAME = "delaymatchconfig.xml";
+    public static final File                    CONFIG_FILE      = new File(CommonConstants.DEF_CONFIG_DIR_FILE, CONFIG_FILE_NAME);
+
     private static Logger                       logger;
     private static DelayMatchCommandlineOptions options;
     public static Config                        config;
 
-    public static float                         matchMaxFactor = 1.1f;
+    public static float                         matchMaxFactor   = 1.1f;
 
     public static void main(String[] args) {
         int status = main2(args);

@@ -1,7 +1,7 @@
 package de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model;
 
 /*
- * Copyright (C) 2016 Norman Kluge
+ * Copyright (C) 2016 - 2017 Norman Kluge
  * 
  * This file is part of ASGdelaymatch.
  * 
@@ -32,7 +32,7 @@ public class VerilogModule {
 
     private String                                      modulename;
     private List<VerilogSignal>                         interfaceSignals;
-    private List<String>                                code;
+//    private List<String>                                code;
     private Map<String, VerilogSignal>                  signals;
     private Map<String, VerilogSignalGroup>             signalgroups;
 
@@ -43,7 +43,7 @@ public class VerilogModule {
     public VerilogModule(String modulename, List<VerilogSignal> interfaceSignals, List<String> code, Map<String, VerilogSignal> signals, Map<String, VerilogSignalGroup> signalgroups) {
         this.modulename = modulename;
         this.interfaceSignals = interfaceSignals;
-        this.code = code;
+//        this.code = code;
         this.signals = signals;
         this.signalgroups = signalgroups;
         this.submodules = new ArrayList<>();

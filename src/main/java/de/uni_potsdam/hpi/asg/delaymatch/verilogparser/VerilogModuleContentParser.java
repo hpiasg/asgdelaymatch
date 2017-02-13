@@ -1,7 +1,7 @@
 package de.uni_potsdam.hpi.asg.delaymatch.verilogparser;
 
 /*
- * Copyright (C) 2016 Norman Kluge
+ * Copyright (C) 2016 - 2017 Norman Kluge
  * 
  * This file is part of ASGdelaymatch.
  * 
@@ -39,7 +39,7 @@ import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogSignalGroupS
 public class VerilogModuleContentParser {
     private static final Logger             logger                = LogManager.getLogger();
 
-    private static final String             commentBehindLine     = "\\s*(\\/\\/.*)?";
+//    private static final String             commentBehindLine     = "\\s*(\\/\\/.*)?";
     private static final Pattern            linebuspattern        = Pattern.compile("\\s*(input|output|wire)\\s*\\[\\s*(\\d+):(\\d+)\\]\\s*(.*);\\s*");
     private static final Pattern            linepattern           = Pattern.compile("\\s*(input|output|wire)\\s*(.*);\\s*");
     private static final Pattern            instancePattern       = Pattern.compile("\\s*(.*)\\s+([A-Za-z0-9_]+)\\s+\\((.*)\\);\\s*");
