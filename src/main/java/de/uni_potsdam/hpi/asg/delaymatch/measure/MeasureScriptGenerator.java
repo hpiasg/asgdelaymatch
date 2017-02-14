@@ -32,6 +32,7 @@ import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import de.uni_potsdam.hpi.asg.common.iohelper.BasedirHelper;
 import de.uni_potsdam.hpi.asg.common.iohelper.FileHelper;
 import de.uni_potsdam.hpi.asg.common.iohelper.WorkingdirGenerator;
 import de.uni_potsdam.hpi.asg.common.technology.Technology;
@@ -52,8 +53,8 @@ public class MeasureScriptGenerator extends AbstractScriptGenerator {
     private static final String              dc_log_file         = "_measure.log";
 
     // template files
-    private static final File                dc_sh_templatefile  = FileHelper.getInstance().getBasedirFile("templates/delay_measure.sh");
-    private static final File                dc_tcl_templatefile = FileHelper.getInstance().getBasedirFile("templates/delay_measure.tcl");
+    private static final File                dc_sh_templatefile  = BasedirHelper.getFileInBasedir("templates/delay_measure.sh");
+    private static final File                dc_tcl_templatefile = BasedirHelper.getFileInBasedir("templates/delay_measure.tcl");
 
     private static Map<String, List<String>> templates;
 

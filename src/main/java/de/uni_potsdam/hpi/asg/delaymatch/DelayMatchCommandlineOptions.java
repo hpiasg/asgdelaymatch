@@ -42,8 +42,8 @@ public class DelayMatchCommandlineOptions extends CommandlineOptions {
     @Option(name = "-zip", metaVar = "<zipfile>", usage = "Define the zip file with all temp files, default is delaymatch" + CommonConstants.ZIP_FILE_EXTENSION)
     private File workfile = new File(System.getProperty("user.dir"), "delaymatch" + CommonConstants.ZIP_FILE_EXTENSION);
     
-    @Option(name = "-cfg", metaVar = "<configfile>", usage = "Config file, default is " + DelayMatchMain.CONFIG_FILE_NAME)
-    private File configfile = DelayMatchMain.CONFIG_FILE;
+    @Option(name = "-cfg", metaVar = "<configfile>", usage = "Config file, default is " + DelayMatchMain.DEF_CONFIG_FILE_NAME)
+    private File configfile = DelayMatchMain.DEF_CONFIG_FILE;
     @Option(name = "-w", metaVar = "<workingdir>", usage = "Working directory. If not given, the value in configfile is used. If there is no entry, 'delaywork*' in the os default tmp dir is used.")
     private File workingdir = null;
     

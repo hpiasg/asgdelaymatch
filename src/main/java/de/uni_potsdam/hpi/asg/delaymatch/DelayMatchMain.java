@@ -46,8 +46,8 @@ import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.VerilogParser;
 
 public class DelayMatchMain {
 
-    public static final String                  CONFIG_FILE_NAME = "delaymatchconfig.xml";
-    public static final File                    CONFIG_FILE      = new File(CommonConstants.DEF_CONFIG_DIR_FILE, CONFIG_FILE_NAME);
+    public static final String                  DEF_CONFIG_FILE_NAME = "delaymatchconfig.xml";
+    public static final File                    DEF_CONFIG_FILE      = new File(CommonConstants.DEF_CONFIG_DIR_FILE, DEF_CONFIG_FILE_NAME);
 
     private static Logger                       logger;
     private static DelayMatchCommandlineOptions options;

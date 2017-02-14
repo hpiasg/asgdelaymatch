@@ -26,7 +26,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import de.uni_potsdam.hpi.asg.common.gui.WatchForCloseWindowAdapter;
-import de.uni_potsdam.hpi.asg.common.iohelper.FileHelper;
+import de.uni_potsdam.hpi.asg.common.iohelper.BasedirHelper;
 import de.uni_potsdam.hpi.asg.common.misc.CommonConstants;
 import de.uni_potsdam.hpi.asg.common.technology.Technology;
 import de.uni_potsdam.hpi.asg.common.technology.TechnologyDirectory;
@@ -58,10 +58,10 @@ public class DelayMatchGuiMain {
             return 1;
         }
 
-        Config cfg = ConfigFile.readIn(DelayMatchMain.CONFIG_FILE);
+        Config cfg = ConfigFile.readIn(DelayMatchMain.DEF_CONFIG_FILE);
         String defTechName = null;
         if(cfg.defaultTech != null) {
-            File defTechFile = FileHelper.getInstance().replaceBasedir(cfg.defaultTech);
+            File defTechFile = BasedirHelper.replaceBasedirAsFile(cfg.defaultTech);
             if(defTechFile != null) {
                 Technology defTech = Technology.readIn(defTechFile);
                 if(defTech != null) {

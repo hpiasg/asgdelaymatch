@@ -37,6 +37,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.google.common.collect.Table;
 
+import de.uni_potsdam.hpi.asg.common.iohelper.BasedirHelper;
 import de.uni_potsdam.hpi.asg.common.iohelper.FileHelper;
 import de.uni_potsdam.hpi.asg.common.iohelper.WorkingdirGenerator;
 import de.uni_potsdam.hpi.asg.common.stg.model.Transition;
@@ -70,8 +71,8 @@ public class MatchScriptGenerator extends AbstractScriptGenerator {
     private static final String                         dc_out_file         = "_match.v";
 
     // template files
-    private static final File                           dc_sh_templatefile  = FileHelper.getInstance().getBasedirFile("templates/delay_match.sh");
-    private static final File                           dc_tcl_templatefile = FileHelper.getInstance().getBasedirFile("templates/delay_match.tcl");
+    private static final File                           dc_sh_templatefile  = BasedirHelper.getFileInBasedir("templates/delay_match.sh");
+    private static final File                           dc_tcl_templatefile = BasedirHelper.getFileInBasedir("templates/delay_match.tcl");
 
     public static final Pattern                         module_pattern      = Pattern.compile("module (.*) \\(.*");
 

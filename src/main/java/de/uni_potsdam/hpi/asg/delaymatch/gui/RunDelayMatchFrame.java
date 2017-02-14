@@ -89,7 +89,7 @@ public class RunDelayMatchFrame extends AbstractRunFrame {
         panel.addTechnologyChooserWithDefaultEntry(2, "Technology library", techs, defTech, EnumParam.TechLib, BooleanParam.TechLibDef, "Use default");
         addOutSection(panel, 3, "delaymatched.v");
         // 4: blank
-        addIOSection(panel, 6, DelayMatchMain.CONFIG_FILE_NAME);
+        addIOSection(panel, 6, DelayMatchMain.DEF_CONFIG_FILE_NAME);
 
         getDataFromPanel(panel);
     }
