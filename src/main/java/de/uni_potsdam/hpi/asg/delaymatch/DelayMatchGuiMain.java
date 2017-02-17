@@ -33,7 +33,7 @@ import de.uni_potsdam.hpi.asg.common.misc.CommonConstants;
 import de.uni_potsdam.hpi.asg.common.technology.Technology;
 import de.uni_potsdam.hpi.asg.common.technology.TechnologyDirectory;
 import de.uni_potsdam.hpi.asg.delaymatch.gui.DelayMatchParameters;
-import de.uni_potsdam.hpi.asg.delaymatch.gui.RunDelayMatchFrame;
+import de.uni_potsdam.hpi.asg.delaymatch.gui.RunDelayMatchPanel;
 import de.uni_potsdam.hpi.asg.delaymatch.io.Config;
 import de.uni_potsdam.hpi.asg.delaymatch.io.ConfigFile;
 
@@ -79,16 +79,18 @@ public class DelayMatchGuiMain {
         }
         DelayMatchParameters params = new DelayMatchParameters(defTechName, techDir);
 
-        WatchForCloseWindowAdapter adapt = new WatchForCloseWindowAdapter();
-        RunDelayMatchFrame rframe = new RunDelayMatchFrame(params, adapt, isDebug);
-        if(rframe.hasErrorOccured()) {
+        JFrame runframe = new JFrame("ASGdelaymatch runner");
+        RunDelayMatchPanel runpanel = new RunDelayMatchPanel(runframe, params, isDebug);
+        if(runpanel.hasErrorOccured()) {
             return 1;
         }
-
-        rframe.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        rframe.pack();
-        rframe.setLocationRelativeTo(null); //center
-        rframe.setVisible(true);
+        runframe.getContentPane().add(runpanel);
+        WatchForCloseWindowAdapter adapt = new WatchForCloseWindowAdapter();
+        runframe.addWindowListener(adapt);
+        runframe.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        runframe.pack();
+        runframe.setLocationRelativeTo(null); //center
+        runframe.setVisible(true);
 
         while(!adapt.isClosed()) {
             try {

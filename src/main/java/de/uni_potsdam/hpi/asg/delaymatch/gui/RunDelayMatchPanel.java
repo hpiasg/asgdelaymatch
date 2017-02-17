@@ -21,9 +21,9 @@ package de.uni_potsdam.hpi.asg.delaymatch.gui;
 
 import java.awt.BorderLayout;
 import java.awt.GridBagLayout;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -34,24 +34,27 @@ import org.apache.logging.log4j.Logger;
 
 import de.uni_potsdam.hpi.asg.common.gui.PropertiesPanel;
 import de.uni_potsdam.hpi.asg.common.gui.runner.AbstractParameters.GeneralBooleanParam;
-import de.uni_potsdam.hpi.asg.common.gui.runner.AbstractRunFrame;
+import de.uni_potsdam.hpi.asg.common.gui.runner.AbstractRunPanel;
 import de.uni_potsdam.hpi.asg.delaymatch.DelayMatchMain;
 import de.uni_potsdam.hpi.asg.delaymatch.gui.DelayMatchParameters.BooleanParam;
 import de.uni_potsdam.hpi.asg.delaymatch.gui.DelayMatchParameters.EnumParam;
 import de.uni_potsdam.hpi.asg.delaymatch.gui.DelayMatchParameters.TextParam;
 
-public class RunDelayMatchFrame extends AbstractRunFrame {
+public class RunDelayMatchPanel extends AbstractRunPanel {
     private static final long    serialVersionUID = 2663337555026127634L;
     private static final Logger  logger           = LogManager.getLogger();
 
     private DelayMatchParameters params;
+    private Window               parent;
 
-    public RunDelayMatchFrame(final DelayMatchParameters params, WindowAdapter adapt, boolean isDebug) {
-        super("ASGdelaymatch runner", params, adapt);
+    public RunDelayMatchPanel(Window parent, final DelayMatchParameters params, boolean isDebug) {
+        super(params);
         this.params = params;
+        this.parent = parent;
 
+        this.setLayout(new BorderLayout());
         JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-        getContentPane().add(tabbedPane, BorderLayout.CENTER);
+        this.add(tabbedPane, BorderLayout.CENTER);
 
         constructGeneralPanel(tabbedPane);
         constructAdvancedPanel(tabbedPane);
@@ -64,11 +67,11 @@ public class RunDelayMatchFrame extends AbstractRunFrame {
                 run.run();
             }
         });
-        getContentPane().add(runBtn, BorderLayout.PAGE_END);
+        this.add(runBtn, BorderLayout.PAGE_END);
     }
 
     private void constructGeneralPanel(JTabbedPane tabbedPane) {
-        PropertiesPanel panel = new PropertiesPanel(this);
+        PropertiesPanel panel = new PropertiesPanel(parent);
         tabbedPane.addTab("General", null, panel, null);
         GridBagLayout gbl_generalpanel = new GridBagLayout();
         gbl_generalpanel.columnWidths = new int[]{150, 300, 30, 80, 0};
@@ -95,7 +98,7 @@ public class RunDelayMatchFrame extends AbstractRunFrame {
     }
 
     private void constructAdvancedPanel(JTabbedPane tabbedPane) {
-        PropertiesPanel panel = new PropertiesPanel(this);
+        PropertiesPanel panel = new PropertiesPanel(parent);
         tabbedPane.addTab("Advanced", null, panel, null);
         GridBagLayout gbl_advpanel = new GridBagLayout();
         gbl_advpanel.columnWidths = new int[]{200, 300, 30, 80, 0};
@@ -111,7 +114,7 @@ public class RunDelayMatchFrame extends AbstractRunFrame {
     }
 
     private void constructDebugPanel(JTabbedPane tabbedPane, boolean isDebug) {
-        PropertiesPanel panel = new PropertiesPanel(this);
+        PropertiesPanel panel = new PropertiesPanel(parent);
         if(isDebug) {
             tabbedPane.addTab("Debug", null, panel, null);
         }
