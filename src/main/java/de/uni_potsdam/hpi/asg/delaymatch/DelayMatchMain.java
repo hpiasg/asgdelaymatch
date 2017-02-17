@@ -1,7 +1,5 @@
 package de.uni_potsdam.hpi.asg.delaymatch;
 
-import java.io.File;
-
 /*
  * Copyright (C) 2016 - 2017 Norman Kluge
  * 
@@ -21,6 +19,7 @@ import java.io.File;
  * along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -28,6 +27,7 @@ import org.apache.logging.log4j.Logger;
 
 import de.uni_potsdam.hpi.asg.common.iohelper.FileHelper;
 import de.uni_potsdam.hpi.asg.common.iohelper.LoggerHelper;
+import de.uni_potsdam.hpi.asg.common.iohelper.LoggerHelper.Mode;
 import de.uni_potsdam.hpi.asg.common.iohelper.WorkingdirGenerator;
 import de.uni_potsdam.hpi.asg.common.iohelper.Zipper;
 import de.uni_potsdam.hpi.asg.common.misc.CommonConstants;
@@ -53,7 +53,7 @@ public class DelayMatchMain {
     private static DelayMatchCommandlineOptions options;
     public static Config                        config;
 
-    public static float                         matchMaxFactor   = 1.1f;
+    public static float                         matchMaxFactor       = 1.1f;
 
     public static void main(String[] args) {
         int status = main2(args);
@@ -66,7 +66,7 @@ public class DelayMatchMain {
             int status = -1;
             options = new DelayMatchCommandlineOptions();
             if(options.parseCmdLine(args)) {
-                logger = LoggerHelper.initLogger(options.getOutputlevel(), options.getLogfile(), options.isDebug());
+                logger = LoggerHelper.initLogger(options.getOutputlevel(), options.getLogfile(), options.isDebug(), Mode.cmdline);
                 logger.debug("Args: " + Arrays.asList(args).toString());
                 config = ConfigFile.readIn(options.getConfigfile());
                 if(config == null) {

@@ -157,7 +157,7 @@ along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
 							</commandLineArguments>
 							<jvmSettings>
 								<extraArguments>
-									<extraArgument>-Dlog4j.configurationFile=@BASEDIR@/config/delaymatch_log4j2.xml</extraArgument>
+									<extraArgument>-Dlog4j.configurationFile=@BASEDIR@/config/log4j2_noconfig.xml</extraArgument>
 								</extraArguments>
 							</jvmSettings>
 						</program>
@@ -166,7 +166,7 @@ along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
 							<id>ASGdelaymatch_gui</id>
 							<jvmSettings>
 								<extraArguments>
-									<extraArgument>-Dlog4j.configurationFile=@BASEDIR@/config/delaymatch_gui_log4j2.xml</extraArgument>
+									<extraArgument>-Dlog4j.configurationFile=@BASEDIR@/config/log4j2_noconfig.xml</extraArgument>
 								</extraArguments>
 							</jvmSettings>
 						</program>
