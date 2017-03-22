@@ -53,21 +53,23 @@ public class MeasureMain {
     private File                                        stgFile;
     private VerilogModule                               rootModule;
     private Technology                                  tech;
+    private boolean                                     check;
 
     private Table<Transition, Transition, MeasureEntry> transtable;
 
-    public MeasureMain(RemoteInformation rinfo, Map<String, DelayMatchModule> modules, VerilogModule rootModule, boolean future, File stgFile, Technology tech) {
+    public MeasureMain(RemoteInformation rinfo, Map<String, DelayMatchModule> modules, VerilogModule rootModule, boolean future, File stgFile, Technology tech, boolean check) {
         this.rinfo = rinfo;
         this.modules = modules;
         this.future = future;
         this.rootModule = rootModule;
         this.stgFile = stgFile;
         this.tech = tech;
+        this.check = check;
     }
 
     public boolean measure(File vfile) {
         MeasureRecordGenerator rec = new MeasureRecordGenerator(modules, stgFile, rootModule);
-        if(!rec.generate(future, stgFile != null)) {
+        if(!rec.generate(future, stgFile != null, check)) {
             return false;
         }
         this.transtable = rec.getTransTable();

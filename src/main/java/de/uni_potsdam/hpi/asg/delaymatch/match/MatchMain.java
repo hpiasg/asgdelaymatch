@@ -46,12 +46,14 @@ public class MatchMain {
     private String                                      matchedfilename;
     private Table<Transition, Transition, MeasureEntry> transtable;
     private Technology                                  tech;
+    private boolean                                     check;
 
-    public MatchMain(RemoteInformation rinfo, Map<String, DelayMatchModule> modules, Table<Transition, Transition, MeasureEntry> transtable, Technology tech) {
+    public MatchMain(RemoteInformation rinfo, Map<String, DelayMatchModule> modules, Table<Transition, Transition, MeasureEntry> transtable, Technology tech, boolean check) {
         this.rinfo = rinfo;
         this.modules = modules;
         this.transtable = transtable;
         this.tech = tech;
+        this.check = check;
     }
 
     public boolean match(File vfile) {
@@ -61,6 +63,15 @@ public class MatchMain {
         }
 
         matchedfilename = gen.getOutfile();
+
+        if(check) {
+            if(gen.mustRun()) {
+                logger.warn("There are timing violations");
+            } else {
+                logger.info("There are no timing violations");
+            }
+            return true;
+        }
 
         if(gen.mustRun()) {
             Set<String> uploadfiles = new HashSet<>();

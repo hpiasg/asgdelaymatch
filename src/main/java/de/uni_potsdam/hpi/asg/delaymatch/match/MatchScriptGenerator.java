@@ -200,6 +200,12 @@ public class MatchScriptGenerator extends AbstractScriptGenerator {
                 val -= pastSubtraction;
             }
 
+            Float checkSubtraction = computeCheckSubtraction(path, eachid, inst);
+            if(checkSubtraction != null && checkSubtraction != 0f) {
+                logger.info("\t\tCheck:  " + String.format("%+2.5f", (0f - checkSubtraction)));
+                val -= checkSubtraction;
+            }
+
             logger.info("\t\tFinal:  " + String.format("%+2.5f", val));
             values.add(val);
         }
@@ -287,6 +293,22 @@ public class MatchScriptGenerator extends AbstractScriptGenerator {
             }
         }
         return futureSubtraction;
+    }
+
+    private Float computeCheckSubtraction(MatchPath path, Integer eachid, DelayMatchModuleInst inst) {
+        Float checkSubtraction = null;
+        if(inst.getCheckSubtractions(path, eachid) == null) {
+            return null;
+        }
+        for(MeasureRecord recF : inst.getCheckSubtractions(path, eachid)) {
+            if(checkSubtraction == null) {
+                checkSubtraction = recF.getValue();
+            }
+            if(checkSubtraction > recF.getValue()) {
+                checkSubtraction = recF.getValue();
+            }
+        }
+        return checkSubtraction;
     }
 
     private List<String> generateMatch(DelayMatchModule plan, MatchPath path, Integer eachid, Float value) {

@@ -76,7 +76,7 @@ public class MeasureRecordGenerator {
         this.transtable = HashBasedTable.create();
     }
 
-    public boolean generate(boolean future, boolean past) {
+    public boolean generate(boolean future, boolean past, boolean check) {
         for(DelayMatchModule mod : modules.values()) {
             if(mod.getProfilecomp() != null) {
                 for(MatchPath path : mod.getProfilecomp().getMatchpaths()) {
@@ -88,10 +88,10 @@ public class MeasureRecordGenerator {
                         }
                         int num = group.getCount();
                         for(int eachid = 0; eachid < num; eachid++) {
-                            generateMeasures(future, past, mod, path, eachid);
+                            generateMeasures(future, past, check, mod, path, eachid);
                         }
                     } else {
-                        generateMeasures(future, past, mod, path, null);
+                        generateMeasures(future, past, check, mod, path, null);
                     }
 
                 }
@@ -100,7 +100,7 @@ public class MeasureRecordGenerator {
         return true;
     }
 
-    private boolean generateMeasures(boolean future, boolean past, DelayMatchModule mod, MatchPath path, Integer eachid) {
+    private boolean generateMeasures(boolean future, boolean past, boolean check, DelayMatchModule mod, MatchPath path, Integer eachid) {
         addMeasureAddition(mod, path, eachid);
         if(future || past) {
             for(DelayMatchModuleInst inst : mod.getInstances()) {
@@ -116,8 +116,48 @@ public class MeasureRecordGenerator {
                         return false;
                     }
                 }
+                if(check) {
+                    if(!generateCheckRecords(inst, path, eachid)) {
+                        logger.error("Generate check substraction for " + mod.getModuleName() + "(" + inst.getInstName() + ") failed");
+                        return false;
+                    }
+                }
             }
         }
+        return true;
+    }
+
+    private boolean generateCheckRecords(DelayMatchModuleInst dminst, MatchPath path, Integer eachid) {
+        // Start signals
+        List<String> startSigNames = new ArrayList<>();
+        Set<VerilogSignal> startsigs = new HashSet<>();
+        for(Port p : path.getMatch().getFrom()) {
+            startsigs.addAll(p.getCorrespondingSignals(dminst.getDMmodule().getVerilogModule()));
+        }
+        for(VerilogSignal sig : startsigs) {
+            startSigNames.add(sig.getName());
+        }
+
+        // End signals
+        List<String> endSigNames = new ArrayList<>();
+        Set<VerilogSignal> endSigs = new HashSet<>();
+        for(Port p : path.getMatch().getTo()) {
+            endSigs.addAll(p.getCorrespondingSignals(dminst.getDMmodule().getVerilogModule()));
+        }
+        for(VerilogSignal sig : endSigs) {
+            endSigNames.add(sig.getName());
+        }
+
+        for(String start : startSigNames) {
+            for(String end : endSigNames) {
+                MeasureRecord rec = dminst.getDMmodule().getMeasureRecord(MeasureEdge.both, start, MeasureEdge.both, end, MeasureType.min);
+                dminst.addCheckSubtraction(path, eachid, rec);
+            }
+        }
+
+//        System.out.println(inst.getModule().getModulename() + ", " + inst.getInstName());
+//        System.out.println(startSigNames.toString());
+//        System.out.println(endSigNames.toString());
         return true;
     }
 

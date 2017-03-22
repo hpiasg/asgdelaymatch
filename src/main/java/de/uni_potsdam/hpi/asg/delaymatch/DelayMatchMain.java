@@ -53,7 +53,8 @@ public class DelayMatchMain {
     private static DelayMatchCommandlineOptions options;
     public static Config                        config;
 
-    public static float                         matchMaxFactor       = 1.1f;
+    public static float                         matchMaxFactor       = 1.25f;
+    private static boolean                      check                = true;
 
     public static void main(String[] args) {
         int status = main2(args);
@@ -126,13 +127,13 @@ public class DelayMatchMain {
         }
 
         logger.info("Measure phase");
-        MeasureMain memain = new MeasureMain(rinfo, modules, vparser.getRootModule(), options.isFuture(), options.getSTGfile(), tech);
+        MeasureMain memain = new MeasureMain(rinfo, modules, vparser.getRootModule(), options.isFuture(), options.getSTGfile(), tech, check);
         if(!memain.measure(options.getVfile())) {
             return 1;
         }
 
         logger.info("Match phase");
-        MatchMain mamain = new MatchMain(rinfo, modules, memain.getTransTable(), tech);
+        MatchMain mamain = new MatchMain(rinfo, modules, memain.getTransTable(), tech, check);
         if(!mamain.match(options.getVfile())) {
             return 1;
         }
