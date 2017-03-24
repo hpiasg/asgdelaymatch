@@ -61,7 +61,6 @@ public class DelayMatchMain {
     public static float                         matchMaxIncreaseFactor = 0.2f;
 
     private static int                          maxIterations          = 10;
-    private static boolean                      verifyOnly             = false;
 
     public static void main(String[] args) {
         int status = main2(args);
@@ -159,7 +158,7 @@ public class DelayMatchMain {
                 return 1;
             }
 
-            if(verifyOnly || cmain.isAllOk()) {
+            if(options.isVerifyOnly() || cmain.isAllOk()) {
                 break;
             }
 
@@ -173,7 +172,7 @@ public class DelayMatchMain {
         }
 
         logger.info("------------------------------");
-        if(verifyOnly) {
+        if(options.isVerifyOnly()) {
             if(cmain.isAllOk()) {
                 logger.info("No timing violations in the design");
             } else {
