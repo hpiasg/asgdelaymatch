@@ -44,6 +44,7 @@ import de.uni_potsdam.hpi.asg.delaymatch.model.DelayMatchModule;
 import de.uni_potsdam.hpi.asg.delaymatch.profile.ProfileComponents;
 import de.uni_potsdam.hpi.asg.delaymatch.setup.EligibleModuleFinder;
 import de.uni_potsdam.hpi.asg.delaymatch.setup.MeasureRecordGenerator;
+import de.uni_potsdam.hpi.asg.delaymatch.setup.sdf.SplitSdfMain;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.VerilogParser;
 
 public class DelayMatchMain {
@@ -138,14 +139,22 @@ public class DelayMatchMain {
             return 1;
         }
 
-        int turnid = 1;
         File verilogFile = options.getVfile();
         String name = verilogFile.getName().split("\\.")[0];
+
+        if(options.isVerifyOnly() && options.getSdfFile() != null) {
+            logger.info("Split SDF");
+            SplitSdfMain ssdfmain = new SplitSdfMain(name, rinfo, modules, tech);
+            if(!ssdfmain.split(options.getSdfFile(), options.getVfile(), vparser.getRootModule().getModulename())) {
+                return 1;
+            }
+        }
 
         MeasureMain memain = new MeasureMain(name, rinfo, modules, tech, rec);
         CheckMain cmain = new CheckMain(modules, rec);
         MatchMain mamain = new MatchMain(name, rinfo, modules, tech);
 
+        int turnid = 1;
         while(turnid <= maxIterations) {
             logger.info("------------------------------");
             logger.info("Measure phase #" + turnid);

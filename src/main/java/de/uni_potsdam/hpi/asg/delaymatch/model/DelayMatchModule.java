@@ -53,6 +53,7 @@ public class DelayMatchModule {
     private ProfileComponent                          profilecomp;
     private List<DelayMatchModuleInst>                instances;
     private String                                    measureOutputfile;
+    private String                                    sdfFileName;
 
     private BiMap<String, MeasureRecord>              measureRecords;
     private Map<MeasureRecord, Set<DelayMatchModule>> requesters;
@@ -191,5 +192,13 @@ public class DelayMatchModule {
 
     public VerilogModule getVerilogModule() {
         return module;
+    }
+
+    public void setSdfFileName(String sdfFileName) {
+        this.sdfFileName = sdfFileName;
+    }
+
+    public String getSdfFileName() {
+        return sdfFileName;
     }
 }

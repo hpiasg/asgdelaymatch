@@ -1,7 +1,7 @@
 package de.uni_potsdam.hpi.asg.delaymatch.verilogparser;
 
 /*
- * Copyright (C) 2016 Norman Kluge
+ * Copyright (C) 2016 - 2017 Norman Kluge
  * 
  * This file is part of ASGdelaymatch.
  * 
@@ -76,6 +76,16 @@ public class VerilogParser {
                 if(line.contains("//")) {
                     line = line.substring(0, line.indexOf("//"));
                 }
+                if(line.contains("/*")) {
+                    String linebegin = line.substring(0, line.indexOf("/*"));
+                    String comment = line.substring(line.indexOf("/*"));
+                    while(!comment.contains("*/")) {
+                        comment = comment + linequeue.poll();
+                    }
+                    String lineend = comment.substring(comment.indexOf("*/") + 2);
+                    line = linebegin + lineend;
+                }
+
                 m = linepattern.matcher(line);
                 if(m.matches()) {
                     break;
@@ -116,6 +126,10 @@ public class VerilogParser {
 
             m = endmodulepattern.matcher(line);
             if(m.matches()) {
+                if(currModule == null) {
+                    logger.error("endmode before module");
+                    return false;
+                }
                 linesMap.get(currModule).add(line);
                 currModule = null;
                 currContentParser = null;

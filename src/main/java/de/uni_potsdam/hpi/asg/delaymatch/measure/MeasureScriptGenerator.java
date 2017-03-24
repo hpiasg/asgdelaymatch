@@ -62,6 +62,7 @@ public class MeasureScriptGenerator extends AbstractScriptGenerator {
     private String                           name;
     private String                           localfolder;
     private Technology                       tech;
+    private Set<String>                      sdfuploads;
 
     private Map<String, DelayMatchModule>    modules;
 
@@ -69,7 +70,7 @@ public class MeasureScriptGenerator extends AbstractScriptGenerator {
         if(templates == null) {
             //@formatter:off
             templates = readTemplateCodeSnippets(dc_tcl_templatefile, new String[]{
-                "setup", "elab", "final",
+                "setup", "elab", "sdf", "final",
                 "measure_min_rise_rise", "measure_min_rise_fall", "measure_min_rise_both",
                 "measure_min_fall_rise", "measure_min_fall_fall", "measure_min_fall_both",
                 "measure_min_both_rise", "measure_min_both_fall", "measure_min_both_both",
@@ -95,6 +96,7 @@ public class MeasureScriptGenerator extends AbstractScriptGenerator {
         this.modules = modules;
         this.tech = tech;
         this.name = name;
+        this.sdfuploads = new HashSet<>();
         localfolder = WorkingdirGenerator.getInstance().getWorkingdir();
     }
 
@@ -111,6 +113,10 @@ public class MeasureScriptGenerator extends AbstractScriptGenerator {
         for(DelayMatchModule mod : modules.values()) {
             if(!mod.getMeasureRecords().isEmpty()) {
                 tclfilecontent.addAll(generateElabTcl(mod.getModuleName()));
+                if(mod.getSdfFileName() != null) {
+                    tclfilecontent.addAll(generateSdfTcl(mod.getModuleName(), mod.getSdfFileName()));
+                    sdfuploads.add(localfolder + mod.getSdfFileName());
+                }
                 for(MeasureRecord rec : mod.getMeasureRecords().values()) {
                     tclfilecontent.addAll(generateMeasureTcl(rec, mod.getModuleName()));
                 }
@@ -168,6 +174,20 @@ public class MeasureScriptGenerator extends AbstractScriptGenerator {
         for(String line : templates.get("elab")) {
             line = line.replace("#*dc_sub_log*#", turnid + "_" + name + "_" + component + dc_log_file);
             line = line.replace("#*root_sub*#", component);
+            newlines.add(line);
+        }
+        return newlines;
+    }
+
+    private List<String> generateSdfTcl(String component, String sdffile) {
+        if(!templates.containsKey("sdf")) {
+            logger.error("Sdf template code not found");
+            return null;
+        }
+        List<String> newlines = new ArrayList<>();
+        for(String line : templates.get("sdf")) {
+            line = line.replace("#*dc_sub_log*#", turnid + "_" + name + "_" + component + dc_log_file);
+            line = line.replace("#*sdf_sub*#", sdffile);
             newlines.add(line);
         }
         return newlines;
@@ -252,5 +272,9 @@ public class MeasureScriptGenerator extends AbstractScriptGenerator {
 
     public String getVInFile() {
         return localfolder + turnid + "_" + name + in_v_file;
+    }
+
+    public Set<String> getSdfUploads() {
+        return sdfuploads;
     }
 }

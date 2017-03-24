@@ -1,7 +1,7 @@
 package de.uni_potsdam.hpi.asg.delaymatch.setup;
 
 /*
- * Copyright (C) 2016 Norman Kluge
+ * Copyright (C) 2016 - 2017 Norman Kluge
  * 
  * This file is part of ASGdelaymatch.
  * 
@@ -42,12 +42,12 @@ public class EligibleModuleFinder {
         for(VerilogModule module : modules.values()) {
             ProfileComponent pc = comps.getComponentByRegex(module.getModulename());
             DelayMatchModule mod = new DelayMatchModule(module, pc);
-            if(pc != null) {
-                for(VerilogModuleInstance inst : module.getInstances()) {
-                    DelayMatchModuleInst dminst = new DelayMatchModuleInst(inst, mod);
-                    mod.addInstance(dminst);
-                }
+//            if(pc != null) {
+            for(VerilogModuleInstance inst : module.getInstances()) {
+                DelayMatchModuleInst dminst = new DelayMatchModuleInst(inst, mod);
+                mod.addInstance(dminst);
             }
+//            }
             retVal.put(module.getModulename(), mod);
         }
         return retVal;
