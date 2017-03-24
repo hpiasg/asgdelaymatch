@@ -1,7 +1,7 @@
-package de.uni_potsdam.hpi.asg.delaymatch.measure;
+package de.uni_potsdam.hpi.asg.delaymatch.setup;
 
 /*
- * Copyright (C) 2016 Norman Kluge
+ * Copyright (C) 2016 - 2017 Norman Kluge
  * 
  * This file is part of ASGdelaymatch.
  * 
@@ -39,13 +39,13 @@ import de.uni_potsdam.hpi.asg.common.stg.model.Signal;
 import de.uni_potsdam.hpi.asg.common.stg.model.Transition;
 import de.uni_potsdam.hpi.asg.common.stg.model.Transition.Edge;
 import de.uni_potsdam.hpi.asg.delaymatch.helper.PortHelper;
-import de.uni_potsdam.hpi.asg.delaymatch.misc.DelayMatchModule;
-import de.uni_potsdam.hpi.asg.delaymatch.misc.DelayMatchModuleInst;
-import de.uni_potsdam.hpi.asg.delaymatch.misc.MeasureEntry;
-import de.uni_potsdam.hpi.asg.delaymatch.misc.MeasureEntry.EntryType;
-import de.uni_potsdam.hpi.asg.delaymatch.misc.MeasureRecord;
-import de.uni_potsdam.hpi.asg.delaymatch.misc.MeasureRecord.MeasureEdge;
-import de.uni_potsdam.hpi.asg.delaymatch.misc.MeasureRecord.MeasureType;
+import de.uni_potsdam.hpi.asg.delaymatch.model.DelayMatchModule;
+import de.uni_potsdam.hpi.asg.delaymatch.model.DelayMatchModuleInst;
+import de.uni_potsdam.hpi.asg.delaymatch.model.MeasureEntry;
+import de.uni_potsdam.hpi.asg.delaymatch.model.MeasureRecord;
+import de.uni_potsdam.hpi.asg.delaymatch.model.MeasureEntry.EntryType;
+import de.uni_potsdam.hpi.asg.delaymatch.model.MeasureRecord.MeasureEdge;
+import de.uni_potsdam.hpi.asg.delaymatch.model.MeasureRecord.MeasureType;
 import de.uni_potsdam.hpi.asg.delaymatch.profile.MatchPath;
 import de.uni_potsdam.hpi.asg.delaymatch.profile.Port;
 import de.uni_potsdam.hpi.asg.delaymatch.trace.TraceFinder;
@@ -101,7 +101,7 @@ public class MeasureRecordGenerator {
     }
 
     private boolean generateMeasures(boolean future, boolean past, boolean check, DelayMatchModule mod, MatchPath path, Integer eachid) {
-        addMeasureAddition(mod, path, eachid);
+        addMeasureAddition(mod, path, eachid, mod);
         if(future || past) {
             for(DelayMatchModuleInst inst : mod.getInstances()) {
                 if(future) {
@@ -150,7 +150,7 @@ public class MeasureRecordGenerator {
 
         for(String start : startSigNames) {
             for(String end : endSigNames) {
-                MeasureRecord rec = dminst.getDMmodule().getMeasureRecord(MeasureEdge.both, start, MeasureEdge.both, end, MeasureType.min);
+                MeasureRecord rec = dminst.getDMmodule().getMeasureRecord(MeasureEdge.both, start, MeasureEdge.both, end, MeasureType.min, dminst.getDMmodule());
                 dminst.addCheckSubtraction(path, eachid, rec);
             }
         }
@@ -253,7 +253,7 @@ public class MeasureRecordGenerator {
         }
 
         for(Trace tr : dminst.getPastSubtrationTraces(path, eachid)) {
-            if(!generateMeasures(tr.getTrace())) {
+            if(!generateMeasures(tr.getTrace(), dminst.getDMmodule())) {
                 return false;
             }
         }
@@ -264,7 +264,7 @@ public class MeasureRecordGenerator {
     private static final Pattern dpSigPattern = Pattern.compile("([ra])[A-Z]([0-9]*)_([0-9]+)");
     private static final Pattern hsSigPattern = Pattern.compile("([ra])([0-9]+)");
 
-    private boolean generateMeasures(SequenceBox box) {
+    private boolean generateMeasures(SequenceBox box, DelayMatchModule requester) {
         Matcher m = null, m2 = null;
         for(PTBox inner : box.getContent()) {
             if(inner instanceof TransitionBox) {
@@ -272,7 +272,7 @@ public class MeasureRecordGenerator {
                 for(TransitionBox prev : tinner.getPrevs()) {
                     DelayMatchModule mod = findModule(prev.getTransition().getSignal(), tinner.getTransition().getSignal());
                     if(mod != null) {
-                        if(!createMeasureRecord(tinner, prev, mod)) {
+                        if(!createMeasureRecord(tinner, prev, mod, requester)) {
                             return false;
                         }
                         continue;
@@ -327,7 +327,7 @@ public class MeasureRecordGenerator {
             } else if(inner instanceof ParallelBox) {
                 ParallelBox pinner = (ParallelBox)inner;
                 for(SequenceBox sb : pinner.getParallelLines()) {
-                    if(!generateMeasures(sb)) {
+                    if(!generateMeasures(sb, requester)) {
                         return false;
                     }
                 }
@@ -336,7 +336,7 @@ public class MeasureRecordGenerator {
         return true;
     }
 
-    private boolean createMeasureRecord(TransitionBox curr, TransitionBox prev, DelayMatchModule mod) {
+    private boolean createMeasureRecord(TransitionBox curr, TransitionBox prev, DelayMatchModule mod, DelayMatchModule requester) {
         if(transtable.contains(prev.getTransition(), curr.getTransition())) {
             if(transtable.get(prev.getTransition(), curr.getTransition()).getType() != EntryType.recordDelay) {
                 logger.error("Entry type contradiction");
@@ -347,7 +347,7 @@ public class MeasureRecordGenerator {
             String fromSignals = prev.getTransition().getSignal().getName();
             MeasureEdge toEdge = convertEdge(curr.getTransition().getEdge());
             String toSignals = curr.getTransition().getSignal().getName();
-            MeasureRecord rec = mod.getMeasureRecord(fromEdge, fromSignals, toEdge, toSignals, MeasureType.min);
+            MeasureRecord rec = mod.getMeasureRecord(fromEdge, fromSignals, toEdge, toSignals, MeasureType.min, requester);
             transtable.put(prev.getTransition(), curr.getTransition(), new MeasureEntry(rec));
         }
         return true;
@@ -403,17 +403,17 @@ public class MeasureRecordGenerator {
                 }
                 to.setLength(to.length() - 1);
                 DelayMatchModule othermodule = modules.get(othermodulename);
-                MeasureRecord rec = othermodule.getMeasureRecord(MeasureEdge.both, otherinst.getValue().getName(), MeasureEdge.both, to.toString(), MeasureType.min);
+                MeasureRecord rec = othermodule.getMeasureRecord(MeasureEdge.both, otherinst.getValue().getName(), MeasureEdge.both, to.toString(), MeasureType.min, dminst.getDMmodule());
                 dminst.addFutureSubtraction(path, eachid, rec);
             }
         }
         return true;
     }
 
-    private void addMeasureAddition(DelayMatchModule mod, MatchPath path, Integer eachid) {
+    private void addMeasureAddition(DelayMatchModule mod, MatchPath path, Integer eachid, DelayMatchModule requester) {
         String from = PortHelper.getPortListAsDCString(path.getMeasure().getFrom(), eachid, mod.getSignals());
         String to = PortHelper.getPortListAsDCString(path.getMeasure().getTo(), eachid, mod.getSignals());
-        MeasureRecord rec = mod.getMeasureRecord(MeasureEdge.both, from, MeasureEdge.both, to, MeasureType.max);
+        MeasureRecord rec = mod.getMeasureRecord(MeasureEdge.both, from, MeasureEdge.both, to, MeasureType.max, requester);
         for(DelayMatchModuleInst inst : mod.getInstances()) {
             inst.addMeasureAddition(path, eachid, rec);
         }

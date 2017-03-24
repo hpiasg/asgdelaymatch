@@ -1,4 +1,4 @@
-package de.uni_potsdam.hpi.asg.delaymatch.misc;
+package de.uni_potsdam.hpi.asg.delaymatch.setup;
 
 /*
  * Copyright (C) 2016 Norman Kluge
@@ -22,6 +22,8 @@ package de.uni_potsdam.hpi.asg.delaymatch.misc;
 import java.util.HashMap;
 import java.util.Map;
 
+import de.uni_potsdam.hpi.asg.delaymatch.model.DelayMatchModule;
+import de.uni_potsdam.hpi.asg.delaymatch.model.DelayMatchModuleInst;
 import de.uni_potsdam.hpi.asg.delaymatch.profile.ProfileComponent;
 import de.uni_potsdam.hpi.asg.delaymatch.profile.ProfileComponents;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogModule;

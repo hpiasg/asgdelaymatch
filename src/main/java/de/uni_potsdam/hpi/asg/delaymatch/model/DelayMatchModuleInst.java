@@ -1,7 +1,7 @@
-package de.uni_potsdam.hpi.asg.delaymatch.misc;
+package de.uni_potsdam.hpi.asg.delaymatch.model;
 
 /*
- * Copyright (C) 2016 Norman Kluge
+ * Copyright (C) 2016 - 2017 Norman Kluge
  * 
  * This file is part of ASGdelaymatch.
  * 

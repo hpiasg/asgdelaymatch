@@ -34,27 +34,34 @@ import de.uni_potsdam.hpi.asg.common.misc.CommonConstants;
 import de.uni_potsdam.hpi.asg.common.remote.RemoteInformation;
 import de.uni_potsdam.hpi.asg.common.technology.ReadTechnologyHelper;
 import de.uni_potsdam.hpi.asg.common.technology.Technology;
+import de.uni_potsdam.hpi.asg.delaymatch.check.CheckMain;
 import de.uni_potsdam.hpi.asg.delaymatch.io.Config;
 import de.uni_potsdam.hpi.asg.delaymatch.io.ConfigFile;
 import de.uni_potsdam.hpi.asg.delaymatch.io.RemoteInvocation;
 import de.uni_potsdam.hpi.asg.delaymatch.match.MatchMain;
 import de.uni_potsdam.hpi.asg.delaymatch.measure.MeasureMain;
-import de.uni_potsdam.hpi.asg.delaymatch.misc.DelayMatchModule;
-import de.uni_potsdam.hpi.asg.delaymatch.misc.EligibleModuleFinder;
+import de.uni_potsdam.hpi.asg.delaymatch.model.DelayMatchModule;
 import de.uni_potsdam.hpi.asg.delaymatch.profile.ProfileComponents;
+import de.uni_potsdam.hpi.asg.delaymatch.setup.EligibleModuleFinder;
+import de.uni_potsdam.hpi.asg.delaymatch.setup.MeasureRecordGenerator;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.VerilogParser;
 
 public class DelayMatchMain {
 
-    public static final String                  DEF_CONFIG_FILE_NAME = "delaymatchconfig.xml";
-    public static final File                    DEF_CONFIG_FILE      = new File(CommonConstants.DEF_CONFIG_DIR_FILE, DEF_CONFIG_FILE_NAME);
+    public static final String                  DEF_CONFIG_FILE_NAME   = "delaymatchconfig.xml";
+    public static final File                    DEF_CONFIG_FILE        = new File(CommonConstants.DEF_CONFIG_DIR_FILE, DEF_CONFIG_FILE_NAME);
 
     private static Logger                       logger;
     private static DelayMatchCommandlineOptions options;
     public static Config                        config;
 
-    public static float                         matchMaxFactor       = 1.25f;
-    private static boolean                      check                = true;
+    public static float                         matchMinStartFactor    = 1.0f;
+    public static float                         matchMinIncreaseFactor = 0.1f;
+    public static float                         matchMaxStartFactor    = 1.1f;
+    public static float                         matchMaxIncreaseFactor = 0.2f;
+
+    private static int                          maxIterations          = 10;
+    private static boolean                      verifyOnly             = false;
 
     public static void main(String[] args) {
         int status = main2(args);
@@ -120,25 +127,67 @@ public class DelayMatchMain {
             return 1;
         }
 
+        logger.info("Setup phase");
         EligibleModuleFinder find = new EligibleModuleFinder(comps);
         Map<String, DelayMatchModule> modules = find.find(vparser.getModules());
         if(modules == null) {
             return 1;
         }
 
-        logger.info("Measure phase");
-        MeasureMain memain = new MeasureMain(rinfo, modules, vparser.getRootModule(), options.isFuture(), options.getSTGfile(), tech, check);
-        if(!memain.measure(options.getVfile())) {
+        MeasureRecordGenerator rec = new MeasureRecordGenerator(modules, options.getSTGfile(), vparser.getRootModule());
+        if(!rec.generate(options.isFuture(), options.getSTGfile() != null, true)) {
             return 1;
         }
 
-        logger.info("Match phase");
-        MatchMain mamain = new MatchMain(rinfo, modules, memain.getTransTable(), tech, check);
-        if(!mamain.match(options.getVfile())) {
-            return 1;
+        int turnid = 1;
+        File verilogFile = options.getVfile();
+        String name = verilogFile.getName().split("\\.")[0];
+
+        MeasureMain memain = new MeasureMain(name, rinfo, modules, tech, rec);
+        CheckMain cmain = new CheckMain(modules, rec);
+        MatchMain mamain = new MatchMain(name, rinfo, modules, tech);
+
+        while(turnid <= maxIterations) {
+            logger.info("------------------------------");
+            logger.info("Measure phase #" + turnid);
+            if(!memain.measure(turnid, verilogFile)) {
+                return 1;
+            }
+
+            logger.info("Check phase #" + turnid);
+            if(!cmain.check()) {
+                return 1;
+            }
+
+            if(verifyOnly || cmain.isAllOk()) {
+                break;
+            }
+
+            logger.info("Match phase #" + turnid);
+            if(!mamain.match(turnid, verilogFile)) {
+                return 1;
+            }
+
+            verilogFile = new File(WorkingdirGenerator.getInstance().getWorkingdir(), mamain.getMatchedfilename());
+            turnid++;
         }
 
-        if(!FileHelper.getInstance().copyfile(mamain.getMatchedfilename(), options.getOutfile())) {
+        logger.info("------------------------------");
+        if(verifyOnly) {
+            if(cmain.isAllOk()) {
+                logger.info("No timing violations in the design");
+            } else {
+                logger.warn("There are timing violations in the design");
+            }
+        } else {
+            if(cmain.isAllOk()) {
+                logger.info("There are no timing violations left in the design");
+            } else {
+                logger.warn("Max iterations reached, but there are still timing violations in the design");
+            }
+        }
+
+        if(!FileHelper.getInstance().copyfile(verilogFile, options.getOutfile())) {
             return 1;
         }
 
