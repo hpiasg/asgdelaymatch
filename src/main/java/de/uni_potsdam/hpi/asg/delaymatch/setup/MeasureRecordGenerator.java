@@ -102,25 +102,23 @@ public class MeasureRecordGenerator {
 
     private boolean generateMeasures(boolean future, boolean past, boolean check, DelayMatchModule mod, MatchPath path, Integer eachid) {
         addMeasureAddition(mod, path, eachid, mod);
-        if(future || past) {
-            for(DelayMatchModuleInst inst : mod.getInstances()) {
-                if(future) {
-                    if(!generateFutureRecords(inst, path, eachid)) {
-                        logger.error("Generate future substraction for " + mod.getModuleName() + "(" + inst.getInstName() + ") failed");
-                        return false;
-                    }
+        for(DelayMatchModuleInst inst : mod.getInstances()) {
+            if(future) {
+                if(!generateFutureRecords(inst, path, eachid)) {
+                    logger.error("Generate future substraction for " + mod.getModuleName() + "(" + inst.getInstName() + ") failed");
+                    return false;
                 }
-                if(past) {
-                    if(!generatePastRecords(inst, path, eachid)) {
-                        logger.error("Generate past substraction for " + mod.getModuleName() + "(" + inst.getInstName() + ") failed");
-                        return false;
-                    }
+            }
+            if(past) {
+                if(!generatePastRecords(inst, path, eachid)) {
+                    logger.error("Generate past substraction for " + mod.getModuleName() + "(" + inst.getInstName() + ") failed");
+                    return false;
                 }
-                if(check) {
-                    if(!generateCheckRecords(inst, path, eachid)) {
-                        logger.error("Generate check substraction for " + mod.getModuleName() + "(" + inst.getInstName() + ") failed");
-                        return false;
-                    }
+            }
+            if(check) {
+                if(!generateCheckRecords(inst, path, eachid)) {
+                    logger.error("Generate check substraction for " + mod.getModuleName() + "(" + inst.getInstName() + ") failed");
+                    return false;
                 }
             }
         }
