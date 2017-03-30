@@ -61,7 +61,7 @@ public class DelayMatchMain {
     public static float                         matchMaxStartFactor    = 1.1f;
     public static float                         matchMaxIncreaseFactor = 0.2f;
 
-    private static int                          maxIterations          = 10;
+    private static int                          maxIterations          = 20;
 
     public static void main(String[] args) {
         int status = main2(args);
