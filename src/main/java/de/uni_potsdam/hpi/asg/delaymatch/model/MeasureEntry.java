@@ -1,4 +1,4 @@
-package de.uni_potsdam.hpi.asg.delaymatch.misc;
+package de.uni_potsdam.hpi.asg.delaymatch.model;
 
 /*
  * Copyright (C) 2016 Norman Kluge

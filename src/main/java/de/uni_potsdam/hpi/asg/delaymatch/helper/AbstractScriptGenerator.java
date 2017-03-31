@@ -1,7 +1,7 @@
 package de.uni_potsdam.hpi.asg.delaymatch.helper;
 
 /*
- * Copyright (C) 2016 Norman Kluge
+ * Copyright (C) 2016 - 2017 Norman Kluge
  * 
  * This file is part of ASGdelaymatch.
  * 
@@ -34,6 +34,11 @@ public abstract class AbstractScriptGenerator {
     private static final Logger logger = LogManager.getLogger();
 
     protected static Map<String, List<String>> readTemplateCodeSnippets(File templatefile, String[] templatenames) {
+        if(!templatefile.exists() || templatefile.isDirectory()) {
+            logger.error("Template file " + templatefile.getAbsolutePath() + " not found or is directory");
+            return null;
+        }
+
         Map<String, List<String>> templates = new HashMap<String, List<String>>();
         List<String> current = null;
         List<String> lines = FileHelper.getInstance().readFile(templatefile);

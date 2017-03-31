@@ -26,59 +26,43 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import com.google.common.collect.Table;
-
-import de.uni_potsdam.hpi.asg.common.iohelper.FileHelper;
 import de.uni_potsdam.hpi.asg.common.remote.RemoteInformation;
-import de.uni_potsdam.hpi.asg.common.stg.model.Transition;
 import de.uni_potsdam.hpi.asg.common.technology.Technology;
-import de.uni_potsdam.hpi.asg.delaymatch.misc.DelayMatchModule;
-import de.uni_potsdam.hpi.asg.delaymatch.misc.MeasureEntry;
+import de.uni_potsdam.hpi.asg.delaymatch.model.DelayMatchModule;
 
 public class MatchMain {
-    private static final Logger                         logger = LogManager.getLogger();
 
-    private RemoteInformation                           rinfo;
-    private Map<String, DelayMatchModule>               modules;
-    private String                                      matchedfilename;
-    private Table<Transition, Transition, MeasureEntry> transtable;
-    private Technology                                  tech;
+    private String                        name;
+    private RemoteInformation             rinfo;
+    private Map<String, DelayMatchModule> modules;
+    private String                        matchedfilename;
+    private Technology                    tech;
 
-    public MatchMain(RemoteInformation rinfo, Map<String, DelayMatchModule> modules, Table<Transition, Transition, MeasureEntry> transtable, Technology tech) {
+    public MatchMain(String name, RemoteInformation rinfo, Map<String, DelayMatchModule> modules, Technology tech) {
+        this.name = name;
         this.rinfo = rinfo;
         this.modules = modules;
-        this.transtable = transtable;
         this.tech = tech;
     }
 
-    public boolean match(File vfile) {
-        MatchScriptGenerator gen = MatchScriptGenerator.create(vfile, modules, transtable, tech);
+    public boolean match(int turnid, File vfile) {
+        MatchScriptGenerator gen = MatchScriptGenerator.create(turnid, name, vfile, modules, tech);
         if(!gen.generate()) {
             return false;
         }
 
         matchedfilename = gen.getOutfile();
 
-        if(gen.mustRun()) {
-            Set<String> uploadfiles = new HashSet<>();
-            uploadfiles.addAll(gen.getScriptFiles());
-            uploadfiles.add(vfile.getAbsolutePath());
+        Set<String> uploadfiles = new HashSet<>();
+        uploadfiles.addAll(gen.getScriptFiles());
+        uploadfiles.add(gen.getVInFile());
 
-            List<String> execScripts = new ArrayList<>();
-            execScripts.add(gen.getExec());
+        List<String> execScripts = new ArrayList<>();
+        execScripts.add(gen.getExec());
 
-            MatchRemoteOperationWorkflow wf = new MatchRemoteOperationWorkflow(rinfo, "match");
-            if(!wf.run(uploadfiles, execScripts)) {
-                return false;
-            }
-        } else {
-            logger.info("Nothing to match");
-            if(!FileHelper.getInstance().copyfile(vfile, matchedfilename)) {
-                return false;
-            }
+        MatchRemoteOperationWorkflow wf = new MatchRemoteOperationWorkflow(rinfo, "match");
+        if(!wf.run(uploadfiles, execScripts)) {
+            return false;
         }
 
         return true;

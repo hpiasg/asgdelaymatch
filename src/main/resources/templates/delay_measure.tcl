@@ -25,6 +25,14 @@ if {$rvs == 0} {
 }
 #+elab_end+#
 
+#+sdf_begin+#
+redirect #*dc_sub_log*# {
+	set rvs [read_sdf #*sdf_sub*#]
+}
+if {$rvs == 0} {
+	echo "read_sdf_fail #*sdf_sub*#"
+}
+#+sdf_end+#
 
 
 #+measure_min_rise_rise_begin+#

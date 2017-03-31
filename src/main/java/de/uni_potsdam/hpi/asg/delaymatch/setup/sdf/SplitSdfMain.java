@@ -1,7 +1,7 @@
-package de.uni_potsdam.hpi.asg.delaymatch.measure;
+package de.uni_potsdam.hpi.asg.delaymatch.setup.sdf;
 
 /*
- * Copyright (C) 2016 - 2017 Norman Kluge
+ * Copyright (C) 2017 Norman Kluge
  * 
  * This file is part of ASGdelaymatch.
  * 
@@ -26,42 +26,43 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.common.collect.Table;
-
 import de.uni_potsdam.hpi.asg.common.remote.RemoteInformation;
-import de.uni_potsdam.hpi.asg.common.stg.model.Transition;
 import de.uni_potsdam.hpi.asg.common.technology.Technology;
 import de.uni_potsdam.hpi.asg.delaymatch.model.DelayMatchModule;
-import de.uni_potsdam.hpi.asg.delaymatch.model.MeasureEntry;
-import de.uni_potsdam.hpi.asg.delaymatch.setup.MeasureRecordGenerator;
 
-public class MeasureMain {
+public class SplitSdfMain {
 
-    private RemoteInformation                           rinfo;
-    private Map<String, DelayMatchModule>               modules;
-    private Technology                                  tech;
-    private String                                      name;
+    private RemoteInformation             rinfo;
+    private Map<String, DelayMatchModule> modules;
+    private Technology                    tech;
+    private String                        name;
 
-    private Table<Transition, Transition, MeasureEntry> transtable;
-
-    public MeasureMain(String name, RemoteInformation rinfo, Map<String, DelayMatchModule> modules, Technology tech, MeasureRecordGenerator rec) {
+    public SplitSdfMain(String name, RemoteInformation rinfo, Map<String, DelayMatchModule> modules, Technology tech) {
         this.name = name;
         this.rinfo = rinfo;
         this.modules = modules;
         this.tech = tech;
-        this.transtable = rec.getTransTable();
     }
 
-    public boolean measure(int turnid, File vfile) {
-        MeasureScriptGenerator gen = MeasureScriptGenerator.create(turnid, name, vfile, modules, tech);
+    public boolean split(File sdffile, File vfile, String root) {
+        if(!sdffile.exists()) {
+            return false;
+        }
+        if(sdffile.isDirectory()) {
+            return false;
+        }
+
+        SplitSdfScriptGenerator gen = SplitSdfScriptGenerator.create(name, root, sdffile, vfile, modules, tech);
+        if(gen == null) {
+            return false;
+        }
         if(!gen.generate()) {
             return false;
         }
 
         Set<String> uploadfiles = new HashSet<>();
         uploadfiles.addAll(gen.getScriptFiles());
-        uploadfiles.add(gen.getVInFile());
-        uploadfiles.addAll(gen.getSdfUploads());
+        uploadfiles.addAll(gen.getInFiles());
 
         if(!run(uploadfiles, gen.getExec())) {
             return false;
@@ -74,15 +75,11 @@ public class MeasureMain {
         List<String> execScripts = new ArrayList<>();
         execScripts.add(exec);
 
-        MeasureRemoteOperationWorkflow wf = new MeasureRemoteOperationWorkflow(rinfo, "measure");
+        SplitSdfRemoteOperationWorkflow wf = new SplitSdfRemoteOperationWorkflow(rinfo, "split");
         if(!wf.run(uploadfiles, execScripts)) {
             return false;
         }
 
         return true;
-    }
-
-    public Table<Transition, Transition, MeasureEntry> getTransTable() {
-        return transtable;
     }
 }

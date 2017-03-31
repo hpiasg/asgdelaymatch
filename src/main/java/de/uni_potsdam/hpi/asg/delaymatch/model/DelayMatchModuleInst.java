@@ -1,7 +1,7 @@
-package de.uni_potsdam.hpi.asg.delaymatch.misc;
+package de.uni_potsdam.hpi.asg.delaymatch.model;
 
 /*
- * Copyright (C) 2016 Norman Kluge
+ * Copyright (C) 2016 - 2017 Norman Kluge
  * 
  * This file is part of ASGdelaymatch.
  * 
@@ -35,6 +35,7 @@ public class DelayMatchModuleInst {
     private Table<MatchPath, Integer, MeasureRecord>       measureAdditions;
     private Table<MatchPath, Integer, List<MeasureRecord>> futureSubtractions;
     private Table<MatchPath, Integer, List<Trace>>         pastSubtrationTraces;
+    private Table<MatchPath, Integer, List<MeasureRecord>> checkSubtractions;
 
     public DelayMatchModuleInst(VerilogModuleInstance inst, DelayMatchModule dmmodule) {
         this.inst = inst;
@@ -42,6 +43,7 @@ public class DelayMatchModuleInst {
         this.measureAdditions = HashBasedTable.create();
         this.futureSubtractions = HashBasedTable.create();
         this.pastSubtrationTraces = HashBasedTable.create();
+        this.checkSubtractions = HashBasedTable.create();
     }
 
     public void addMeasureAddition(MatchPath p, Integer eachid, MeasureRecord rec) {
@@ -55,6 +57,13 @@ public class DelayMatchModuleInst {
         futureSubtractions.get(p, convertEachId(eachid)).add(rec);
     }
 
+    public void addCheckSubtraction(MatchPath p, Integer eachid, MeasureRecord rec) {
+        if(!checkSubtractions.contains(p, convertEachId(eachid))) {
+            checkSubtractions.put(p, convertEachId(eachid), new ArrayList<MeasureRecord>());
+        }
+        checkSubtractions.get(p, convertEachId(eachid)).add(rec);
+    }
+
     public void addPastSubtractionTraces(MatchPath p, Integer eachid, List<Trace> t) {
         if(!pastSubtrationTraces.contains(p, convertEachId(eachid))) {
             pastSubtrationTraces.put(p, convertEachId(eachid), new ArrayList<Trace>());
@@ -64,6 +73,10 @@ public class DelayMatchModuleInst {
 
     public List<MeasureRecord> getFutureSubtractions(MatchPath path, Integer eachid) {
         return futureSubtractions.get(path, convertEachId(eachid));
+    }
+
+    public List<MeasureRecord> getCheckSubtractions(MatchPath path, Integer eachid) {
+        return checkSubtractions.get(path, convertEachId(eachid));
     }
 
     public MeasureRecord getMeasureAddition(MatchPath path, Integer eachid) {

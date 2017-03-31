@@ -59,7 +59,11 @@ public class DelayMatchCommandlineOptions extends CommandlineOptions {
     @Option(name = "-past", metaVar = "<gfile>", usage = "Use past algorithm (STG file needed; Resyn only!)")
     private File stgfile = null;
     
-
+    @Option(name = "-verifyOnly", usage = "Do not delaymatch. Just check timing conditions. Default off")
+    private boolean verifyOnly = false;
+    @Option(name = "-sdf", usage = "SDF file for timing verification (only used if -verifyOnly is activated)")
+    private File sdfFile = null;
+    
     @Argument(metaVar = "Verilog File", required = true)
     private File vfile;
 
@@ -114,5 +118,13 @@ public class DelayMatchCommandlineOptions extends CommandlineOptions {
 
     public File getTechnology() {
         return technology;
+    }
+
+    public boolean isVerifyOnly() {
+        return verifyOnly;
+    }
+
+    public File getSdfFile() {
+        return sdfFile;
     }
 }
