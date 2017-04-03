@@ -1,7 +1,7 @@
-package de.uni_potsdam.hpi.asg.delaymatch.profile;
+package de.uni_potsdam.hpi.asg.delaymatch.check.values.model;
 
 /*
- * Copyright (C) 2016 Norman Kluge
+ * Copyright (C) 2017 Norman Kluge
  * 
  * This file is part of ASGdelaymatch.
  * 
@@ -19,38 +19,62 @@ package de.uni_potsdam.hpi.asg.delaymatch.profile;
  * along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
 @XmlAccessorType(XmlAccessType.NONE)
-public class MatchPath {
+public class ValuesXmlEach {
 
     //@formatter:off
     @XmlAttribute(name = "id", required = true)
     private String id;
-    @XmlElement(name = "measure", required = true)
-    private Path measure;
-    @XmlElement(name = "match", required = true)
-    private Path match;
-    @XmlAttribute(name = "foreach", required = false)
-    private String foreach;
+    
+    @XmlElement(name = "instance")
+    private List<ValuesXmlInstance> instances;
+    @XmlElement(name = "minValueFactor")
+    private Float minValueFactor;
+    @XmlElement(name = "maxValueFactor")
+    private Float maxValueFactor;
     //@formatter:on
 
-    public Path getMatch() {
-        return match;
+    protected ValuesXmlEach() {
     }
 
-    public Path getMeasure() {
-        return measure;
+    public ValuesXmlEach(String id) {
+        this.id = id;
+        this.instances = new ArrayList<>();
     }
 
-    public String getForeach() {
-        return foreach;
+    public void setMaxValueFactor(Float maxValueFactor) {
+        this.maxValueFactor = maxValueFactor;
+    }
+
+    public void setMinValueFactor(Float minValueFactor) {
+        this.minValueFactor = minValueFactor;
+    }
+
+    public void addInstance(ValuesXmlInstance instance) {
+        instances.add(instance);
     }
 
     public String getId() {
         return id;
+    }
+
+    public List<ValuesXmlInstance> getInstances() {
+        return instances;
+    }
+
+    public float getMaxValueFactor() {
+        return maxValueFactor;
+    }
+
+    public float getMinValueFactor() {
+        return minValueFactor;
     }
 }

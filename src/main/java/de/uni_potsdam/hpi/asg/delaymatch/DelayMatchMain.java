@@ -221,6 +221,12 @@ public class DelayMatchMain {
             }
         }
 
+        if(options.getValOut() != null) {
+            if(!cmain.writeOutVals(options.getValOut())) {
+                return -1;
+            }
+        }
+
         if(timingOk) {
             return 0;
         } else {

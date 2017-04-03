@@ -65,6 +65,8 @@ public class DelayMatchCommandlineOptions extends CommandlineOptions {
     private File sdfFile = null;
     @Option(name = "-sdc", usage = "SDC output file")
     private File sdcFile = null;
+    @Option(name = "-valOut", usage = "Delaymatch values output file")
+    private File valOut = null;
     
     @Argument(metaVar = "Verilog File", required = true)
     private File vfile;
@@ -132,5 +134,9 @@ public class DelayMatchCommandlineOptions extends CommandlineOptions {
 
     public File getSdcFile() {
         return sdcFile;
+    }
+
+    public File getValOut() {
+        return valOut;
     }
 }

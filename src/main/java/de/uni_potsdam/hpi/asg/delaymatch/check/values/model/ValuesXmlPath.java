@@ -1,7 +1,7 @@
-package de.uni_potsdam.hpi.asg.delaymatch.profile;
+package de.uni_potsdam.hpi.asg.delaymatch.check.values.model;
 
 /*
- * Copyright (C) 2016 Norman Kluge
+ * Copyright (C) 2017 Norman Kluge
  * 
  * This file is part of ASGdelaymatch.
  * 
@@ -19,38 +19,42 @@ package de.uni_potsdam.hpi.asg.delaymatch.profile;
  * along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
 @XmlAccessorType(XmlAccessType.NONE)
-public class MatchPath {
+public class ValuesXmlPath {
 
     //@formatter:off
     @XmlAttribute(name = "id", required = true)
     private String id;
-    @XmlElement(name = "measure", required = true)
-    private Path measure;
-    @XmlElement(name = "match", required = true)
-    private Path match;
-    @XmlAttribute(name = "foreach", required = false)
-    private String foreach;
+    
+    @XmlElement(name = "each", required = true)
+    private List<ValuesXmlEach> eachs;
     //@formatter:on
 
-    public Path getMatch() {
-        return match;
+    protected ValuesXmlPath() {
     }
 
-    public Path getMeasure() {
-        return measure;
+    public ValuesXmlPath(String id) {
+        this.id = id;
+        this.eachs = new ArrayList<>();
     }
 
-    public String getForeach() {
-        return foreach;
+    public void addEach(ValuesXmlEach each) {
+        eachs.add(each);
     }
 
     public String getId() {
         return id;
+    }
+
+    public List<ValuesXmlEach> getEachs() {
+        return eachs;
     }
 }
