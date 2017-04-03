@@ -19,6 +19,7 @@ package de.uni_potsdam.hpi.asg.delaymatch.check;
  * along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -33,6 +34,7 @@ import org.apache.logging.log4j.Logger;
 import com.google.common.collect.Table;
 
 import de.uni_potsdam.hpi.asg.common.iohelper.FileHelper;
+import de.uni_potsdam.hpi.asg.common.iohelper.WorkingdirGenerator;
 import de.uni_potsdam.hpi.asg.common.stg.model.Transition;
 import de.uni_potsdam.hpi.asg.delaymatch.model.DelayMatchModule;
 import de.uni_potsdam.hpi.asg.delaymatch.model.DelayMatchModuleInst;
@@ -56,11 +58,15 @@ public class CheckMain {
     private Map<String, DelayMatchModule>               modules;
     private Table<Transition, Transition, MeasureEntry> transtable;
     private boolean                                     allok;
+    private Constraints                                 constr;
+    private File                                        sdcfile;
 
     public CheckMain(Map<String, DelayMatchModule> modules, MeasureRecordGenerator rec) {
         this.modules = modules;
         this.transtable = rec.getTransTable();
         this.allok = false;
+        this.constr = new Constraints(modules);
+        this.sdcfile = new File(WorkingdirGenerator.getInstance().getWorkingdir(), "sdc.sdc");
     }
 
     public boolean check() {
@@ -70,6 +76,10 @@ public class CheckMain {
         }
 
         if(!checkTiming()) {
+            return false;
+        }
+
+        if(!constr.generate(sdcfile)) {
             return false;
         }
 
@@ -324,5 +334,9 @@ public class CheckMain {
 
     public boolean isAllOk() {
         return allok;
+    }
+
+    public File getSdcFile() {
+        return sdcfile;
     }
 }

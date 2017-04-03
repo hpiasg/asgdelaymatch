@@ -204,8 +204,21 @@ public class DelayMatchMain {
             }
         }
 
-        if(!FileHelper.getInstance().copyfile(verilogFile, options.getOutfile())) {
-            return -1;
+        if(options.getOutfile() != null) {
+            if(!FileHelper.getInstance().copyfile(verilogFile, options.getOutfile())) {
+                return -1;
+            }
+        }
+
+        if(options.getSdcFile() != null) {
+            File sdc = cmain.getSdcFile();
+            if(sdc.exists()) {
+                if(!FileHelper.getInstance().copyfile(sdc, options.getSdcFile())) {
+                    return -1;
+                }
+            } else {
+                logger.warn("Generating SDC file failed");
+            }
         }
 
         if(timingOk) {

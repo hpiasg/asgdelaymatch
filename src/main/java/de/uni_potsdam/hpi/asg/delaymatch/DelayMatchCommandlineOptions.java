@@ -49,7 +49,7 @@ public class DelayMatchCommandlineOptions extends CommandlineOptions {
     
     @Option(name = "-p", metaVar = "<profile>", usage = "Profile file", required = true)
     private File profilefile = null;
-    @Option(name = "-out", metaVar = "<outfile>", usage = "Outfile", required = true)
+    @Option(name = "-out", metaVar = "<outfile>", usage = "Outfile")
     private File outfile = null;
     @Option(name = "-lib", metaVar = "<technologyfile>", usage = "technology description for implementation")
     private File technology;
@@ -63,6 +63,8 @@ public class DelayMatchCommandlineOptions extends CommandlineOptions {
     private boolean verifyOnly = false;
     @Option(name = "-sdf", usage = "SDF file for timing verification (only used if -verifyOnly is activated)")
     private File sdfFile = null;
+    @Option(name = "-sdc", usage = "SDC output file")
+    private File sdcFile = null;
     
     @Argument(metaVar = "Verilog File", required = true)
     private File vfile;
@@ -126,5 +128,9 @@ public class DelayMatchCommandlineOptions extends CommandlineOptions {
 
     public File getSdfFile() {
         return sdfFile;
+    }
+
+    public File getSdcFile() {
+        return sdcFile;
     }
 }
