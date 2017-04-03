@@ -95,6 +95,10 @@ public class DelayMatchModule {
         }
     }
 
+    public Float[] getValFactors(MatchPath path) {
+        return new Float[]{minValueFactor.get(path, NOEACHID), maxValueFactor.get(path, NOEACHID)};
+    }
+
     public Float[] getValFactors(MatchPath path, Integer eachid) {
         return new Float[]{minValueFactor.get(path, eachid), maxValueFactor.get(path, eachid)};
     }

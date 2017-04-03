@@ -172,11 +172,11 @@ public class CheckMain {
                             return false;
                         }
                         if(vals[0] < 0f) { // No delay wooho
-                            setValuesXmlEach(mod, path, null, valeach);
+                            setValuesXmlEach(mod, path, valeach);
                             continue;
                         }
                         mod.setMatchVal(path, vals[1]);
-                        setValuesXmlEach(mod, path, null, valeach);
+                        setValuesXmlEach(mod, path, valeach);
                         moduleHasMatch = true;
                     }
                 }
@@ -207,6 +207,12 @@ public class CheckMain {
         }
 
         return true;
+    }
+
+    private void setValuesXmlEach(DelayMatchModule mod, MatchPath path, ValuesXmlEach valeach) {
+        Float[] factors = mod.getValFactors(path);
+        valeach.setMinValueFactor(factors[0]);
+        valeach.setMaxValueFactor(factors[1]);
     }
 
     private void setValuesXmlEach(DelayMatchModule mod, MatchPath path, Integer eachid, ValuesXmlEach valeach) {
