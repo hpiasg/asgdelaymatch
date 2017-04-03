@@ -100,7 +100,10 @@ public class DelayMatchMain {
 
     /**
      * 
-     * @return -1: runtime error, 0: ok, 1: timing violation detected
+     * @return -1: runtime error,
+     *         0: OK (no timing violation(s)),
+     *         1: timing violation(s) detected,
+     *         2: no statement
      */
     private static int execute() {
         Technology tech = ReadTechnologyHelper.read(options.getTechnology(), config.defaultTech);
@@ -146,7 +149,7 @@ public class DelayMatchMain {
         File verilogFile = options.getVfile();
         String name = verilogFile.getName().split("\\.")[0];
 
-        if(options.isVerifyOnly() && options.getSdfFile() != null) {
+        if(options.getSdfFile() != null) {
             logger.info("Split SDF");
             SplitSdfMain ssdfmain = new SplitSdfMain(name, rinfo, modules, tech);
             if(!ssdfmain.split(options.getSdfFile(), options.getVfile(), vparser.getRootModule().getModulename())) {
@@ -159,6 +162,9 @@ public class DelayMatchMain {
         MatchMain mamain = new MatchMain(name, rinfo, modules, tech);
 
         int turnid = 1;
+        boolean verifyOnlyBreak = false;
+        boolean allOkBreak = false;
+        boolean sdfBreak = false;
         while(turnid <= maxIterations) {
             logger.info("------------------------------");
             logger.info("Measure phase #" + turnid);
@@ -171,7 +177,13 @@ public class DelayMatchMain {
                 return -1;
             }
 
-            if(options.isVerifyOnly() || cmain.isAllOk()) {
+            if(options.isVerifyOnly()) {
+                verifyOnlyBreak = true;
+            }
+            if(cmain.isAllOk()) {
+                allOkBreak = true;
+            }
+            if(verifyOnlyBreak || allOkBreak) {
                 break;
             }
 
@@ -181,32 +193,47 @@ public class DelayMatchMain {
             }
 
             verilogFile = new File(WorkingdirGenerator.getInstance().getWorkingdir(), mamain.getMatchedfilename());
+
+            if(options.getSdfFile() != null) {
+                sdfBreak = true;
+                break;
+            }
+
             turnid++;
         }
 
         logger.info("------------------------------");
-        boolean timingOk = false;
-        if(options.isVerifyOnly()) {
-            if(cmain.isAllOk()) {
-                logger.info("No timing violations in the design");
-                timingOk = true;
-            } else {
-                logger.warn("There are timing violations in the design");
-                timingOk = false;
-            }
+        int retVal = -1;
+        if(sdfBreak) {
+            logger.info("Aborting iteration, because SDF file was invalidated by setting new delays");
+            retVal = 2;
         } else {
-            if(cmain.isAllOk()) {
+            if(verifyOnlyBreak && allOkBreak) {
+                logger.info("No timing violations in the design");
+                retVal = 0;
+            } else if(verifyOnlyBreak && !allOkBreak) {
+                logger.warn("There are timing violations in the design");
+                retVal = 1;
+            } else if(!verifyOnlyBreak && allOkBreak) {
                 logger.info("There are no timing violations left in the design");
-                timingOk = true;
-            } else {
+                retVal = 0;
+            } else if(!verifyOnlyBreak && !allOkBreak) { // else
                 logger.warn("Max iterations reached, but there are still timing violations in the design");
-                timingOk = false;
+                retVal = 1;
             }
         }
 
+        if(!generateOutfiles(verilogFile, cmain)) {
+            return -1;
+        }
+
+        return retVal;
+    }
+
+    private static boolean generateOutfiles(File verilogFile, CheckMain cmain) {
         if(options.getOutfile() != null) {
             if(!FileHelper.getInstance().copyfile(verilogFile, options.getOutfile())) {
-                return -1;
+                return false;
             }
         }
 
@@ -214,7 +241,7 @@ public class DelayMatchMain {
             File sdc = cmain.getSdcFile();
             if(sdc.exists()) {
                 if(!FileHelper.getInstance().copyfile(sdc, options.getSdcFile())) {
-                    return -1;
+                    return false;
                 }
             } else {
                 logger.warn("Generating SDC file failed");
@@ -223,15 +250,10 @@ public class DelayMatchMain {
 
         if(options.getValOut() != null) {
             if(!cmain.writeOutVals(options.getValOut())) {
-                return -1;
+                return false;
             }
         }
-
-        if(timingOk) {
-            return 0;
-        } else {
-            return 1;
-        }
+        return true;
     }
 
     private static boolean zipWorkfile() {
