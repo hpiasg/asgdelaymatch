@@ -57,4 +57,13 @@ public class ValuesXmlPath {
     public List<ValuesXmlEach> getEachs() {
         return eachs;
     }
+
+    public ValuesXmlEach getEach(String eachid) {
+        for(ValuesXmlEach valeach : eachs) {
+            if(valeach.getId().equals(eachid)) {
+                return valeach;
+            }
+        }
+        return null;
+    }
 }

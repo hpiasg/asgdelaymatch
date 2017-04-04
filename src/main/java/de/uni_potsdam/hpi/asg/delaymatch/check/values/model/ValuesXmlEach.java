@@ -27,8 +27,12 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
+import de.uni_potsdam.hpi.asg.delaymatch.model.DelayMatchModuleInst;
+
 @XmlAccessorType(XmlAccessType.NONE)
 public class ValuesXmlEach {
+
+    public static final String      NOEACHID = Integer.toString(-1);
 
     //@formatter:off
     @XmlAttribute(name = "id", required = true)
@@ -70,11 +74,20 @@ public class ValuesXmlEach {
         return instances;
     }
 
-    public float getMaxValueFactor() {
+    public Float getMaxValueFactor() {
         return maxValueFactor;
     }
 
-    public float getMinValueFactor() {
+    public Float getMinValueFactor() {
         return minValueFactor;
+    }
+
+    public ValuesXmlInstance getInstance(DelayMatchModuleInst inst) {
+        for(ValuesXmlInstance valinst : instances) {
+            if(valinst.getName().equals(inst.getInstName())) {
+                return valinst;
+            }
+        }
+        return null;
     }
 }

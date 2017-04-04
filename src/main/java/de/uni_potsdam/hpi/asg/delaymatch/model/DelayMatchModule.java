@@ -82,16 +82,31 @@ public class DelayMatchModule {
     public void setMatchVal(MatchPath path, Integer eachid, Float val) {
         if(!targetValue.contains(path, eachid)) {
             targetValue.put(path, eachid, val);
-            minValueFactor.put(path, eachid, DelayMatchMain.matchMinStartFactor);
-            maxValueFactor.put(path, eachid, DelayMatchMain.matchMaxStartFactor);
         } else {
             if(!(targetValue.get(path, eachid).equals(val))) {
                 System.out.println("New val != old val: " + val + " != " + targetValue.get(path, eachid));
                 //TODO: ??
                 targetValue.put(path, eachid, val);
             }
-            minValueFactor.put(path, eachid, minValueFactor.get(path, eachid) + DelayMatchMain.matchMinIncreaseFactor);
-            maxValueFactor.put(path, eachid, maxValueFactor.get(path, eachid) + DelayMatchMain.matchMaxIncreaseFactor);
+        }
+
+        if(!minValueFactor.contains(path, eachid)) {
+            setFactors(path, eachid, DelayMatchMain.matchMinStartFactor, DelayMatchMain.matchMaxStartFactor);
+        } else {
+            float min = minValueFactor.get(path, eachid) + DelayMatchMain.matchMinIncreaseFactor;
+            float max = maxValueFactor.get(path, eachid) + DelayMatchMain.matchMaxIncreaseFactor;
+            setFactors(path, eachid, min, max);
+        }
+    }
+
+    public void setFactors(MatchPath path, Float min, Float max) {
+        setFactors(path, NOEACHID, min, max);
+    }
+
+    public void setFactors(MatchPath path, Integer eachid, Float min, Float max) {
+        if(min != null && max != null) {
+            minValueFactor.put(path, eachid, min);
+            maxValueFactor.put(path, eachid, max);
         }
     }
 

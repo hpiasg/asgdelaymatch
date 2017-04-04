@@ -41,6 +41,9 @@ public class ValuesXmlInstance {
     private Float future;
     //@formatter:on
 
+    protected ValuesXmlInstance() {
+    }
+
     public ValuesXmlInstance(String name, float value, Float check, Float past, Float future) {
         this.name = name;
         this.value = value;

@@ -165,7 +165,7 @@ public class CheckMain {
                             moduleHasMatch = true;
                         }
                     } else {
-                        ValuesXmlEach valeach = new ValuesXmlEach(Integer.toString(-1));
+                        ValuesXmlEach valeach = new ValuesXmlEach(ValuesXmlEach.NOEACHID);
                         valpath.addEach(valeach);
                         Float[] vals = computeValue(path, null, mod, valeach);
                         if(vals[0] == null) {

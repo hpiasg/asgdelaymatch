@@ -27,6 +27,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
+import de.uni_potsdam.hpi.asg.delaymatch.profile.MatchPath;
+
 @XmlAccessorType(XmlAccessType.NONE)
 public class ValuesXmlModule {
 
@@ -56,5 +58,14 @@ public class ValuesXmlModule {
 
     public List<ValuesXmlPath> getPaths() {
         return paths;
+    }
+
+    public ValuesXmlPath getPath(MatchPath path) {
+        for(ValuesXmlPath valpath : paths) {
+            if(valpath.getId().equals(path.getId())) {
+                return valpath;
+            }
+        }
+        return null;
     }
 }

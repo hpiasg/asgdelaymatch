@@ -35,6 +35,7 @@ import de.uni_potsdam.hpi.asg.common.remote.RemoteInformation;
 import de.uni_potsdam.hpi.asg.common.technology.ReadTechnologyHelper;
 import de.uni_potsdam.hpi.asg.common.technology.Technology;
 import de.uni_potsdam.hpi.asg.delaymatch.check.CheckMain;
+import de.uni_potsdam.hpi.asg.delaymatch.check.values.ValuesXmlAnnotator;
 import de.uni_potsdam.hpi.asg.delaymatch.io.Config;
 import de.uni_potsdam.hpi.asg.delaymatch.io.ConfigFile;
 import de.uni_potsdam.hpi.asg.delaymatch.io.RemoteInvocation;
@@ -153,6 +154,14 @@ public class DelayMatchMain {
             logger.info("Split SDF");
             SplitSdfMain ssdfmain = new SplitSdfMain(name, rinfo, modules, tech);
             if(!ssdfmain.split(options.getSdfFile(), options.getVfile(), vparser.getRootModule().getModulename())) {
+                return -1;
+            }
+        }
+
+        if(options.getValIn() != null) {
+            logger.info("Annotate values");
+            ValuesXmlAnnotator anot = new ValuesXmlAnnotator(modules);
+            if(!anot.annotate(options.getValIn())) {
                 return -1;
             }
         }

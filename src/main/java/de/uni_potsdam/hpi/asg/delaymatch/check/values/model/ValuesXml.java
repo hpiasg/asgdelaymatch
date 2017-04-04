@@ -26,6 +26,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import de.uni_potsdam.hpi.asg.delaymatch.model.DelayMatchModule;
+
 @XmlRootElement(name = "delayvalues")
 @XmlAccessorType(XmlAccessType.NONE)
 public class ValuesXml {
@@ -42,5 +44,14 @@ public class ValuesXml {
 
     public List<ValuesXmlModule> getModules() {
         return modules;
+    }
+
+    public ValuesXmlModule getModule(DelayMatchModule mod) {
+        for(ValuesXmlModule valmod : modules) {
+            if(valmod.getName().equals(mod.getModuleName())) {
+                return valmod;
+            }
+        }
+        return null;
     }
 }
