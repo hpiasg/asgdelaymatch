@@ -84,7 +84,7 @@ public class DelayMatchModule {
             targetValue.put(path, eachid, val);
         } else {
             if(!(targetValue.get(path, eachid).equals(val))) {
-                System.out.println("New val != old val: " + val + " != " + targetValue.get(path, eachid));
+                logger.warn("New value (" + val + ") != old value (" + targetValue.get(path, eachid) + ")");
                 //TODO: ??
                 targetValue.put(path, eachid, val);
             }
@@ -131,8 +131,11 @@ public class DelayMatchModule {
     }
 
     public Float getControlMinVal(MatchPath path, Integer eachid) {
-        float val = targetValue.get(path, eachid);
-        float factor = minValueFactor.get(path, eachid);
+        Float val = targetValue.get(path, eachid);
+        Float factor = minValueFactor.get(path, eachid);
+        if(val == null || factor == null) {
+            return null;
+        }
         return val * factor;
     }
 
@@ -141,8 +144,11 @@ public class DelayMatchModule {
     }
 
     public Float getControlMaxVal(MatchPath path, Integer eachid) {
-        float val = targetValue.get(path, eachid);
-        float factor = maxValueFactor.get(path, eachid);
+        Float val = targetValue.get(path, eachid);
+        Float factor = maxValueFactor.get(path, eachid);
+        if(val == null || factor == null) {
+            return null;
+        }
         return val * factor;
     }
 

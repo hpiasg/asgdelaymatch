@@ -124,13 +124,17 @@ public class MatchScriptGenerator extends AbstractScriptGenerator {
                         for(int eachid = 0; eachid < num; eachid++) {
                             Float min = mod.getControlMinVal(path, eachid);
                             Float max = mod.getControlMaxVal(path, eachid);
-                            moduleTcl.addAll(generateMatch(mod, path, eachid, min, max));
+                            if(min != null && max != null) {
+                                moduleTcl.addAll(generateMatch(mod, path, eachid, min, max));
+                            }
                             moduleTcl.addAll(generateDontTouch(mod, path, eachid));
                         }
                     } else {
                         Float min = mod.getControlMinVal(path);
                         Float max = mod.getControlMaxVal(path);
-                        moduleTcl.addAll(generateMatch(mod, path, null, min, max));
+                        if(min != null && max != null) {
+                            moduleTcl.addAll(generateMatch(mod, path, null, min, max));
+                        }
                         moduleTcl.addAll(generateDontTouch(mod, path, null));
                     }
                 }

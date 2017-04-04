@@ -73,12 +73,16 @@ public class Constraints {
                         for(int eachid = 0; eachid < num; eachid++) {
                             Float min = mod.getControlMinVal(path, eachid);
                             Float max = mod.getControlMaxVal(path, eachid);
-                            generateSdc(mod, path, eachid, min, max);
+                            if(min != null && max != null) { //TODO
+                                generateSdc(mod, path, eachid, min, max);
+                            }
                         }
                     } else {
                         Float min = mod.getControlMinVal(path);
                         Float max = mod.getControlMaxVal(path);
-                        generateSdc(mod, path, null, min, max);
+                        if(min != null && max != null) { //TODO
+                            generateSdc(mod, path, null, min, max);
+                        }
                     }
                 }
             }
