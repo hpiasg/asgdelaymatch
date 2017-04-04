@@ -50,19 +50,29 @@ import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.VerilogParser;
 
 public class DelayMatchMain {
 
-    public static final String                  DEF_CONFIG_FILE_NAME   = "delaymatchconfig.xml";
-    public static final File                    DEF_CONFIG_FILE        = new File(CommonConstants.DEF_CONFIG_DIR_FILE, DEF_CONFIG_FILE_NAME);
+    public static final String                  DEF_CONFIG_FILE_NAME         = "delaymatchconfig.xml";
+    public static final File                    DEF_CONFIG_FILE              = new File(CommonConstants.DEF_CONFIG_DIR_FILE, DEF_CONFIG_FILE_NAME);
+
+    private static final float                  normalMatchMinStartFactor    = 1.0f;
+    private static final float                  normalMatchMinIncreaseFactor = 0.1f;
+    private static final float                  normalMatchMaxStartFactor    = 1.1f;
+    private static final float                  normalMatchMaxIncreaseFactor = 0.2f;
+
+    private static final float                  sdfMatchMinStartFactor       = 1.0f;
+    private static final float                  sdfMatchMinIncreaseFactor    = 0.2f;
+    private static final float                  sdfMatchMaxStartFactor       = 1.5f;
+    private static final float                  sdfMatchMaxIncreaseFactor    = 0.5f;
+
+    private static final int                    maxIterations                = 20;
 
     private static Logger                       logger;
     private static DelayMatchCommandlineOptions options;
     public static Config                        config;
 
-    public static float                         matchMinStartFactor    = 1.0f;
-    public static float                         matchMinIncreaseFactor = 0.1f;
-    public static float                         matchMaxStartFactor    = 1.1f;
-    public static float                         matchMaxIncreaseFactor = 0.2f;
-
-    private static int                          maxIterations          = 20;
+    public static float                         matchMinStartFactor          = 0f;
+    public static float                         matchMinIncreaseFactor       = 0f;
+    public static float                         matchMaxStartFactor          = 0f;
+    public static float                         matchMaxIncreaseFactor       = 0f;
 
     public static void main(String[] args) {
         int status = main2(args);
@@ -93,7 +103,7 @@ public class DelayMatchMain {
             }
             return status;
         } catch(Exception e) {
-//            e.printStackTrace();
+            e.printStackTrace();
             System.out.println("An error occurred: " + e.getLocalizedMessage());
             return -1;
         }
@@ -107,6 +117,18 @@ public class DelayMatchMain {
      *         2: no statement
      */
     private static int execute() {
+        if(options.getSdfFile() != null) {
+            matchMinStartFactor = sdfMatchMinStartFactor;
+            matchMinIncreaseFactor = sdfMatchMinIncreaseFactor;
+            matchMaxStartFactor = sdfMatchMaxStartFactor;
+            matchMaxIncreaseFactor = sdfMatchMaxIncreaseFactor;
+        } else {
+            matchMinStartFactor = normalMatchMinStartFactor;
+            matchMinIncreaseFactor = normalMatchMinIncreaseFactor;
+            matchMaxStartFactor = normalMatchMaxStartFactor;
+            matchMaxIncreaseFactor = normalMatchMaxIncreaseFactor;
+        }
+
         Technology tech = ReadTechnologyHelper.read(options.getTechnology(), config.defaultTech);
         if(tech == null) {
             logger.error("No technology found");
