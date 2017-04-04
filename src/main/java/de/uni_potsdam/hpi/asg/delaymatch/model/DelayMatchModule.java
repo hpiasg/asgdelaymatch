@@ -99,6 +99,14 @@ public class DelayMatchModule {
         }
     }
 
+    public void setMatchValOnly(MatchPath path, Float val) {
+        setMatchValOnly(path, NOEACHID, val);
+    }
+
+    public void setMatchValOnly(MatchPath path, Integer eachid, Float val) {
+        targetValue.put(path, eachid, val);
+    }
+
     public void setFactors(MatchPath path, Float min, Float max) {
         setFactors(path, NOEACHID, min, max);
     }

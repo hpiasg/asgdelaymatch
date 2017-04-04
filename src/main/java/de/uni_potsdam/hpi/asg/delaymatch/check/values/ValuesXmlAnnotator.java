@@ -20,6 +20,8 @@ package de.uni_potsdam.hpi.asg.delaymatch.check.values;
  */
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
@@ -27,9 +29,11 @@ import org.apache.logging.log4j.Logger;
 
 import de.uni_potsdam.hpi.asg.delaymatch.check.values.model.ValuesXml;
 import de.uni_potsdam.hpi.asg.delaymatch.check.values.model.ValuesXmlEach;
+import de.uni_potsdam.hpi.asg.delaymatch.check.values.model.ValuesXmlInstance;
 import de.uni_potsdam.hpi.asg.delaymatch.check.values.model.ValuesXmlModule;
 import de.uni_potsdam.hpi.asg.delaymatch.check.values.model.ValuesXmlPath;
 import de.uni_potsdam.hpi.asg.delaymatch.model.DelayMatchModule;
+import de.uni_potsdam.hpi.asg.delaymatch.model.DelayMatchModuleInst;
 import de.uni_potsdam.hpi.asg.delaymatch.profile.MatchPath;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogSignalGroup;
 
@@ -62,13 +66,14 @@ public class ValuesXmlAnnotator {
                         int num = group.getCount();
                         for(int eachid = 0; eachid < num; eachid++) {
                             ValuesXmlEach valeach = valpath.getEach(Integer.toString(eachid));
-//                            for(DelayMatchModuleInst inst : mod.getInstances()) {
-//                                ValuesXmlInstance valinst = valeach.getInstance(inst);
-//                            }
+                            Float val = computeValue(mod, valeach);
+                            mod.setMatchValOnly(path, eachid, val);
                             mod.setFactors(path, eachid, valeach.getMinValueFactor(), valeach.getMaxValueFactor());
                         }
                     } else {
                         ValuesXmlEach valeach = valpath.getEach(ValuesXmlEach.NOEACHID);
+                        Float val = computeValue(mod, valeach);
+                        mod.setMatchValOnly(path, val);
                         mod.setFactors(path, valeach.getMinValueFactor(), valeach.getMaxValueFactor());
                     }
                 }
@@ -76,5 +81,35 @@ public class ValuesXmlAnnotator {
         }
 
         return true;
+    }
+
+    private Float computeValue(DelayMatchModule mod, ValuesXmlEach valeach) {
+        List<Float> values = new ArrayList<>();
+        for(DelayMatchModuleInst inst : mod.getInstances()) {
+            ValuesXmlInstance valinst = valeach.getInstance(inst);
+            float val = valinst.getValue();
+
+            Float futureSubtraction = valinst.getFuture();
+            if(futureSubtraction != null && futureSubtraction != 0f) {
+                val -= futureSubtraction;
+            }
+
+            Float pastSubtraction = valinst.getPast();
+            if(pastSubtraction != null && pastSubtraction != 0f) {
+                val -= pastSubtraction;
+            }
+
+            values.add(val);
+        }
+
+        Float maxVal = Float.NEGATIVE_INFINITY;
+        for(int i = 0; i < values.size(); i++) {
+            float f = values.get(i);
+            if(f > maxVal) {
+                maxVal = f;
+            }
+        }
+
+        return maxVal;
     }
 }
