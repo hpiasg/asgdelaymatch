@@ -1,4 +1,4 @@
-package de.uni_potsdam.hpi.asg.delaymatch.setup.sdf;
+package de.uni_potsdam.hpi.asg.delaymatch.sdfsplit;
 
 /*
  * Copyright (C) 2017 Norman Kluge

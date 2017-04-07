@@ -1,4 +1,4 @@
-package de.uni_potsdam.hpi.asg.delaymatch.setup.sdf;
+package de.uni_potsdam.hpi.asg.delaymatch.sdfsplit;
 
 /*
  * Copyright (C) 2017 Norman Kluge
@@ -44,15 +44,8 @@ public class SplitSdfMain {
         this.tech = tech;
     }
 
-    public boolean split(File sdffile, File vfile, String root) {
-        if(!sdffile.exists()) {
-            return false;
-        }
-        if(sdffile.isDirectory()) {
-            return false;
-        }
-
-        SplitSdfScriptGenerator gen = SplitSdfScriptGenerator.create(name, root, sdffile, vfile, modules, tech);
+    public boolean split(int turnid, File sdffile, File vfile, String root) {
+        SplitSdfScriptGenerator gen = SplitSdfScriptGenerator.create(turnid, name, root, sdffile, vfile, modules, tech);
         if(gen == null) {
             return false;
         }

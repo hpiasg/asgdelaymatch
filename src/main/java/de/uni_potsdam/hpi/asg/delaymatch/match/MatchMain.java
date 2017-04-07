@@ -36,6 +36,7 @@ public class MatchMain {
     private RemoteInformation             rinfo;
     private Map<String, DelayMatchModule> modules;
     private String                        matchedfilename;
+    private String                        matchedSdfName;
     private Technology                    tech;
 
     public MatchMain(String name, RemoteInformation rinfo, Map<String, DelayMatchModule> modules, Technology tech) {
@@ -52,6 +53,7 @@ public class MatchMain {
         }
 
         matchedfilename = gen.getOutfile();
+        matchedSdfName = gen.getOutSdffile();
 
         Set<String> uploadfiles = new HashSet<>();
         uploadfiles.addAll(gen.getScriptFiles());
@@ -70,5 +72,9 @@ public class MatchMain {
 
     public String getMatchedfilename() {
         return matchedfilename;
+    }
+
+    public String getMatchedSdfName() {
+        return matchedSdfName;
     }
 }

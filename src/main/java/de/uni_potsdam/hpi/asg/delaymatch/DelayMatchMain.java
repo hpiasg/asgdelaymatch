@@ -43,9 +43,9 @@ import de.uni_potsdam.hpi.asg.delaymatch.match.MatchMain;
 import de.uni_potsdam.hpi.asg.delaymatch.measure.MeasureMain;
 import de.uni_potsdam.hpi.asg.delaymatch.model.DelayMatchModule;
 import de.uni_potsdam.hpi.asg.delaymatch.profile.ProfileComponents;
+import de.uni_potsdam.hpi.asg.delaymatch.sdfsplit.SplitSdfMain;
 import de.uni_potsdam.hpi.asg.delaymatch.setup.EligibleModuleFinder;
 import de.uni_potsdam.hpi.asg.delaymatch.setup.MeasureRecordGenerator;
-import de.uni_potsdam.hpi.asg.delaymatch.setup.sdf.SplitSdfMain;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.VerilogParser;
 
 public class DelayMatchMain {
@@ -177,14 +177,6 @@ public class DelayMatchMain {
         File verilogFile = options.getVfile();
         String name = verilogFile.getName().split("\\.")[0];
 
-        if(options.getSdfFile() != null) {
-            logger.info("Split SDF");
-            SplitSdfMain ssdfmain = new SplitSdfMain(name, rinfo, modules, tech);
-            if(!ssdfmain.split(options.getSdfFile(), options.getVfile(), vparser.getRootModule().getModulename())) {
-                return -1;
-            }
-        }
-
         if(options.getValIn() != null) {
             logger.info("Annotate values");
             ValuesXmlAnnotator anot = new ValuesXmlAnnotator(modules);
@@ -193,9 +185,12 @@ public class DelayMatchMain {
             }
         }
 
+        SplitSdfMain ssdfmain = new SplitSdfMain(name, rinfo, modules, tech);
         MeasureMain memain = new MeasureMain(name, rinfo, modules, tech, rec);
         CheckMain cmain = new CheckMain(modules, rec);
         MatchMain mamain = new MatchMain(name, rinfo, modules, tech);
+
+        File sdfFile = options.getSdfFile();
 
         int turnid = 1;
         boolean verifyOnlyBreak = false;
@@ -203,6 +198,11 @@ public class DelayMatchMain {
         boolean sdfBreak = false;
         while(turnid <= maxIterations) {
             logger.info("------------------------------");
+            logger.info("SDF phase #" + turnid);
+            if(!ssdfmain.split(turnid, sdfFile, verilogFile, vparser.getRootModule().getModulename())) {
+                return -1;
+            }
+
             logger.info("Measure phase #" + turnid);
             if(!memain.measure(turnid, verilogFile)) {
                 return -1;
@@ -229,6 +229,7 @@ public class DelayMatchMain {
             }
 
             verilogFile = new File(WorkingdirGenerator.getInstance().getWorkingdir(), mamain.getMatchedfilename());
+            sdfFile = new File(WorkingdirGenerator.getInstance().getWorkingdir(), mamain.getMatchedSdfName());
 
             if(options.getSdfFile() != null) {
                 sdfBreak = true;

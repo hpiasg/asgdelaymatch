@@ -74,5 +74,14 @@ if {$rvs == 0} {
 	echo "write_fail #*root*#"
 	exit 1
 }
+
+redirect -append #*dc_log*# {
+	set rvs [write_sdf -significant_digits 10 #*out_sdf*#]
+}
+if {$rvs == 0} {
+	echo "write_sdf_fail #*root*#"
+	exit 1
+}
+
 exit 2
 #+final_end+#

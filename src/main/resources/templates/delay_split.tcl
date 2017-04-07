@@ -23,6 +23,19 @@ if {$rvs == 0} {
 	echo "elab_fail #*root*#"
 }
 
+#+setup_end+#
+
+#+generate_begin+#
+redirect #*dc_log*# {
+	set rvs [write_sdf -significant_digits 10 #*root_sdf*#]
+}
+if {$rvs == 0} {
+	echo "write_sdf_fail #*root_sdf*#"
+}
+
+#+generate_end+#
+
+#+read_begin+#
 redirect #*dc_log*# {
 	set rvs [read_sdf #*root_sdf*#]
 }
@@ -30,7 +43,7 @@ if {$rvs == 0} {
 	echo "read_sdf_fail #*root_sdf*#"
 }
 
-#+setup_end+#
+#+read_end+#
 
 #+split_begin+#
 redirect -append #*dc_log*# {

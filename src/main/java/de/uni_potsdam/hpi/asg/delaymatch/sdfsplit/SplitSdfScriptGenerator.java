@@ -1,4 +1,4 @@
-package de.uni_potsdam.hpi.asg.delaymatch.setup.sdf;
+package de.uni_potsdam.hpi.asg.delaymatch.sdfsplit;
 
 /*
  * Copyright (C) 2017 Norman Kluge
@@ -59,6 +59,7 @@ public class SplitSdfScriptGenerator extends AbstractScriptGenerator {
 
     private static Map<String, List<String>> templates;
 
+    private boolean                          generateSDF;
     private int                              turnid;
     private String                           name;
     private String                           root;
@@ -67,11 +68,11 @@ public class SplitSdfScriptGenerator extends AbstractScriptGenerator {
 
     private Map<String, DelayMatchModule>    modules;
 
-    public static SplitSdfScriptGenerator create(String name, String root, File sdffile, File vfile, Map<String, DelayMatchModule> modules, Technology tech) {
+    public static SplitSdfScriptGenerator create(int turnid, String name, String root, File sdffile, File vfile, Map<String, DelayMatchModule> modules, Technology tech) {
         if(templates == null) {
             //@formatter:off
             templates = readTemplateCodeSnippets(dc_tcl_templatefile, new String[]{
-                "setup", "split", "final"
+                "setup", "generate", "read", "split", "final"
             });
             //@formatter:on
             if(templates == null) {
@@ -79,25 +80,29 @@ public class SplitSdfScriptGenerator extends AbstractScriptGenerator {
             }
         }
 
-        int turnid = 0;
-
-        if(!FileHelper.getInstance().copyfile(sdffile, turnid + "_" + name + in_sdf_file)) {
-            return null;
+        boolean generateSDF = false;
+        if(sdffile == null) {
+            generateSDF = true;
+        } else {
+            if(!FileHelper.getInstance().copyfile(sdffile, turnid + "_" + name + in_sdf_file)) {
+                return null;
+            }
         }
 
         if(!FileHelper.getInstance().copyfile(vfile, turnid + "_" + name + in_v_file)) {
             return null;
         }
 
-        return new SplitSdfScriptGenerator(turnid, name, root, modules, tech);
+        return new SplitSdfScriptGenerator(turnid, name, root, modules, tech, generateSDF);
     }
 
-    private SplitSdfScriptGenerator(int turnid, String name, String root, Map<String, DelayMatchModule> modules, Technology tech) {
+    private SplitSdfScriptGenerator(int turnid, String name, String root, Map<String, DelayMatchModule> modules, Technology tech, boolean generateSDF) {
         this.turnid = turnid;
         this.modules = modules;
         this.tech = tech;
         this.name = name;
         this.root = root;
+        this.generateSDF = generateSDF;
         localfolder = WorkingdirGenerator.getInstance().getWorkingdir();
     }
 
@@ -110,13 +115,17 @@ public class SplitSdfScriptGenerator extends AbstractScriptGenerator {
         String dctclfile = localfolder + turnid + "_" + name + dc_tcl_file;
         List<String> tclfilecontent = new ArrayList<>();
         tclfilecontent.addAll(generateSetupTcl());
+        if(generateSDF) {
+            tclfilecontent.addAll(generateGenerateTcl());
+        }
+        tclfilecontent.addAll(generateReadTcl());
 
         for(DelayMatchModule mod : modules.values()) {
             if(mod.getInstances().isEmpty()) {
                 continue;
             }
             DelayMatchModuleInst inst = mod.getInstances().get(0);
-            String sdffilename = turnid + "_" + name + "_" + inst.getInstName() + ".sdf";
+            String sdffilename = turnid + "_" + name + "_split_" + inst.getInstName() + ".sdf";
             mod.setSdfFileName(sdffilename);
             tclfilecontent.addAll(generateSplitTcl(inst.getInstName(), sdffilename));
         }
@@ -156,9 +165,36 @@ public class SplitSdfScriptGenerator extends AbstractScriptGenerator {
             line = line.replace("#*orig*#", turnid + "_" + name + in_v_file);
             line = line.replace("#*dc_log*#", turnid + "_" + name + dc_log_file);
             line = line.replace("#*root*#", root);
-            line = line.replace("#*root_sdf*#", turnid + "_" + name + in_sdf_file);
             line = line.replace("#*search_path*#", tech.getSynctool().getSearchPaths());
             line = line.replace("#*libraries*#", tech.getSynctool().getLibraries());
+            newlines.add(line);
+        }
+        return newlines;
+    }
+
+    private List<String> generateGenerateTcl() {
+        if(!templates.containsKey("generate")) {
+            logger.error("Generate template code not found");
+            return null;
+        }
+        List<String> newlines = new ArrayList<>();
+        for(String line : templates.get("generate")) {
+            line = line.replace("#*dc_log*#", turnid + "_" + name + dc_log_file);
+            line = line.replace("#*root_sdf*#", turnid + "_" + name + in_sdf_file);
+            newlines.add(line);
+        }
+        return newlines;
+    }
+
+    private List<String> generateReadTcl() {
+        if(!templates.containsKey("read")) {
+            logger.error("Read template code not found");
+            return null;
+        }
+        List<String> newlines = new ArrayList<>();
+        for(String line : templates.get("read")) {
+            line = line.replace("#*dc_log*#", turnid + "_" + name + dc_log_file);
+            line = line.replace("#*root_sdf*#", turnid + "_" + name + in_sdf_file);
             newlines.add(line);
         }
         return newlines;
@@ -200,7 +236,9 @@ public class SplitSdfScriptGenerator extends AbstractScriptGenerator {
 
     public Set<String> getInFiles() {
         Set<String> retVal = new HashSet<>();
-        retVal.add(localfolder + turnid + "_" + name + in_sdf_file);
+        if(!generateSDF) {
+            retVal.add(localfolder + turnid + "_" + name + in_sdf_file);
+        }
         retVal.add(localfolder + turnid + "_" + name + in_v_file);
         return retVal;
     }
