@@ -57,6 +57,7 @@ public class ValuesXmlAnnotator {
                 ValuesXmlModule valmod = valxml.getModule(mod);
                 for(MatchPath path : mod.getProfilecomp().getMatchpaths()) {
                     ValuesXmlPath valpath = valmod.getPath(path);
+                    mod.setPathFactors(path, valpath.getMinValueFactor(), valpath.getMaxValueFactor());
                     if(path.getForeach() != null) {
                         VerilogSignalGroup group = mod.getSignalGroups().get(path.getForeach());
                         if(group == null) {

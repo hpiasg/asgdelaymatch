@@ -69,10 +69,15 @@ public class DelayMatchMain {
     private static DelayMatchCommandlineOptions options;
     public static Config                        config;
 
-    public static float                         matchMinStartFactor          = 0f;
-    public static float                         matchMinIncreaseFactor       = 0f;
-    public static float                         matchMaxStartFactor          = 0f;
-    public static float                         matchMaxIncreaseFactor       = 0f;
+    public static float                         matchMinStartFactor;
+    public static float                         matchMinIncreaseFactor;
+    public static float                         matchMaxStartFactor;
+    public static float                         matchMaxIncreaseFactor;
+
+    public static float                         pathMinStartFactor           = 1.0f;
+    public static float                         pathMinIncreaseFactor        = 0.1f;
+    public static float                         pathMaxStartFactor           = 1.0f;
+    public static float                         pathMaxIncreaseFactor        = 0.1f;
 
     public static void main(String[] args) {
         int status = main2(args);

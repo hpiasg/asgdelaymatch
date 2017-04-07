@@ -61,6 +61,8 @@ public class DelayMatchModule {
     private Table<MatchPath, Integer, Float>          targetValue;
     private Table<MatchPath, Integer, Float>          minValueFactor;
     private Table<MatchPath, Integer, Float>          maxValueFactor;
+    private Map<MatchPath, Float>                     pathMinValueFactor;
+    private Map<MatchPath, Float>                     pathMaxValueFactor;
 
     public DelayMatchModule(VerilogModule module, ProfileComponent profilecomp) {
         this.module = module;
@@ -73,6 +75,9 @@ public class DelayMatchModule {
         this.targetValue = HashBasedTable.create();
         this.minValueFactor = HashBasedTable.create();
         this.maxValueFactor = HashBasedTable.create();
+
+        this.pathMinValueFactor = new HashMap<>();
+        this.pathMaxValueFactor = new HashMap<>();
     }
 
     public void setMatchVal(MatchPath path, Float val) {
@@ -118,12 +123,42 @@ public class DelayMatchModule {
         }
     }
 
+    public void setPathFactors(MatchPath path, Float min, Float max) {
+        if(min != null && max != null) {
+            pathMinValueFactor.put(path, min);
+            pathMaxValueFactor.put(path, max);
+        }
+    }
+
+    public Float[] getPathFactors(MatchPath path) {
+        return new Float[]{pathMinValueFactor.get(path), pathMaxValueFactor.get(path)};
+    }
+
     public Float[] getValFactors(MatchPath path) {
         return new Float[]{minValueFactor.get(path, NOEACHID), maxValueFactor.get(path, NOEACHID)};
     }
 
     public Float[] getValFactors(MatchPath path, Integer eachid) {
         return new Float[]{minValueFactor.get(path, eachid), maxValueFactor.get(path, eachid)};
+    }
+
+    public void increasePathFactors(MatchPath path) {
+        pathMinValueFactor.put(path, getPathMinFactor(path) + DelayMatchMain.pathMinIncreaseFactor);
+        pathMaxValueFactor.put(path, getPathMaxFactor(path) + DelayMatchMain.pathMaxIncreaseFactor);
+    }
+
+    private Float getPathMinFactor(MatchPath path) {
+        if(!pathMinValueFactor.containsKey(path)) {
+            pathMinValueFactor.put(path, DelayMatchMain.pathMinStartFactor);
+        }
+        return pathMinValueFactor.get(path);
+    }
+
+    private Float getPathMaxFactor(MatchPath path) {
+        if(!pathMaxValueFactor.containsKey(path)) {
+            pathMaxValueFactor.put(path, DelayMatchMain.pathMaxStartFactor);
+        }
+        return pathMaxValueFactor.get(path);
     }
 
     public Float getControlMinVal(MatchPath path) {
@@ -133,10 +168,11 @@ public class DelayMatchModule {
     public Float getControlMinVal(MatchPath path, Integer eachid) {
         Float val = targetValue.get(path, eachid);
         Float factor = minValueFactor.get(path, eachid);
-        if(val == null || factor == null) {
+        Float pathfactor = getPathMinFactor(path);
+        if(val == null || factor == null || pathfactor == null) {
             return null;
         }
-        return val * factor;
+        return val * factor * pathfactor;
     }
 
     public Float getControlMaxVal(MatchPath path) {
@@ -146,10 +182,11 @@ public class DelayMatchModule {
     public Float getControlMaxVal(MatchPath path, Integer eachid) {
         Float val = targetValue.get(path, eachid);
         Float factor = maxValueFactor.get(path, eachid);
-        if(val == null || factor == null) {
+        Float pathfactor = getPathMaxFactor(path);
+        if(val == null || factor == null || pathfactor == null) {
             return null;
         }
-        return val * factor;
+        return val * factor * pathfactor;
     }
 
     public boolean addValue(String id, Float value) {

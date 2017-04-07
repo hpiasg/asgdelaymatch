@@ -36,6 +36,10 @@ public class ValuesXmlPath {
     
     @XmlElement(name = "each", required = true)
     private List<ValuesXmlEach> eachs;
+    @XmlElement(name = "minValueFactor")
+    private Float minValueFactor;
+    @XmlElement(name = "maxValueFactor")
+    private Float maxValueFactor;
     //@formatter:on
 
     protected ValuesXmlPath() {
@@ -65,5 +69,21 @@ public class ValuesXmlPath {
             }
         }
         return null;
+    }
+
+    public void setMaxValueFactor(Float maxValueFactor) {
+        this.maxValueFactor = maxValueFactor;
+    }
+
+    public void setMinValueFactor(Float minValueFactor) {
+        this.minValueFactor = minValueFactor;
+    }
+
+    public Float getMaxValueFactor() {
+        return maxValueFactor;
+    }
+
+    public Float getMinValueFactor() {
+        return minValueFactor;
     }
 }

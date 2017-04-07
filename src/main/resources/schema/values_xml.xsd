@@ -19,6 +19,8 @@
   <xs:complexType name="valuesXmlPath">
     <xs:sequence>
       <xs:element name="each" type="valuesXmlEach" maxOccurs="unbounded"/>
+      <xs:element name="minValueFactor" type="xs:float" minOccurs="0"/>
+      <xs:element name="maxValueFactor" type="xs:float" minOccurs="0"/>
     </xs:sequence>
     <xs:attribute name="id" type="xs:string" use="required"/>
   </xs:complexType>

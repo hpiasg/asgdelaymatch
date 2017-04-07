@@ -149,6 +149,7 @@ public class CheckMain {
                             return false;
                         }
                         int num = group.getCount();
+                        int numfails = 0;
                         for(int eachid = 0; eachid < num; eachid++) {
                             ValuesXmlEach valeach = new ValuesXmlEach(Integer.toString(eachid));
                             valpath.addEach(valeach);
@@ -163,6 +164,12 @@ public class CheckMain {
                             mod.setMatchVal(path, eachid, vals[1]);
                             setValuesXmlEach(mod, path, eachid, valeach);
                             moduleHasMatch = true;
+                            numfails++;
+                        }
+                        if(numfails == 0) { // all eachs are matched
+                        } else if(numfails == num) { // all eachs are unmachted
+                        } else { // some are matched, others not
+                            mod.increasePathFactors(path);
                         }
                     } else {
                         ValuesXmlEach valeach = new ValuesXmlEach(ValuesXmlEach.NOEACHID);
@@ -179,6 +186,7 @@ public class CheckMain {
                         setValuesXmlEach(mod, path, valeach);
                         moduleHasMatch = true;
                     }
+                    setPathFactorXml(mod, path, valpath);
                 }
                 if(!moduleHasMatch) {
                     rmmodules.add(mod);
@@ -213,6 +221,12 @@ public class CheckMain {
         Float[] factors = mod.getValFactors(path);
         valeach.setMinValueFactor(factors[0]);
         valeach.setMaxValueFactor(factors[1]);
+    }
+
+    private void setPathFactorXml(DelayMatchModule mod, MatchPath path, ValuesXmlPath valpath) {
+        Float[] factors = mod.getPathFactors(path);
+        valpath.setMinValueFactor(factors[0]);
+        valpath.setMaxValueFactor(factors[1]);
     }
 
     private void setValuesXmlEach(DelayMatchModule mod, MatchPath path, Integer eachid, ValuesXmlEach valeach) {
