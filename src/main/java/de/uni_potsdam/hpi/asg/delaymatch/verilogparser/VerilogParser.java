@@ -73,6 +73,10 @@ public class VerilogParser {
 
         while((line = linequeue.poll()) != null) {
             do {
+                if(line.startsWith("`")) {
+                    line = "";
+                }
+
                 if(line.contains("//")) {
                     line = line.substring(0, line.indexOf("//"));
                 }
@@ -208,8 +212,9 @@ public class VerilogParser {
                             case output:
                                 switch(submoduleSignal.getDirection()) {
                                     case input:
-                                        logger.error("fail out inp");
-                                        return false;
+                                        logger.warn("output signal '" + moduleSignal.getName() + "' of component '" + module.getModulename() + "' used as input for subcomponent '" + submodule.getModulename() + "'");
+                                        con.addReader(submoduleinst, submoduleSignal);
+                                        break; //return false;
                                     case output:
                                         con.setWriter(submoduleinst, submoduleSignal);
                                         break;
