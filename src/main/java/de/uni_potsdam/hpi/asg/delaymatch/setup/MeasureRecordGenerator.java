@@ -88,10 +88,14 @@ public class MeasureRecordGenerator {
                         }
                         int num = group.getCount();
                         for(int eachid = 0; eachid < num; eachid++) {
-                            generateMeasures(future, past, check, mod, path, eachid);
+                            if(!generateMeasures(future, past, check, mod, path, eachid)) {
+                                return false;
+                            }
                         }
                     } else {
-                        generateMeasures(future, past, check, mod, path, null);
+                        if(!generateMeasures(future, past, check, mod, path, null)) {
+                            return false;
+                        }
                     }
 
                 }
@@ -130,7 +134,11 @@ public class MeasureRecordGenerator {
         List<String> startSigNames = new ArrayList<>();
         Set<VerilogSignal> startsigs = new HashSet<>();
         for(Port p : path.getMatch().getFrom()) {
-            startsigs.addAll(p.getCorrespondingSignals(dminst.getDMmodule().getVerilogModule()));
+            Set<VerilogSignal> sigs = p.getCorrespondingSignals(dminst.getDMmodule().getVerilogModule());
+            if(sigs == null) {
+                return false;
+            }
+            startsigs.addAll(sigs);
         }
         for(VerilogSignal sig : startsigs) {
             startSigNames.add(sig.getName());
@@ -140,7 +148,11 @@ public class MeasureRecordGenerator {
         List<String> endSigNames = new ArrayList<>();
         Set<VerilogSignal> endSigs = new HashSet<>();
         for(Port p : path.getMatch().getTo()) {
-            endSigs.addAll(p.getCorrespondingSignals(dminst.getDMmodule().getVerilogModule()));
+            Set<VerilogSignal> sigs = p.getCorrespondingSignals(dminst.getDMmodule().getVerilogModule());
+            if(sigs == null) {
+                return false;
+            }
+            endSigs.addAll(sigs);
         }
         for(VerilogSignal sig : endSigs) {
             endSigNames.add(sig.getName());
