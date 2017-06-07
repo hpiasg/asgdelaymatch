@@ -49,7 +49,7 @@ public class DelayMatchCommandlineOptions extends CommandlineOptions {
     
     @Option(name = "-p", metaVar = "<profile>", usage = "Profile file", required = true)
     private File profilefile = null;
-    @Option(name = "-out", metaVar = "<outfile>", usage = "Outfile")
+    @Option(name = "-out", metaVar = "<outfile>", usage = "Verilog outfile")
     private File outfile = null;
     @Option(name = "-lib", metaVar = "<technologyfile>", usage = "technology description for implementation")
     private File technology;
@@ -61,10 +61,16 @@ public class DelayMatchCommandlineOptions extends CommandlineOptions {
     
     @Option(name = "-verifyOnly", usage = "Do not delaymatch. Just check timing conditions. Default off")
     private boolean verifyOnly = false;
-    @Option(name = "-sdf", usage = "SDF file for timing verification (only used if -verifyOnly is activated)")
-    private File sdfFile = null;
-    @Option(name = "-sdc", usage = "SDC output file")
-    private File sdcFile = null;
+    
+    @Option(name = "-sdfIn", usage = "SDF file for the verilog input file")
+    private File sdfInFile = null;
+    @Option(name = "-sdfOut", usage = "SDF file for the verilog output file")
+    private File sdfOutFile = null;
+    @Option(name = "-sdcIn", usage = "SDC file for the verilog input file")
+    private File sdcInFile = null;
+    @Option(name = "-sdcOut", usage = "SDC file for the verilog output file")
+    private File sdcOutFile = null;
+    
     @Option(name = "-valOut", usage = "Delaymatch values output file")
     private File valOut = null;
     @Option(name = "-valIn", usage = "Delaymatch values input file")
@@ -130,19 +136,27 @@ public class DelayMatchCommandlineOptions extends CommandlineOptions {
         return verifyOnly;
     }
 
-    public File getSdfFile() {
-        return sdfFile;
-    }
-
-    public File getSdcFile() {
-        return sdcFile;
-    }
-
     public File getValOut() {
         return valOut;
     }
 
     public File getValIn() {
         return valIn;
+    }
+
+    public File getSdcInFile() {
+        return sdcInFile;
+    }
+
+    public File getSdcOutFile() {
+        return sdcOutFile;
+    }
+
+    public File getSdfInFile() {
+        return sdfInFile;
+    }
+
+    public File getSdfOutFile() {
+        return sdfOutFile;
     }
 }

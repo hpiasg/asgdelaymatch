@@ -122,7 +122,7 @@ public class DelayMatchMain {
      *         2: no statement
      */
     private static int execute() {
-        if(options.getSdfFile() != null) {
+        if(options.getSdfInFile() != null) {
             matchMinStartFactor = sdfMatchMinStartFactor;
             matchMinIncreaseFactor = sdfMatchMinIncreaseFactor;
             matchMaxStartFactor = sdfMatchMaxStartFactor;
@@ -132,6 +132,11 @@ public class DelayMatchMain {
             matchMinIncreaseFactor = normalMatchMinIncreaseFactor;
             matchMaxStartFactor = normalMatchMaxStartFactor;
             matchMaxIncreaseFactor = normalMatchMaxIncreaseFactor;
+        }
+
+        if(options.getSdcInFile() != null) {
+            //TODO: implement SDC input
+            logger.warn("SDC input file processing not yet implemented. Option is ignored");
         }
 
         Technology tech = ReadTechnologyHelper.read(options.getTechnology(), config.defaultTech);
@@ -190,7 +195,7 @@ public class DelayMatchMain {
         CheckMain cmain = new CheckMain(modules, rec);
         MatchMain mamain = new MatchMain(name, rinfo, modules, tech);
 
-        File sdfFile = options.getSdfFile();
+        File sdfFile = options.getSdfInFile();
 
         int turnid = 1;
         boolean verifyOnlyBreak = false;
@@ -228,10 +233,10 @@ public class DelayMatchMain {
                 return -1;
             }
 
-            verilogFile = new File(WorkingdirGenerator.getInstance().getWorkingdir(), mamain.getMatchedfilename());
-            sdfFile = new File(WorkingdirGenerator.getInstance().getWorkingdir(), mamain.getMatchedSdfName());
+            verilogFile = new File(WorkingdirGenerator.getInstance().getWorkingDir(), mamain.getMatchedfilename());
+            sdfFile = new File(WorkingdirGenerator.getInstance().getWorkingDir(), mamain.getMatchedSdfName());
 
-            if(options.getSdfFile() != null) {
+            if(options.getSdfInFile() != null) {
                 sdfBreak = true;
                 break;
             }
@@ -260,24 +265,24 @@ public class DelayMatchMain {
             }
         }
 
-        if(!generateOutfiles(verilogFile, cmain)) {
+        if(!generateOutfiles(verilogFile, cmain, sdfFile)) {
             return -1;
         }
 
         return retVal;
     }
 
-    private static boolean generateOutfiles(File verilogFile, CheckMain cmain) {
+    private static boolean generateOutfiles(File verilogFile, CheckMain cmain, File sdfFile) {
         if(options.getOutfile() != null) {
             if(!FileHelper.getInstance().copyfile(verilogFile, options.getOutfile())) {
                 return false;
             }
         }
 
-        if(options.getSdcFile() != null) {
+        if(options.getSdcOutFile() != null) {
             File sdc = cmain.getSdcFile();
             if(sdc.exists()) {
-                if(!FileHelper.getInstance().copyfile(sdc, options.getSdcFile())) {
+                if(!FileHelper.getInstance().copyfile(sdc, options.getSdcOutFile())) {
                     return false;
                 }
             } else {
@@ -288,6 +293,20 @@ public class DelayMatchMain {
         if(options.getValOut() != null) {
             if(!cmain.writeOutVals(options.getValOut())) {
                 return false;
+            }
+        }
+
+        if(options.getSdfOutFile() != null) {
+            if(options.getSdfInFile() == null) {
+                if(sdfFile.exists()) {
+                    if(!FileHelper.getInstance().copyfile(sdfFile, options.getSdfOutFile())) {
+                        return false;
+                    }
+                } else {
+                    logger.warn("Generating SDF file failed");
+                }
+            } else {
+                logger.warn("Because there was an SDF infile, the SDF outfile is not generated. Please run the process (e.g. layout) in which the sdf infile was generated again, supplying the new verilog outfile");
             }
         }
         return true;
