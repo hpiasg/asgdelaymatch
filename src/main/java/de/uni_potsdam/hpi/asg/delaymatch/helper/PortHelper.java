@@ -52,9 +52,10 @@ public class PortHelper {
                 type = "a";
                 break;
             case data:
-                VerilogSignal var = vars.get(p.getName() + "_" + id + "d");
+                String varName = p.getName() + "_" + id + "d";
+                VerilogSignal var = vars.get(varName);
                 if(var == null) {
-                    logger.error("Variable not found");
+                    logger.warn("Variable " + varName + " not found");
                     return null;
                 }
                 if(var.getWidth() == 1) {

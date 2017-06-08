@@ -78,6 +78,7 @@ public class MeasureRecordGenerator {
 
     public boolean generate(boolean future, boolean past, boolean check) {
         for(DelayMatchModule mod : modules.values()) {
+            boolean moduleProblems = false;
             if(mod.getProfilecomp() != null) {
                 for(MatchPath path : mod.getProfilecomp().getMatchpaths()) {
                     if(path.getForeach() != null) {
@@ -89,18 +90,23 @@ public class MeasureRecordGenerator {
                         int num = group.getCount();
                         for(int eachid = 0; eachid < num; eachid++) {
                             if(!generateMeasures(future, past, check, mod, path, eachid)) {
-                                return false;
+                                moduleProblems = true;
                             }
                         }
                     } else {
                         if(!generateMeasures(future, past, check, mod, path, null)) {
-                            return false;
+                            moduleProblems = true;
                         }
                     }
 
                 }
             }
+            if(moduleProblems) {
+                logger.warn("Omitting module " + mod.getModuleName() + " because it created warnings");
+                mod.omitt();
+            }
         }
+
         return true;
     }
 
@@ -109,19 +115,19 @@ public class MeasureRecordGenerator {
         for(DelayMatchModuleInst inst : mod.getInstances()) {
             if(future) {
                 if(!generateFutureRecords(inst, path, eachid)) {
-                    logger.error("Generate future subtraction for " + mod.getModuleName() + "(" + inst.getInstName() + ") failed");
+                    logger.warn("Generate future subtraction for " + mod.getModuleName() + "(" + inst.getInstName() + ") failed");
                     return false;
                 }
             }
             if(past) {
                 if(!generatePastRecords(inst, path, eachid)) {
-                    logger.error("Generate past subtraction for " + mod.getModuleName() + "(" + inst.getInstName() + ") failed");
+                    logger.warn("Generate past subtraction for " + mod.getModuleName() + "(" + inst.getInstName() + ") failed");
                     return false;
                 }
             }
             if(check) {
                 if(!generateCheckRecords(inst, path, eachid)) {
-                    logger.error("Generate check subtraction for " + mod.getModuleName() + "(" + inst.getInstName() + ") failed");
+                    logger.warn("Generate check subtraction for " + mod.getModuleName() + "(" + inst.getInstName() + ") failed");
                     return false;
                 }
             }

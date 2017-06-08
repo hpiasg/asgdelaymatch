@@ -72,7 +72,7 @@ public class Port {
         Set<VerilogSignal> retVal = new HashSet<>();
         VerilogSignalGroup group = mod.getSignalGroups().get(name);
         if(group == null) {
-            logger.error("Group " + name + " in module " + mod.getModulename() + " not found. Maybe a wrong profile file was used?");
+            logger.warn("Group " + name + " in module " + mod.getModulename() + " not found. Maybe a wrong profile file was used?");
             return null;
         }
 
@@ -81,7 +81,7 @@ public class Port {
                 String sigName = name + "_" + i + typeString();
                 VerilogSignal sig = mod.getSignal(sigName);
                 if(sig == null) {
-                    logger.error("Signal " + sigName + " in module " + mod.getModulename() + " not found. Maybe a wrong profile file was used?");
+                    logger.warn("Signal " + sigName + " in module " + mod.getModulename() + " not found. Maybe a wrong profile file was used?");
                     return null;
                 }
                 retVal.add(sig);
@@ -90,7 +90,7 @@ public class Port {
             String sigName = name + "_" + id.getId() + typeString();
             VerilogSignal sig = mod.getSignal(sigName);
             if(sig == null) {
-                logger.error("Signal " + sigName + " in module " + mod.getModulename() + " not found. Maybe a wrong profile file was used?");
+                logger.warn("Signal " + sigName + " in module " + mod.getModulename() + " not found. Maybe a wrong profile file was used?");
                 return null;
             }
             retVal.add(sig);

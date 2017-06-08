@@ -232,6 +232,10 @@ public class DelayMatchModule {
         return Collections.unmodifiableMap(measureRecords);
     }
 
+    public void omitt() {
+        measureRecords.clear();
+    }
+
     public String getModuleName() {
         return module.getModulename();
     }
