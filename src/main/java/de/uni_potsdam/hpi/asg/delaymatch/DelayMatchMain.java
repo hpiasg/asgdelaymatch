@@ -207,6 +207,7 @@ public class DelayMatchMain {
             if(!ssdfmain.split(turnid, sdfFile, verilogFile, vparser.getRootModule().getModulename())) {
                 return -1;
             }
+            sdfFile = ssdfmain.getOutSdfFile();
 
             logger.info("Measure phase #" + turnid);
             if(!memain.measure(turnid, verilogFile)) {

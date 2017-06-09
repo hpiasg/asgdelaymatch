@@ -242,4 +242,8 @@ public class SplitSdfScriptGenerator extends AbstractScriptGenerator {
         retVal.add(localfolder + turnid + "_" + name + in_v_file);
         return retVal;
     }
+
+    public File getSdfFile() {
+        return new File(localfolder, turnid + "_" + name + in_sdf_file);
+    }
 }

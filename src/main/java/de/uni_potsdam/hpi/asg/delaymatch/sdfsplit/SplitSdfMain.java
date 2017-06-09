@@ -36,6 +36,7 @@ public class SplitSdfMain {
     private Map<String, DelayMatchModule> modules;
     private Technology                    tech;
     private String                        name;
+    private File                          outSdfFile;
 
     public SplitSdfMain(String name, RemoteInformation rinfo, Map<String, DelayMatchModule> modules, Technology tech) {
         this.name = name;
@@ -61,6 +62,8 @@ public class SplitSdfMain {
             return false;
         }
 
+        outSdfFile = gen.getSdfFile();
+
         return true;
     }
 
@@ -74,5 +77,9 @@ public class SplitSdfMain {
         }
 
         return true;
+    }
+
+    public File getOutSdfFile() {
+        return outSdfFile;
     }
 }
