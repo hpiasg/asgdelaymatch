@@ -69,11 +69,11 @@ public class CheckMain {
     private File                                        sdcfile;
     private Map<DelayMatchModule, ValuesXmlModule>      valmods;
 
-    public CheckMain(Map<String, DelayMatchModule> modules, MeasureRecordGenerator rec) {
+    public CheckMain(Map<String, DelayMatchModule> modules, MeasureRecordGenerator rec, Constraints constr) {
         this.modules = modules;
         this.transtable = rec.getTransTable();
         this.allok = false;
-        this.constr = new Constraints(modules);
+        this.constr = constr;
         this.sdcfile = new File(WorkingdirGenerator.getInstance().getWorkingdir(), "sdc.sdc");
         this.valmods = new HashMap<>();
     }

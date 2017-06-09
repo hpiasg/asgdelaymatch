@@ -40,6 +40,7 @@ public class Constraints {
 
     private Map<String, DelayMatchModule>       modules;
     private Map<DelayMatchModule, List<String>> constraints;
+    private List<String>                        prevLines;
 
     public Constraints(Map<String, DelayMatchModule> modules) {
         this.modules = modules;
@@ -49,6 +50,7 @@ public class Constraints {
                 constraints.put(mod, new ArrayList<String>());
             }
         }
+        prevLines = new ArrayList<>();
     }
 
     public boolean generate(File file) {
@@ -102,10 +104,23 @@ public class Constraints {
     private boolean writeOut(File file) {
         List<String> content = new ArrayList<>();
         content.add("set sdc_version 1.8");
-        content.add("set_units -time ns -resistance kOhm -capacitance pF -voltage V -current mA");
+//        content.add("set_units -time ns -resistance kOhm -capacitance pF -voltage V -current mA");
+        // TODO check for contradictions prev vs new
+        content.addAll(prevLines);
         for(List<String> lines : constraints.values()) {
             content.addAll(lines);
         }
         return FileHelper.getInstance().writeFile(file, content);
+    }
+
+    public boolean readPreviousSdc(File sdcInFile) {
+        List<String> lines = FileHelper.getInstance().readFile(sdcInFile);
+        for(String line : lines) {
+            if(line.contains("set sdc_version")) {
+                continue;
+            }
+            prevLines.add(line);
+        }
+        return true;
     }
 }

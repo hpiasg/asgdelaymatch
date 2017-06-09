@@ -35,6 +35,7 @@ import de.uni_potsdam.hpi.asg.common.remote.RemoteInformation;
 import de.uni_potsdam.hpi.asg.common.technology.ReadTechnologyHelper;
 import de.uni_potsdam.hpi.asg.common.technology.Technology;
 import de.uni_potsdam.hpi.asg.delaymatch.check.CheckMain;
+import de.uni_potsdam.hpi.asg.delaymatch.check.Constraints;
 import de.uni_potsdam.hpi.asg.delaymatch.check.values.ValuesXmlAnnotator;
 import de.uni_potsdam.hpi.asg.delaymatch.io.Config;
 import de.uni_potsdam.hpi.asg.delaymatch.io.ConfigFile;
@@ -134,11 +135,6 @@ public class DelayMatchMain {
             matchMaxIncreaseFactor = normalMatchMaxIncreaseFactor;
         }
 
-        if(options.getSdcInFile() != null) {
-            //TODO: implement SDC input
-            logger.warn("SDC input file processing not yet implemented. Option is ignored");
-        }
-
         Technology tech = ReadTechnologyHelper.read(options.getTechnology(), config.defaultTech);
         if(tech == null) {
             logger.error("No technology found");
@@ -190,9 +186,16 @@ public class DelayMatchMain {
             }
         }
 
+        Constraints constraints = new Constraints(modules);
+        if(options.getSdcInFile() != null) {
+            if(!constraints.readPreviousSdc(options.getSdcInFile())) {
+                logger.warn("Failed to read sdc in file");
+            }
+        }
+
         SplitSdfMain ssdfmain = new SplitSdfMain(name, rinfo, modules, tech);
         MeasureMain memain = new MeasureMain(name, rinfo, modules, tech, rec);
-        CheckMain cmain = new CheckMain(modules, rec);
+        CheckMain cmain = new CheckMain(modules, rec, constraints);
         MatchMain mamain = new MatchMain(name, rinfo, modules, tech);
 
         File sdfFile = options.getSdfInFile();
