@@ -19,6 +19,7 @@ package de.uni_potsdam.hpi.asg.delaymatch.model;
  * along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -52,8 +53,8 @@ public class DelayMatchModule {
     private VerilogModule                             module;
     private ProfileComponent                          profilecomp;
     private List<DelayMatchModuleInst>                instances;
-    private String                                    measureOutputfile;
-    private String                                    sdfFileName;
+    private File                                      measureOutputFile;
+    private File                                      sdfFile;
 
     private BiMap<String, MeasureRecord>              measureRecords;
     private Map<MeasureRecord, Set<DelayMatchModule>> requesters;
@@ -252,14 +253,6 @@ public class DelayMatchModule {
         return module.getSignalGroups();
     }
 
-    public void setMeasureOutputfile(String measureOutputfile) {
-        this.measureOutputfile = measureOutputfile;
-    }
-
-    public String getMeasureOutputfile() {
-        return measureOutputfile;
-    }
-
     public List<DelayMatchModuleInst> getInstances() {
         return instances;
     }
@@ -272,11 +265,19 @@ public class DelayMatchModule {
         return module;
     }
 
-    public void setSdfFileName(String sdfFileName) {
-        this.sdfFileName = sdfFileName;
+    public File getMeasureOutputFile() {
+        return measureOutputFile;
     }
 
-    public String getSdfFileName() {
-        return sdfFileName;
+    public void setMeasureOutputFile(File measureOutputFile) {
+        this.measureOutputFile = measureOutputFile;
+    }
+
+    public File getSdfFile() {
+        return sdfFile;
+    }
+
+    public void setSdfFile(File sdfFile) {
+        this.sdfFile = sdfFile;
     }
 }

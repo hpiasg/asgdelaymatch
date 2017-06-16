@@ -41,10 +41,10 @@ import de.uni_potsdam.hpi.asg.delaymatch.io.Config;
 import de.uni_potsdam.hpi.asg.delaymatch.io.ConfigFile;
 import de.uni_potsdam.hpi.asg.delaymatch.io.RemoteInvocation;
 import de.uni_potsdam.hpi.asg.delaymatch.match.MatchMain;
-import de.uni_potsdam.hpi.asg.delaymatch.measure.MeasureMain;
 import de.uni_potsdam.hpi.asg.delaymatch.model.DelayMatchModule;
 import de.uni_potsdam.hpi.asg.delaymatch.profile.ProfileComponents;
-import de.uni_potsdam.hpi.asg.delaymatch.sdfsplit.SplitSdfMain;
+import de.uni_potsdam.hpi.asg.delaymatch.remote.MeasureMain;
+import de.uni_potsdam.hpi.asg.delaymatch.remote.SdfSplitMain;
 import de.uni_potsdam.hpi.asg.delaymatch.setup.EligibleModuleFinder;
 import de.uni_potsdam.hpi.asg.delaymatch.setup.MeasureRecordGenerator;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.VerilogParser;
@@ -193,13 +193,14 @@ public class DelayMatchMain {
             }
         }
 
-        SplitSdfMain ssdfmain = new SplitSdfMain(name, rinfo, modules, tech);
-        MeasureMain memain = new MeasureMain(name, rinfo, modules, tech, rec);
+        SdfSplitMain ssdfmain = new SdfSplitMain(name, rinfo, modules, tech);
+        MeasureMain memain = new MeasureMain(name, rinfo, modules, tech);
         CheckMain cmain = new CheckMain(modules, rec, constraints);
         MatchMain mamain = new MatchMain(name, rinfo, modules, tech);
 
         File sdfFile = options.getSdfInFile();
 
+        long remoteTime = 0;
         int turnid = 1;
         boolean verifyOnlyBreak = false;
         boolean allOkBreak = false;
@@ -210,12 +211,14 @@ public class DelayMatchMain {
             if(!ssdfmain.split(turnid, sdfFile, verilogFile, vparser.getRootModule().getModulename())) {
                 return -1;
             }
-            sdfFile = ssdfmain.getOutSdfFile();
+            sdfFile = ssdfmain.getLastSdfFile();
+            remoteTime += ssdfmain.getLastTime();
 
             logger.info("Measure phase #" + turnid);
             if(!memain.measure(turnid, verilogFile)) {
                 return -1;
             }
+            remoteTime += memain.getLastTime();
 
             logger.info("Check phase #" + turnid);
             if(!cmain.check()) {
