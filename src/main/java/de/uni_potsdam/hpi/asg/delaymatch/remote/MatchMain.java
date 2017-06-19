@@ -1,7 +1,7 @@
 package de.uni_potsdam.hpi.asg.delaymatch.remote;
 
 /*
- * Copyright (C) 2017 Norman Kluge
+ * Copyright (C) 2016 - 2017 Norman Kluge
  * 
  * This file is part of ASGdelaymatch.
  * 
@@ -26,27 +26,26 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import de.uni_potsdam.hpi.asg.common.iohelper.FileHelper;
 import de.uni_potsdam.hpi.asg.common.iohelper.WorkingdirGenerator;
 import de.uni_potsdam.hpi.asg.common.remote.RemoteInformation;
 import de.uni_potsdam.hpi.asg.common.technology.Technology;
 import de.uni_potsdam.hpi.asg.delaymatch.model.DelayMatchModule;
-import de.uni_potsdam.hpi.asg.delaymatch.model.DelayMatchModuleInst;
 
-public class SdfSplitMain {
+public class MatchMain {
     private static final Logger           logger = LogManager.getLogger();
 
+    private String                        name;
     private RemoteInformation             rinfo;
     private Map<String, DelayMatchModule> modules;
     private Technology                    tech;
-    private String                        name;
     private File                          workingDir;
     private String                        rootModule;
 
+    private File                          lastVFile;
     private File                          lastSdfFile;
     private long                          lastTime;
 
-    public SdfSplitMain(String name, RemoteInformation rinfo, Map<String, DelayMatchModule> modules, Technology tech, String rootModule) {
+    public MatchMain(String name, RemoteInformation rinfo, Map<String, DelayMatchModule> modules, Technology tech, String rootModule) {
         this.name = name;
         this.rinfo = rinfo;
         this.modules = modules;
@@ -55,57 +54,50 @@ public class SdfSplitMain {
         this.rootModule = rootModule;
     }
 
-    public boolean split(int turnid, File sdfFile, File vFile) {
-        File dcShFile = new File(workingDir, turnid + "_" + name + "_split.sh");
-        File dcTclFile = new File(workingDir, turnid + "_" + name + "_split.tcl");
-        File logFile = new File(workingDir, turnid + "_" + name + "_split.log");
+    public boolean match(int turnid, File vInFile) {
+        File dcShFile = new File(workingDir, turnid + "_" + name + "_match.sh");
+        File dcTclFile = new File(workingDir, turnid + "_" + name + "_match.tcl");
+        File logFile = new File(workingDir, turnid + "_" + name + "_match.log");
+        File vOutFile = new File(workingDir, turnid + "_" + name + "_match.v");
+        File sdfOutFile = new File(workingDir, turnid + "_" + name + "_match.sdf");
 
-        File sdfInFile = new File(workingDir, turnid + "_" + name + "_split_in.sdf");
-        boolean generateSdf = false;
-        if(sdfFile == null) {
-            generateSdf = true;
-        } else {
-            if(!FileHelper.getInstance().copyfile(sdfFile, sdfInFile)) {
-                return false;
-            }
-        }
-
-        Map<DelayMatchModuleInst, File> subSdfFiles = new HashMap<>();
+        Map<DelayMatchModule, File> subLogFiles = new HashMap<>();
         for(DelayMatchModule mod : modules.values()) {
-            if(mod.getInstances().isEmpty()) {
-                continue;
+            if(mod.getProfilecomp() != null) {
+                subLogFiles.put(mod, new File(workingDir, turnid + "_" + name + "_" + mod.getModuleName() + "_match.log"));
             }
-            DelayMatchModuleInst inst = mod.getInstances().get(0);
-            File file = new File(workingDir, turnid + "_" + name + "_split_" + inst.getInstName() + ".sdf");
-            subSdfFiles.put(inst, file);
-            mod.setSdfFile(file);
         }
 
-        SdfSplitScript script = new SdfSplitScript(rinfo, "split", workingDir, tech);
-        if(!script.generate(dcShFile, dcTclFile, vFile, generateSdf, sdfInFile, subSdfFiles, logFile, rootModule)) {
-            logger.error("Generating Sdf split script failed");
+        MatchScript script = new MatchScript(rinfo, "match", workingDir, tech, modules);
+        if(!script.generate(dcShFile, dcTclFile, vInFile, vOutFile, sdfOutFile, logFile, subLogFiles, rootModule)) {
+            logger.error("Generating Match script failed");
             return false;
         }
         if(!script.execute()) {
-            logger.error("Execute Sdf split script failed");
+            logger.error("Execute Match script failed");
             return false;
         }
         if(!script.getResult()) {
-            logger.error("Execute Sdf split script failed. Error: " + script.getResultErrorMsg());
+            logger.error("Execute Match script failed. Error: " + script.getResultErrorMsg());
             return false;
         }
 
-        lastSdfFile = sdfInFile;
         lastTime = script.getTime();
+        lastVFile = vOutFile;
+        lastSdfFile = sdfOutFile;
 
         return true;
+    }
+
+    public long getLastTime() {
+        return lastTime;
     }
 
     public File getLastSdfFile() {
         return lastSdfFile;
     }
 
-    public long getLastTime() {
-        return lastTime;
+    public File getLastVFile() {
+        return lastVFile;
     }
 }

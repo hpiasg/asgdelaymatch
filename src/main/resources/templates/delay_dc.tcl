@@ -27,6 +27,10 @@ if {$rvs == 0} {
 }
 #+dc_tcl_elab_end+#
 
+#+dc_tcl_write_verilog_begin+#
+write -hierarchy -format verilog -output #*dc_tcl_vout*#
+#+dc_tcl_write_verilog_end+#
+
 #+dc_tcl_write_sdf_begin+#
 write_sdf -significant_digits 10 #*dc_tcl_sdfout*#
 #+dc_tcl_write_sdf_end+#
@@ -50,7 +54,7 @@ redirect #*dc_tcl_sub_log*# {
 	set rvs [elaborate #*dc_tcl_sub_module*# -architecture verilog -library DEFAULT]
 }
 if {$rvs == 0} {
-	echo #*dc_tcl_exitcode*#
+	exit #*dc_tcl_exitcode*#
 }
 #+dc_tcl_elab_sub__end+#
 
@@ -59,202 +63,210 @@ redirect #*dc_tcl_sub_log*# {
 	set rvs [read_sdf #*dc_tcl_sub_sdffile*#]
 }
 if {$rvs == 0} {
-	echo #*dc_tcl_exitcode*#
+	exit #*dc_tcl_exitcode*#
 }
 #+dc_tcl_read_sdf_sub_end+#
 
-#+dc_tcl_setdelay_sub_begin+#
+#+dc_tcl_setdelay_min_sub_begin+#
 redirect -append #*dc_tcl_sub_log*# {
 	set rvs [set_min_delay -from [get_ports { #*dc_tcl_sub_from*# }] -to [get_ports { #*dc_tcl_sub_to*# }] #*dc_tcl_sub_time_min*#]
 }
 if {$rvs == 0} {
-	echo #*dc_tcl_exitcode*#
+	exit #*dc_tcl_exitcode*#
 }
+#+dc_tcl_setdelay_min_sub_end+#
+
+#+dc_tcl_setdelay_max_sub_begin+#
 redirect -append #*dc_tcl_sub_log*# {
 	set rvs [set_max_delay -from [get_ports { #*dc_tcl_sub_from*# }] -to [get_ports { #*dc_tcl_sub_to*# }] #*dc_tcl_sub_time_max*#]
 }
 if {$rvs == 0} {
-	echo #*dc_tcl_exitcode*#
+	exit #*dc_tcl_exitcode*#
 }
-#+dc_tcl_setdelay_sub_end+#
+#+dc_tcl_setdelay_max_sub_end+#
 
-#+dc_tcl_settouch_sub_begin+#
+#+dc_tcl_donttouch_sub_begin+#
 redirect -append #*dc_tcl_sub_log*# {
 	set rvs [set_dont_touch_network [get_ports { #*dc_tcl_sub_donttouch*# }]]
 }
 if {$rvs == 0} {
-	echo #*dc_tcl_exitcode*#
+	exit #*dc_tcl_exitcode*#
 }
-#+dc_tcl_settouch_sub_end+#
+#+dc_tcl_donttouch_sub_end+#
 
 #+dc_tcl_compile_sub_begin+#
 redirect -append #*dc_tcl_sub_log*# {
 	set rvs [compile]
 }
 if {$rvs == 0} {
-	echo #*dc_tcl_exitcode*#
+	exit #*dc_tcl_exitcode*#
 }
 #+dc_tcl_compile_sub_end+#
 
+#+dc_tcl_echo_sub_begin+#
+redirect -append #*dc_tcl_sub_log*# {
+    echo ASGdm\;#*dc_tcl_sub_id*#\;
+}
+#+dc_tcl_echo_sub_end+#
 
-#+dc_tcl_measuremin_rise_rise_begin+#
+#+dc_tcl_measure_min_rise_rise_begin+#
 redirect -append #*dc_tcl_sub_log*# {
     set rvs [report_timing -rise_from { #*dc_tcl_sub_from*# } -rise_to { #*dc_tcl_sub_to*# } -path full -delay min -nworst 1 -max_paths 1 -significant_digits 5 -sort_by group]
 }
 if {$rvs == 0} {
     exit #*dc_tcl_exitcode*#
 }
-#+dc_tcl_measuremin_rise_rise_end+#
+#+dc_tcl_measure_min_rise_rise_end+#
 
-#+dc_tcl_measuremin_rise_fall_begin+#
+#+dc_tcl_measure_min_rise_fall_begin+#
 redirect -append #*dc_tcl_sub_log*# {
     set rvs [report_timing -rise_from { #*dc_tcl_sub_from*# } -fall_to { #*dc_tcl_sub_to*# } -path full -delay min -nworst 1 -max_paths 1 -significant_digits 5 -sort_by group]
 }
 if {$rvs == 0} {
     exit #*dc_tcl_exitcode*#
 }
-#+dc_tcl_measuremin_rise_fall_end+#
+#+dc_tcl_measure_min_rise_fall_end+#
 
-#+dc_tcl_measuremin_rise_both_begin+#
+#+dc_tcl_measure_min_rise_both_begin+#
 redirect -append #*dc_tcl_sub_log*# {
     set rvs [report_timing -rise_from { #*dc_tcl_sub_from*# } -to { #*dc_tcl_sub_to*# } -path full -delay min -nworst 1 -max_paths 1 -significant_digits 5 -sort_by group]
 }
 if {$rvs == 0} {
     exit #*dc_tcl_exitcode*#
 }
-#+dc_tcl_measuremin_rise_both_end+#
+#+dc_tcl_measure_min_rise_both_end+#
 
-#+dc_tcl_measuremin_fall_rise_begin+#
+#+dc_tcl_measure_min_fall_rise_begin+#
 redirect -append #*dc_tcl_sub_log*# {
     set rvs [report_timing -fall_from { #*dc_tcl_sub_from*# } -rise_to { #*dc_tcl_sub_to*# } -path full -delay min -nworst 1 -max_paths 1 -significant_digits 5 -sort_by group]
 }
 if {$rvs == 0} {
     exit #*dc_tcl_exitcode*#
 }
-#+dc_tcl_measuremin_fall_rise_end+#
+#+dc_tcl_measure_min_fall_rise_end+#
 
-#+dc_tcl_measuremin_fall_fall_begin+#
+#+dc_tcl_measure_min_fall_fall_begin+#
 redirect -append #*dc_tcl_sub_log*# {
     set rvs [report_timing -fall_from { #*dc_tcl_sub_from*# } -fall_to { #*dc_tcl_sub_to*# } -path full -delay min -nworst 1 -max_paths 1 -significant_digits 5 -sort_by group]
 }
 if {$rvs == 0} {
     exit #*dc_tcl_exitcode*#
 }
-#+dc_tcl_measuremin_fall_fall_end+#
+#+dc_tcl_measure_min_fall_fall_end+#
 
-#+dc_tcl_measuremin_fall_both_begin+#
+#+dc_tcl_measure_min_fall_both_begin+#
 redirect -append #*dc_tcl_sub_log*# {
     set rvs [report_timing -fall_from { #*dc_tcl_sub_from*# } -to { #*dc_tcl_sub_to*# } -path full -delay min -nworst 1 -max_paths 1 -significant_digits 5 -sort_by group]
 }
 if {$rvs == 0} {
     exit #*dc_tcl_exitcode*#
 }
-#+dc_tcl_measuremin_fall_both_end+#
+#+dc_tcl_measure_min_fall_both_end+#
 
-#+dc_tcl_measuremin_both_rise_begin+#
+#+dc_tcl_measure_min_both_rise_begin+#
 redirect -append #*dc_tcl_sub_log*# {
     set rvs [report_timing -from { #*dc_tcl_sub_from*# } -rise_to { #*dc_tcl_sub_to*# } -path full -delay min -nworst 1 -max_paths 1 -significant_digits 5 -sort_by group]
 }
 if {$rvs == 0} {
     exit #*dc_tcl_exitcode*#
 }
-#+dc_tcl_measuremin_both_rise_end+#
+#+dc_tcl_measure_min_both_rise_end+#
 
-#+dc_tcl_measuremin_both_fall_begin+#
+#+dc_tcl_measure_min_both_fall_begin+#
 redirect -append #*dc_tcl_sub_log*# {
     set rvs [report_timing -from { #*dc_tcl_sub_from*# } -fall_to { #*dc_tcl_sub_to*# } -path full -delay min -nworst 1 -max_paths 1 -significant_digits 5 -sort_by group]
 }
 if {$rvs == 0} {
     exit #*dc_tcl_exitcode*#
 }
-#+dc_tcl_measuremin_both_fall_end+#
+#+dc_tcl_measure_min_both_fall_end+#
 
-#+dc_tcl_measuremin_both_both_begin+#
+#+dc_tcl_measure_min_both_both_begin+#
 redirect -append #*dc_tcl_sub_log*# {
     set rvs [report_timing -from { #*dc_tcl_sub_from*# } -to { #*dc_tcl_sub_to*# } -path full -delay min -nworst 1 -max_paths 1 -significant_digits 5 -sort_by group]
 }
 if {$rvs == 0} {
     exit #*dc_tcl_exitcode*#
 }
-#+dc_tcl_measuremin_both_both_end+#
+#+dc_tcl_measure_min_both_both_end+#
 
-#+dc_tcl_measuremax_rise_rise_begin+#
+#+dc_tcl_measure_max_rise_rise_begin+#
 redirect -append #*dc_tcl_sub_log*# {
     set rvs [report_timing -rise_from { #*dc_tcl_sub_from*# } -rise_to { #*dc_tcl_sub_to*# } -path full -delay max -nworst 1 -max_paths 1 -significant_digits 5 -sort_by group]
 }
 if {$rvs == 0} {
     exit #*dc_tcl_exitcode*#
 }
-#+dc_tcl_measuremax_rise_rise_end+#
+#+dc_tcl_measure_max_rise_rise_end+#
 
-#+dc_tcl_measuremax_rise_fall_begin+#
+#+dc_tcl_measure_max_rise_fall_begin+#
 redirect -append #*dc_tcl_sub_log*# {
     set rvs [report_timing -rise_from { #*dc_tcl_sub_from*# } -fall_to { #*dc_tcl_sub_to*# } -path full -delay max -nworst 1 -max_paths 1 -significant_digits 5 -sort_by group]
 }
 if {$rvs == 0} {
     exit #*dc_tcl_exitcode*#
 }
-#+dc_tcl_measuremax_rise_fall_end+#
+#+dc_tcl_measure_max_rise_fall_end+#
 
-#+dc_tcl_measuremax_rise_both_begin+#
+#+dc_tcl_measure_max_rise_both_begin+#
 redirect -append #*dc_tcl_sub_log*# {
     set rvs [report_timing -rise_from { #*dc_tcl_sub_from*# } -to { #*dc_tcl_sub_to*# } -path full -delay max -nworst 1 -max_paths 1 -significant_digits 5 -sort_by group]
 }
 if {$rvs == 0} {
     exit #*dc_tcl_exitcode*#
 }
-#+dc_tcl_measuremax_rise_both_end+#
+#+dc_tcl_measure_max_rise_both_end+#
 
-#+dc_tcl_measuremax_fall_rise_begin+#
+#+dc_tcl_measure_max_fall_rise_begin+#
 redirect -append #*dc_tcl_sub_log*# {
     set rvs [report_timing -fall_from { #*dc_tcl_sub_from*# } -rise_to { #*dc_tcl_sub_to*# } -path full -delay max -nworst 1 -max_paths 1 -significant_digits 5 -sort_by group]
 }
 if {$rvs == 0} {
     exit #*dc_tcl_exitcode*#
 }
-#+dc_tcl_measuremax_fall_rise_end+#
+#+dc_tcl_measure_max_fall_rise_end+#
 
-#+dc_tcl_measuremax_fall_fall_begin+#
+#+dc_tcl_measure_max_fall_fall_begin+#
 redirect -append #*dc_tcl_sub_log*# {
     set rvs [report_timing -fall_from { #*dc_tcl_sub_from*# } -fall_to { #*dc_tcl_sub_to*# } -path full -delay max -nworst 1 -max_paths 1 -significant_digits 5 -sort_by group]
 }
 if {$rvs == 0} {
     exit #*dc_tcl_exitcode*#
 }
-#+dc_tcl_measuremax_fall_fall_end+#
+#+dc_tcl_measure_max_fall_fall_end+#
 
-#+dc_tcl_measuremax_fall_both_begin+#
+#+dc_tcl_measure_max_fall_both_begin+#
 redirect -append #*dc_tcl_sub_log*# {
     set rvs [report_timing -fall_from { #*dc_tcl_sub_from*# } -to { #*dc_tcl_sub_to*# } -path full -delay max -nworst 1 -max_paths 1 -significant_digits 5 -sort_by group]
 }
 if {$rvs == 0} {
     exit #*dc_tcl_exitcode*#
 }
-#+dc_tcl_measuremax_fall_both_end+#
+#+dc_tcl_measure_max_fall_both_end+#
 
-#+dc_tcl_measuremax_both_rise_begin+#
+#+dc_tcl_measure_max_both_rise_begin+#
 redirect -append #*dc_tcl_sub_log*# {
     set rvs [report_timing -from { #*dc_tcl_sub_from*# } -rise_to { #*dc_tcl_sub_to*# } -path full -delay max -nworst 1 -max_paths 1 -significant_digits 5 -sort_by group]
 }
 if {$rvs == 0} {
     exit #*dc_tcl_exitcode*#
 }
-#+dc_tcl_measuremax_both_rise_end+#
+#+dc_tcl_measure_max_both_rise_end+#
 
-#+dc_tcl_measuremax_both_fall_begin+#
+#+dc_tcl_measure_max_both_fall_begin+#
 redirect -append #*dc_tcl_sub_log*# {
     set rvs [report_timing -from { #*dc_tcl_sub_from*# } -fall_to { #*dc_tcl_sub_to*# } -path full -delay max -nworst 1 -max_paths 1 -significant_digits 5 -sort_by group]
 }
 if {$rvs == 0} {
     exit #*dc_tcl_exitcode*#
 }
-#+dc_tcl_measuremax_both_fall_end+#
+#+dc_tcl_measure_max_both_fall_end+#
 
-#+dc_tcl_measuremax_both_both_begin+#
+#+dc_tcl_measure_max_both_both_begin+#
 redirect -append #*dc_tcl_sub_log*# {
     set rvs [report_timing -from { #*dc_tcl_sub_from*# } -to { #*dc_tcl_sub_to*# } -path full -delay max -nworst 1 -max_paths 1 -significant_digits 5 -sort_by group]
 }
 if {$rvs == 0} {
     exit #*dc_tcl_exitcode*#
 }
-#+dc_tcl_measuremax_both_both_end+#
+#+dc_tcl_measure_max_both_both_end+#

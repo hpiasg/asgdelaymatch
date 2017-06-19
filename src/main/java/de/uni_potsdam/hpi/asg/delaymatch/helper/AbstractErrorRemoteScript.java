@@ -19,7 +19,7 @@ public abstract class AbstractErrorRemoteScript extends AbstractScript {
     }
 
     protected void setErrorMsg(Map<String, String> replacements, String msg) {
-        replacements.put("sim_sh_exitcode", Integer.toString(nextErrorId));
+        replacements.put("dc_tcl_exitcode", Integer.toString(nextErrorId));
         errorMsgMap.put(nextErrorId++, msg);
     }
 }

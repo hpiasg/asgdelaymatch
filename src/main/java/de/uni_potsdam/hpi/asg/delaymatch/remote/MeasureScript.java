@@ -149,8 +149,9 @@ public class MeasureScript extends AbstractErrorRemoteScript {
                     String to = rec.getToSignals();
                     replacements.put("dc_tcl_sub_from", from);
                     replacements.put("dc_tcl_sub_to", to);
+                    replacements.put("dc_tcl_sub_id", rec.getId());
                     setErrorMsg(replacements, "Report timing of module " + mod.getModuleName() + ": " + template + ", from: {" + from + "}, to: {" + to + "} failed");
-                    tmpcode = replaceInTemplate(template, replacements);
+                    tmpcode = replaceInTemplates(new String[]{"dc_tcl_echo_sub", template}, replacements);
                     if(tmpcode == null) {
                         return false;
                     }
@@ -175,7 +176,7 @@ public class MeasureScript extends AbstractErrorRemoteScript {
 
     private String getMeasureTemplateName(MeasureRecord rec) {
         StringBuilder templateName = new StringBuilder();
-        templateName.append("measure_");
+        templateName.append("dc_tcl_measure_");
         switch(rec.getType()) {
             case max:
                 templateName.append("max_");
