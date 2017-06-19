@@ -130,19 +130,20 @@ public class SdfSplitScript extends AbstractErrorRemoteScript {
         }
         code.addAll(tmpcode);
 
-        // read sdc
-        if(sdcInFile != null) {
-            replacements.put("dc_tcl_sdcfile", sdcInFile.getName());
-            setErrorMsg(replacements, "Read Sdc failed");
-            tmpcode = replaceInTemplate("dc_tcl_read_sdc", replacements);
-            if(tmpcode == null) {
-                return false;
-            }
-            code.addAll(tmpcode);
-        }
-
         // generate sdf (if needed)
         if(generateSdf) {
+            // read sdc
+            if(sdcInFile != null) {
+                replacements.put("dc_tcl_sdcfile", sdcInFile.getName());
+                setErrorMsg(replacements, "Read Sdc failed");
+                tmpcode = replaceInTemplate("dc_tcl_read_sdc", replacements);
+                if(tmpcode == null) {
+                    return false;
+                }
+                code.addAll(tmpcode);
+            }
+
+            // write sdf
             replacements.put("dc_tcl_sdfout", sdfInFile.getName());
             setErrorMsg(replacements, "Generate Sdf failed");
             tmpcode = replaceInTemplate("dc_tcl_write_sdf", replacements);
