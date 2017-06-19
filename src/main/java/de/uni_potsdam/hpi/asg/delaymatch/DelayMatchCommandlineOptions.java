@@ -79,6 +79,8 @@ public class DelayMatchCommandlineOptions extends CommandlineOptions {
     @Argument(metaVar = "Verilog File", required = true)
     private File vfile;
 
+    @Option(name = "-statistics")
+    private File statistics = null;
     @Option(name = "-debug")
     private boolean debug = false;
     
@@ -158,5 +160,9 @@ public class DelayMatchCommandlineOptions extends CommandlineOptions {
 
     public File getSdfOutFile() {
         return sdfOutFile;
+    }
+
+    public File getStatistics() {
+        return statistics;
     }
 }

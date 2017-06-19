@@ -28,6 +28,8 @@ import org.apache.logging.log4j.Logger;
 import de.uni_potsdam.hpi.asg.common.iohelper.FileHelper;
 import de.uni_potsdam.hpi.asg.common.iohelper.LoggerHelper;
 import de.uni_potsdam.hpi.asg.common.iohelper.LoggerHelper.Mode;
+import de.uni_potsdam.hpi.asg.common.iohelper.Statistics;
+import de.uni_potsdam.hpi.asg.common.iohelper.StatisticsFile;
 import de.uni_potsdam.hpi.asg.common.iohelper.WorkingdirGenerator;
 import de.uni_potsdam.hpi.asg.common.iohelper.Zipper;
 import de.uni_potsdam.hpi.asg.common.misc.CommonConstants;
@@ -277,16 +279,14 @@ public class DelayMatchMain {
             }
         }
 
-        if(!generateOutfiles(verilogFile, cmain, sdfFile)) {
+        if(!generateOutfiles(verilogFile, cmain, sdfFile, remoteTime)) {
             return -1;
         }
-
-        System.out.println("Remote time: " + remoteTime);
 
         return retVal;
     }
 
-    private static boolean generateOutfiles(File verilogFile, CheckMain cmain, File sdfFile) {
+    private static boolean generateOutfiles(File verilogFile, CheckMain cmain, File sdfFile, long remoteTime) {
         if(options.getOutfile() != null) {
             if(!FileHelper.getInstance().copyfile(verilogFile, options.getOutfile())) {
                 return false;
@@ -323,6 +323,15 @@ public class DelayMatchMain {
                 logger.warn("Because there was an SDF infile, the SDF outfile is not generated. Please run the process (e.g. layout) in which the sdf infile was generated again, supplying the new verilog outfile");
             }
         }
+
+        if(options.getStatistics() != null) {
+            Statistics stat = new Statistics();
+            stat.setRemoteTime(remoteTime);
+            if(!StatisticsFile.writeOut(stat, options.getStatistics())) {
+                return false;
+            }
+        }
+
         return true;
     }
 
