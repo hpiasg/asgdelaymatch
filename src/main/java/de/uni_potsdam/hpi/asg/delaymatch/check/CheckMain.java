@@ -74,7 +74,7 @@ public class CheckMain {
         this.transtable = rec.getTransTable();
         this.allok = false;
         this.constr = constr;
-        this.sdcfile = new File(WorkingdirGenerator.getInstance().getWorkingdir(), "sdc.sdc");
+        this.sdcfile = new File(WorkingdirGenerator.getInstance().getWorkingDir(), "sdc.sdc");
         this.valmods = new HashMap<>();
     }
 
@@ -104,8 +104,8 @@ public class CheckMain {
 
     private boolean parseValues() {
         for(DelayMatchModule mod : modules.values()) {
-            if(mod.getMeasureOutputfile() != null) {
-                List<String> lines = FileHelper.getInstance().readFile(mod.getMeasureOutputfile());
+            if(mod.getMeasureOutputFile() != null) {
+                List<String> lines = FileHelper.getInstance().readFile(mod.getMeasureOutputFile());
                 if(lines == null) {
                     return false;
                 }

@@ -31,6 +31,7 @@ import de.uni_potsdam.hpi.asg.common.iohelper.LoggerHelper.Mode;
 import de.uni_potsdam.hpi.asg.common.iohelper.WorkingdirGenerator;
 import de.uni_potsdam.hpi.asg.common.iohelper.Zipper;
 import de.uni_potsdam.hpi.asg.common.misc.CommonConstants;
+import de.uni_potsdam.hpi.asg.common.remote.AbstractScript;
 import de.uni_potsdam.hpi.asg.common.remote.RemoteInformation;
 import de.uni_potsdam.hpi.asg.common.technology.ReadTechnologyHelper;
 import de.uni_potsdam.hpi.asg.common.technology.Technology;
@@ -40,11 +41,11 @@ import de.uni_potsdam.hpi.asg.delaymatch.check.values.ValuesXmlAnnotator;
 import de.uni_potsdam.hpi.asg.delaymatch.io.Config;
 import de.uni_potsdam.hpi.asg.delaymatch.io.ConfigFile;
 import de.uni_potsdam.hpi.asg.delaymatch.io.RemoteInvocation;
-import de.uni_potsdam.hpi.asg.delaymatch.match.MatchMain;
-import de.uni_potsdam.hpi.asg.delaymatch.measure.MeasureMain;
 import de.uni_potsdam.hpi.asg.delaymatch.model.DelayMatchModule;
 import de.uni_potsdam.hpi.asg.delaymatch.profile.ProfileComponents;
-import de.uni_potsdam.hpi.asg.delaymatch.sdfsplit.SplitSdfMain;
+import de.uni_potsdam.hpi.asg.delaymatch.remote.MatchMain;
+import de.uni_potsdam.hpi.asg.delaymatch.remote.MeasureMain;
+import de.uni_potsdam.hpi.asg.delaymatch.remote.SdfSplitMain;
 import de.uni_potsdam.hpi.asg.delaymatch.setup.EligibleModuleFinder;
 import de.uni_potsdam.hpi.asg.delaymatch.setup.MeasureRecordGenerator;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.VerilogParser;
@@ -192,14 +193,18 @@ public class DelayMatchMain {
                 logger.warn("Failed to read sdc in file");
             }
         }
+        File sdcInFile = options.getSdcInFile();
 
-        SplitSdfMain ssdfmain = new SplitSdfMain(name, rinfo, modules, tech);
-        MeasureMain memain = new MeasureMain(name, rinfo, modules, tech, rec);
+        AbstractScript.readTemplateFiles("delay_");
+
+        SdfSplitMain ssdfmain = new SdfSplitMain(name, rinfo, modules, tech, vparser.getRootModule().getModulename());
+        MeasureMain memain = new MeasureMain(name, rinfo, modules, tech);
         CheckMain cmain = new CheckMain(modules, rec, constraints);
-        MatchMain mamain = new MatchMain(name, rinfo, modules, tech);
+        MatchMain mamain = new MatchMain(name, rinfo, modules, tech, vparser.getRootModule().getModulename());
 
         File sdfFile = options.getSdfInFile();
 
+        long remoteTime = 0;
         int turnid = 1;
         boolean verifyOnlyBreak = false;
         boolean allOkBreak = false;
@@ -207,15 +212,17 @@ public class DelayMatchMain {
         while(turnid <= maxIterations) {
             logger.info("------------------------------");
             logger.info("SDF phase #" + turnid);
-            if(!ssdfmain.split(turnid, sdfFile, verilogFile, vparser.getRootModule().getModulename())) {
+            if(!ssdfmain.split(turnid, sdfFile, verilogFile, sdcInFile)) {
                 return -1;
             }
-            sdfFile = ssdfmain.getOutSdfFile();
+            sdfFile = ssdfmain.getLastSdfFile();
+            remoteTime += ssdfmain.getLastTime();
 
             logger.info("Measure phase #" + turnid);
             if(!memain.measure(turnid, verilogFile)) {
                 return -1;
             }
+            remoteTime += memain.getLastTime();
 
             logger.info("Check phase #" + turnid);
             if(!cmain.check()) {
@@ -233,12 +240,13 @@ public class DelayMatchMain {
             }
 
             logger.info("Match phase #" + turnid);
-            if(!mamain.match(turnid, verilogFile)) {
+            if(!mamain.match(turnid, verilogFile, sdcInFile)) {
                 return -1;
             }
+            remoteTime += memain.getLastTime();
 
-            verilogFile = new File(WorkingdirGenerator.getInstance().getWorkingDir(), mamain.getMatchedfilename());
-            sdfFile = new File(WorkingdirGenerator.getInstance().getWorkingDir(), mamain.getMatchedSdfName());
+            verilogFile = mamain.getLastVFile();
+            sdfFile = mamain.getLastSdfFile();
 
             if(options.getSdfInFile() != null) {
                 sdfBreak = true;
@@ -272,6 +280,8 @@ public class DelayMatchMain {
         if(!generateOutfiles(verilogFile, cmain, sdfFile)) {
             return -1;
         }
+
+        System.out.println("Remote time: " + remoteTime);
 
         return retVal;
     }
