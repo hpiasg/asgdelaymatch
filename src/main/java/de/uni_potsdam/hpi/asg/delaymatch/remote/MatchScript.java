@@ -54,15 +54,18 @@ public class MatchScript extends AbstractErrorRemoteScript {
         this.modules = modules;
     }
 
-    public boolean generate(File dcShFile, File dcTclFile, File vInFile, File vOutFile, File sdfOutFile, File logFile, Map<DelayMatchModule, File> subLogFiles, String rootModule) {
+    public boolean generate(File dcShFile, File dcTclFile, File vInFile, File sdcInFile, File vOutFile, File sdfOutFile, File logFile, Map<DelayMatchModule, File> subLogFiles, String rootModule) {
         if(!generateDcShFile(dcShFile, dcTclFile, logFile)) {
             return false;
         }
-        if(!generateDcTclFile(dcTclFile, vInFile, vOutFile, sdfOutFile, subLogFiles, rootModule)) {
+        if(!generateDcTclFile(dcTclFile, vInFile, sdcInFile, vOutFile, sdfOutFile, subLogFiles, rootModule)) {
             return false;
         }
 
         addUploadFiles(dcShFile, dcTclFile, vInFile);
+        if(sdcInFile != null) {
+            addUploadFiles(sdcInFile);
+        }
         addExecFileNames(dcShFile.getName());
         addDownloadIncludeFileNames(vOutFile.getName(), sdfOutFile.getName(), logFile.getName());
         for(File f : subLogFiles.values()) {
@@ -99,7 +102,7 @@ public class MatchScript extends AbstractErrorRemoteScript {
         return replaceInTemplateAndWriteOut("dc_sh", replacements, dcShFile);
     }
 
-    private boolean generateDcTclFile(File dcTclFile, File vInFile, File vOutFile, File sdfOutFile, Map<DelayMatchModule, File> subLogFiles, String rootModule) {
+    private boolean generateDcTclFile(File dcTclFile, File vInFile, File sdcInFile, File vOutFile, File sdfOutFile, Map<DelayMatchModule, File> subLogFiles, String rootModule) {
         List<String> code = new ArrayList<>();
         List<String> tmpcode;
         Map<String, String> replacements = new HashMap<>();
@@ -177,6 +180,16 @@ public class MatchScript extends AbstractErrorRemoteScript {
             return false;
         }
         code.addAll(tmpcode);
+
+        if(sdcInFile != null) {
+            replacements.put("dc_tcl_sdcfile", sdcInFile.getName());
+            setErrorMsg(replacements, "Read Sdc failed");
+            tmpcode = replaceInTemplate("dc_tcl_read_sdc", replacements);
+            if(tmpcode == null) {
+                return false;
+            }
+            code.addAll(tmpcode);
+        }
 
         replacements.put("dc_tcl_sdfout", sdfOutFile.getName());
         setErrorMsg(replacements, "Write Sdf for module " + rootModule + " failed");

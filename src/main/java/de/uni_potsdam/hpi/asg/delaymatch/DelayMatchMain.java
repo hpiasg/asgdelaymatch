@@ -193,6 +193,7 @@ public class DelayMatchMain {
                 logger.warn("Failed to read sdc in file");
             }
         }
+        File sdcInFile = options.getSdcInFile();
 
         AbstractScript.readTemplateFiles("delay_");
 
@@ -211,7 +212,7 @@ public class DelayMatchMain {
         while(turnid <= maxIterations) {
             logger.info("------------------------------");
             logger.info("SDF phase #" + turnid);
-            if(!ssdfmain.split(turnid, sdfFile, verilogFile)) {
+            if(!ssdfmain.split(turnid, sdfFile, verilogFile, sdcInFile)) {
                 return -1;
             }
             sdfFile = ssdfmain.getLastSdfFile();
@@ -239,7 +240,7 @@ public class DelayMatchMain {
             }
 
             logger.info("Match phase #" + turnid);
-            if(!mamain.match(turnid, verilogFile)) {
+            if(!mamain.match(turnid, verilogFile, sdcInFile)) {
                 return -1;
             }
             remoteTime += memain.getLastTime();

@@ -55,7 +55,7 @@ public class SdfSplitMain {
         this.rootModule = rootModule;
     }
 
-    public boolean split(int turnid, File sdfFile, File vFile) {
+    public boolean split(int turnid, File sdfFile, File vFile, File sdcFile) {
         File dcShFile = new File(workingDir, turnid + "_" + name + "_split.sh");
         File dcTclFile = new File(workingDir, turnid + "_" + name + "_split.tcl");
         File logFile = new File(workingDir, turnid + "_" + name + "_split.log");
@@ -82,7 +82,7 @@ public class SdfSplitMain {
         }
 
         SdfSplitScript script = new SdfSplitScript(rinfo, "split", workingDir, tech);
-        if(!script.generate(dcShFile, dcTclFile, vFile, generateSdf, sdfInFile, subSdfFiles, logFile, rootModule)) {
+        if(!script.generate(dcShFile, dcTclFile, vFile, sdcFile, generateSdf, sdfInFile, subSdfFiles, logFile, rootModule)) {
             logger.error("Generating Sdf split script failed");
             return false;
         }

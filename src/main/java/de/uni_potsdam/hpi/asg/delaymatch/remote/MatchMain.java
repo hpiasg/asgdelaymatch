@@ -54,7 +54,7 @@ public class MatchMain {
         this.rootModule = rootModule;
     }
 
-    public boolean match(int turnid, File vInFile) {
+    public boolean match(int turnid, File vInFile, File sdcInFile) {
         File dcShFile = new File(workingDir, turnid + "_" + name + "_match.sh");
         File dcTclFile = new File(workingDir, turnid + "_" + name + "_match.tcl");
         File logFile = new File(workingDir, turnid + "_" + name + "_match.log");
@@ -69,7 +69,7 @@ public class MatchMain {
         }
 
         MatchScript script = new MatchScript(rinfo, "match", workingDir, tech, modules);
-        if(!script.generate(dcShFile, dcTclFile, vInFile, vOutFile, sdfOutFile, logFile, subLogFiles, rootModule)) {
+        if(!script.generate(dcShFile, dcTclFile, vInFile, sdcInFile, vOutFile, sdfOutFile, logFile, subLogFiles, rootModule)) {
             logger.error("Generating Match script failed");
             return false;
         }

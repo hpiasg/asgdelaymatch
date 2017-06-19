@@ -67,6 +67,13 @@ if {$rvs == 0} {
 }
 #+dc_tcl_read_sdf_sub_end+#
 
+#+dc_tcl_read_sdc_begin+#
+set rvs [read_sdc #*dc_tcl_sdcfile*#]
+if {$rvs == 0} {
+	exit #*dc_tcl_exitcode*#
+}
+#+dc_tcl_read_sdc_end+#
+
 #+dc_tcl_setdelay_min_sub_begin+#
 redirect -append #*dc_tcl_sub_log*# {
 	set rvs [set_min_delay -from [get_ports { #*dc_tcl_sub_from*# }] -to [get_ports { #*dc_tcl_sub_to*# }] #*dc_tcl_sub_time_min*#]

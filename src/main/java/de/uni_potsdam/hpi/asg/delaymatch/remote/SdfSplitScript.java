@@ -46,17 +46,20 @@ public class SdfSplitScript extends AbstractErrorRemoteScript {
         this.tech = tech;
     }
 
-    public boolean generate(File dcShFile, File dcTclFile, File vInFile, boolean generateSdf, File sdfInFile, Map<DelayMatchModuleInst, File> subSdfFiles, File logFile, String rootModule) {
+    public boolean generate(File dcShFile, File dcTclFile, File vInFile, File sdcInFile, boolean generateSdf, File sdfInFile, Map<DelayMatchModuleInst, File> subSdfFiles, File logFile, String rootModule) {
         if(!generateDcShFile(dcShFile, dcTclFile, logFile)) {
             return false;
         }
-        if(!generateDcTclFile(dcTclFile, vInFile, generateSdf, sdfInFile, subSdfFiles, rootModule)) {
+        if(!generateDcTclFile(dcTclFile, vInFile, sdcInFile, generateSdf, sdfInFile, subSdfFiles, rootModule)) {
             return false;
         }
 
         addUploadFiles(dcShFile, dcTclFile, vInFile);
         if(!generateSdf) {
             addUploadFiles(sdfInFile);
+        }
+        if(sdcInFile != null) {
+            addUploadFiles(sdcInFile);
         }
 
         addExecFileNames(dcShFile.getName());
@@ -95,7 +98,7 @@ public class SdfSplitScript extends AbstractErrorRemoteScript {
         return replaceInTemplateAndWriteOut("dc_sh", replacements, dcShFile);
     }
 
-    private boolean generateDcTclFile(File dcTclFile, File vInFile, boolean generateSdf, File sdfInFile, Map<DelayMatchModuleInst, File> subSdfFiles, String rootModule) {
+    private boolean generateDcTclFile(File dcTclFile, File vInFile, File sdcInFile, boolean generateSdf, File sdfInFile, Map<DelayMatchModuleInst, File> subSdfFiles, String rootModule) {
         List<String> code = new ArrayList<>();
         List<String> tmpcode;
         Map<String, String> replacements = new HashMap<>();
@@ -126,6 +129,17 @@ public class SdfSplitScript extends AbstractErrorRemoteScript {
             return false;
         }
         code.addAll(tmpcode);
+
+        // read sdc
+        if(sdcInFile != null) {
+            replacements.put("dc_tcl_sdcfile", sdcInFile.getName());
+            setErrorMsg(replacements, "Read Sdc failed");
+            tmpcode = replaceInTemplate("dc_tcl_read_sdc", replacements);
+            if(tmpcode == null) {
+                return false;
+            }
+            code.addAll(tmpcode);
+        }
 
         // generate sdf (if needed)
         if(generateSdf) {
