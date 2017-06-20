@@ -75,6 +75,9 @@ public class SdfSplitMain {
             if(mod.getInstances().isEmpty()) {
                 continue;
             }
+            if(!mod.getVerilogModule().hasContent()) {
+                continue;
+            }
             DelayMatchModuleInst inst = mod.getInstances().get(0);
             File file = new File(workingDir, turnid + "_" + name + "_split_" + inst.getInstName() + ".sdf");
             subSdfFiles.put(inst, file);

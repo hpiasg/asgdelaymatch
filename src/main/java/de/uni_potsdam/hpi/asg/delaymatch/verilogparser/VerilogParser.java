@@ -179,6 +179,7 @@ public class VerilogParser {
 
         for(VerilogModule module : modules.values()) {
             VerilogModuleContentParser moduleparser = parserMap.get(module.getModulename());
+            module.setHasContent(moduleparser.hasSubInst());
             for(VerilogModuleInstanceTemp tinst : moduleparser.getInstances()) {
                 if(parserMap.containsKey(tinst.getModuleName())) {
                     VerilogModule submodule = modules.get(tinst.getModuleName());
@@ -237,7 +238,6 @@ public class VerilogParser {
                                 }
                                 break;
                         }
-
                     }
                 }
             }

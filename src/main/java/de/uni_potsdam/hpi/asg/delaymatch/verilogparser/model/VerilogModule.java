@@ -39,6 +39,7 @@ public class VerilogModule {
     private List<VerilogModuleInstance>                 submodules;
     private Map<VerilogSignal, VerilogModuleConnection> connections;
     private List<VerilogModuleInstance>                 instances;
+    private boolean                                     hasContent;
 
     public VerilogModule(String modulename, List<VerilogSignal> interfaceSignals, List<String> code, Map<String, VerilogSignal> signals, Map<String, VerilogSignalGroup> signalgroups) {
         this.modulename = modulename;
@@ -49,6 +50,7 @@ public class VerilogModule {
         this.submodules = new ArrayList<>();
         this.connections = new HashMap<>();
         this.instances = new ArrayList<>();
+        this.hasContent = false;
     }
 
     public boolean addSubmodule(VerilogModuleInstance submodule) {
@@ -116,5 +118,13 @@ public class VerilogModule {
     @Override
     public String toString() {
         return "Mod:" + modulename;
+    }
+
+    public void setHasContent(boolean hasContent) {
+        this.hasContent = hasContent;
+    }
+
+    public boolean hasContent() {
+        return hasContent;
     }
 }

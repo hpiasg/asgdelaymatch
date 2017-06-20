@@ -62,7 +62,9 @@ public class MeasureScript extends AbstractErrorRemoteScript {
 
         for(DelayMatchModule mod : modules.values()) {
             if(!mod.getMeasureRecords().isEmpty()) {
-                addUploadFiles(mod.getSdfFile());
+                if(mod.getSdfFile() != null) {
+                    addUploadFiles(mod.getSdfFile());
+                }
                 addDownloadIncludeFileNames(mod.getMeasureOutputFile().getName());
             }
         }
@@ -134,13 +136,15 @@ public class MeasureScript extends AbstractErrorRemoteScript {
                 code.addAll(tmpcode);
 
                 // read sdf
-                replacements.put("dc_tcl_sub_sdffile", mod.getSdfFile().getName());
-                setErrorMsg(replacements, "Read Sdf " + mod.getModuleName() + " failed");
-                tmpcode = replaceInTemplate("dc_tcl_read_sdf_sub", replacements);
-                if(tmpcode == null) {
-                    return false;
+                if(mod.getSdfFile() != null) {
+                    replacements.put("dc_tcl_sub_sdffile", mod.getSdfFile().getName());
+                    setErrorMsg(replacements, "Read Sdf " + mod.getModuleName() + " failed");
+                    tmpcode = replaceInTemplate("dc_tcl_read_sdf_sub", replacements);
+                    if(tmpcode == null) {
+                        return false;
+                    }
+                    code.addAll(tmpcode);
                 }
-                code.addAll(tmpcode);
 
                 for(MeasureRecord rec : mod.getMeasureRecords().values()) {
                     // measure

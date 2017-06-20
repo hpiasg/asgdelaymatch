@@ -52,12 +52,14 @@ public class VerilogModuleContentParser {
     private List<VerilogModuleInstanceTemp> instances;
 
     private List<String>                    interfaceSignalNames;
+    private boolean                         hasSubInst;
 
     public VerilogModuleContentParser(List<String> interfaceSignalNames) {
         this.signals = new HashMap<>();
         this.signalgroups = new HashMap<>();
         this.instances = new ArrayList<>();
         this.interfaceSignalNames = interfaceSignalNames;
+        this.hasSubInst = false;
     }
 
     public boolean addLine(String line) {
@@ -106,6 +108,7 @@ public class VerilogModuleContentParser {
                 id++;
             }
             this.instances.add(new VerilogModuleInstanceTemp(modulename, instancename, interfaceSignals));
+            hasSubInst = true;
         }
 
         return true;
@@ -234,5 +237,9 @@ public class VerilogModuleContentParser {
             retVal.add(signals.get(str));
         }
         return retVal;
+    }
+
+    public boolean hasSubInst() {
+        return hasSubInst;
     }
 }
