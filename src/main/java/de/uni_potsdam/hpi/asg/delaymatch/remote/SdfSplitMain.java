@@ -60,7 +60,7 @@ public class SdfSplitMain {
         File dcTclFile = new File(workingDir, turnid + "_" + name + "_split.tcl");
         File logFile = new File(workingDir, turnid + "_" + name + "_split.log");
 
-        File sdfInFile = new File(workingDir, turnid + "_" + name + "_split_in.sdf");
+        File sdfInFile = new File(workingDir, turnid + "_" + name + "_split.sdf");
         boolean generateSdf = false;
         if(sdfFile == null) {
             generateSdf = true;

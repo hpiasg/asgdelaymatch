@@ -64,6 +64,9 @@ public class SdfSplitScript extends AbstractErrorRemoteScript {
 
         addExecFileNames(dcShFile.getName());
         addDownloadIncludeFileNames(logFile.getName());
+        if(generateSdf) {
+            addDownloadIncludeFileNames(sdfInFile.getName());
+        }
         for(File f : subSdfFiles.values()) {
             addDownloadIncludeFileNames(f.getName());
         }
