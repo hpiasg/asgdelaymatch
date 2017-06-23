@@ -162,8 +162,8 @@ along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
 							</jvmSettings>
 						</program>
 						<program>
-							<mainClass>de.uni_potsdam.hpi.asg.delaymatch.DelayMatchGuiMain</mainClass>
-							<id>ASGdelaymatch_gui</id>
+							<mainClass>de.uni_potsdam.hpi.asg.delaymatch.DelayMatchRunMain</mainClass>
+							<id>ASGdelaymatch_run</id>
 							<jvmSettings>
 								<extraArguments>
 									<extraArgument>-Dlog4j.configurationFile=@BASEDIR@/config/log4j2_noconfig.xml</extraArgument>

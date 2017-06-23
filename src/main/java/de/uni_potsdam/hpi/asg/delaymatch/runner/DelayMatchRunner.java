@@ -1,4 +1,4 @@
-package de.uni_potsdam.hpi.asg.delaymatch.gui;
+package de.uni_potsdam.hpi.asg.delaymatch.runner;
 
 /*
  * Copyright (C) 2017 Norman Kluge
@@ -30,10 +30,10 @@ import org.apache.logging.log4j.Logger;
 import de.uni_potsdam.hpi.asg.common.gui.runner.AbstractParameters.GeneralBooleanParam;
 import de.uni_potsdam.hpi.asg.common.gui.runner.AbstractRunner;
 import de.uni_potsdam.hpi.asg.common.misc.CommonConstants;
-import de.uni_potsdam.hpi.asg.delaymatch.DelayMatchGuiMain;
-import de.uni_potsdam.hpi.asg.delaymatch.gui.DelayMatchParameters.BooleanParam;
-import de.uni_potsdam.hpi.asg.delaymatch.gui.DelayMatchParameters.EnumParam;
-import de.uni_potsdam.hpi.asg.delaymatch.gui.DelayMatchParameters.TextParam;
+import de.uni_potsdam.hpi.asg.delaymatch.DelayMatchRunMain;
+import de.uni_potsdam.hpi.asg.delaymatch.runner.DelayMatchParameters.BooleanParam;
+import de.uni_potsdam.hpi.asg.delaymatch.runner.DelayMatchParameters.EnumParam;
+import de.uni_potsdam.hpi.asg.delaymatch.runner.DelayMatchParameters.TextParam;
 
 public class DelayMatchRunner extends AbstractRunner {
     private static final Logger  logger = LogManager.getLogger();
@@ -96,7 +96,7 @@ public class DelayMatchRunner extends AbstractRunner {
 
     private List<String> buildCmd() {
         List<String> cmd = new ArrayList<>();
-        cmd.add(DelayMatchGuiMain.DELAYMATCH_BIN.getAbsolutePath());
+        cmd.add(DelayMatchRunMain.DELAYMATCH_BIN.getAbsolutePath());
 
         addGeneralParams(cmd);
         addAdvancedParams(cmd);

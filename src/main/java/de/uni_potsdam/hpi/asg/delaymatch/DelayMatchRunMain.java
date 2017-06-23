@@ -32,12 +32,12 @@ import de.uni_potsdam.hpi.asg.common.iohelper.LoggerHelper.Mode;
 import de.uni_potsdam.hpi.asg.common.misc.CommonConstants;
 import de.uni_potsdam.hpi.asg.common.technology.Technology;
 import de.uni_potsdam.hpi.asg.common.technology.TechnologyDirectory;
-import de.uni_potsdam.hpi.asg.delaymatch.gui.DelayMatchParameters;
-import de.uni_potsdam.hpi.asg.delaymatch.gui.RunDelayMatchPanel;
 import de.uni_potsdam.hpi.asg.delaymatch.io.Config;
 import de.uni_potsdam.hpi.asg.delaymatch.io.ConfigFile;
+import de.uni_potsdam.hpi.asg.delaymatch.runner.DelayMatchParameters;
+import de.uni_potsdam.hpi.asg.delaymatch.runner.RunDelayMatchPanel;
 
-public class DelayMatchGuiMain {
+public class DelayMatchRunMain {
 
     public static final File DELAYMATCH_BIN = new File(CommonConstants.DEF_BIN_DIR_FILE, "ASGdelaymatch");
 

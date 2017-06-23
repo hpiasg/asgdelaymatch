@@ -1,4 +1,4 @@
-package de.uni_potsdam.hpi.asg.delaymatch.gui;
+package de.uni_potsdam.hpi.asg.delaymatch.runner;
 
 /*
  * Copyright (C) 2017 Norman Kluge
@@ -39,9 +39,9 @@ import de.uni_potsdam.hpi.asg.common.gui.runner.AbstractParameters.GeneralBoolea
 import de.uni_potsdam.hpi.asg.common.gui.runner.AbstractRunPanel;
 import de.uni_potsdam.hpi.asg.common.gui.runner.AbstractRunner.TerminalMode;
 import de.uni_potsdam.hpi.asg.delaymatch.DelayMatchMain;
-import de.uni_potsdam.hpi.asg.delaymatch.gui.DelayMatchParameters.BooleanParam;
-import de.uni_potsdam.hpi.asg.delaymatch.gui.DelayMatchParameters.EnumParam;
-import de.uni_potsdam.hpi.asg.delaymatch.gui.DelayMatchParameters.TextParam;
+import de.uni_potsdam.hpi.asg.delaymatch.runner.DelayMatchParameters.BooleanParam;
+import de.uni_potsdam.hpi.asg.delaymatch.runner.DelayMatchParameters.EnumParam;
+import de.uni_potsdam.hpi.asg.delaymatch.runner.DelayMatchParameters.TextParam;
 
 public class RunDelayMatchPanel extends AbstractRunPanel {
     private static final long    serialVersionUID = 2663337555026127634L;
