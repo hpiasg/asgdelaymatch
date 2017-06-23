@@ -19,6 +19,7 @@ package de.uni_potsdam.hpi.asg.delaymatch.gui;
  * along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import java.awt.Window;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,12 +45,16 @@ public class DelayMatchRunner extends AbstractRunner {
         this.params = params;
     }
 
-    public void run() {
+    public void run(TerminalMode mode) {
+        run(mode, null);
+    }
+
+    public void run(TerminalMode mode, Window parent) {
         if(!checkParams()) {
             return;
         }
         List<String> cmd = buildCmd();
-        exec(cmd, "ASGdelaymatch terminal");
+        exec(cmd, "ASGdelaymatch terminal", mode, null, parent);
     }
 
     private boolean checkParams() {
@@ -69,6 +74,14 @@ public class DelayMatchRunner extends AbstractRunner {
             File techfile = getTechFile();
             if(!techfile.exists()) {
                 logger.error("Techfile not found");
+                return false;
+            }
+        }
+
+        if(params.getBooleanValue(BooleanParam.past)) {
+            File stgfile = new File(params.getTextValue(TextParam.STGFile));
+            if(!stgfile.exists()) {
+                logger.error("STG file for past-algorithm not found");
                 return false;
             }
         }
@@ -112,14 +125,16 @@ public class DelayMatchRunner extends AbstractRunner {
             cmd.add("-future");
         }
 
-        String stgfilename = params.getTextValue(TextParam.STGFile);
-        if(!stgfilename.equals("")) {
-            File stgfile = new File(stgfilename);
-            if(stgfile.exists()) {
-                cmd.add("-past");
-                cmd.add(stgfilename);
-            } else {
-                logger.warn("STG file for past alogrithm does not exists. Omitting");
+        if(params.getBooleanValue(BooleanParam.past)) {
+            String stgfilename = params.getTextValue(TextParam.STGFile);
+            if(!stgfilename.equals("")) {
+                File stgfile = new File(stgfilename);
+                if(stgfile.exists()) {
+                    cmd.add("-past");
+                    cmd.add(stgfilename);
+                } else {
+                    logger.warn("STG file for past alogrithm does not exists. Omitting");
+                }
             }
         }
     }

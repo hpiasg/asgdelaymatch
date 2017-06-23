@@ -24,10 +24,12 @@ import java.awt.GridBagLayout;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -35,6 +37,7 @@ import org.apache.logging.log4j.Logger;
 import de.uni_potsdam.hpi.asg.common.gui.PropertiesPanel;
 import de.uni_potsdam.hpi.asg.common.gui.runner.AbstractParameters.GeneralBooleanParam;
 import de.uni_potsdam.hpi.asg.common.gui.runner.AbstractRunPanel;
+import de.uni_potsdam.hpi.asg.common.gui.runner.AbstractRunner.TerminalMode;
 import de.uni_potsdam.hpi.asg.delaymatch.DelayMatchMain;
 import de.uni_potsdam.hpi.asg.delaymatch.gui.DelayMatchParameters.BooleanParam;
 import de.uni_potsdam.hpi.asg.delaymatch.gui.DelayMatchParameters.EnumParam;
@@ -46,11 +49,20 @@ public class RunDelayMatchPanel extends AbstractRunPanel {
 
     private DelayMatchParameters params;
     private Window               parent;
+    private boolean              userHitRun;
+
+    private boolean              fixSTGfile;
 
     public RunDelayMatchPanel(Window parent, final DelayMatchParameters params, boolean isDebug) {
+        this(parent, params, isDebug, false, false, false);
+    }
+
+    public RunDelayMatchPanel(final Window parent, final DelayMatchParameters params, boolean isDebug, boolean hideGeneral, boolean fixSTGfile, final boolean closeOnRun) {
         super(params);
+        final RunDelayMatchPanel thepanel = this;
         this.params = params;
         this.parent = parent;
+        this.fixSTGfile = fixSTGfile;
 
         this.setLayout(new BorderLayout());
         JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
@@ -63,11 +75,21 @@ public class RunDelayMatchPanel extends AbstractRunPanel {
         JButton runBtn = new JButton("Run");
         runBtn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                if(closeOnRun) {
+                    parent.dispatchEvent(new WindowEvent(parent, WindowEvent.WINDOW_CLOSING));
+                    thepanel.userHitRun = true;
+                    return;
+                }
                 DelayMatchRunner run = new DelayMatchRunner(params);
-                run.run();
+                run.run(TerminalMode.frame);
             }
         });
         this.add(runBtn, BorderLayout.PAGE_END);
+
+        if(hideGeneral) {
+            tabbedPane.setEnabledAt(0, false);
+            tabbedPane.setSelectedIndex(1);
+        }
     }
 
     private void constructGeneralPanel(JTabbedPane tabbedPane) {
@@ -80,8 +102,8 @@ public class RunDelayMatchPanel extends AbstractRunPanel {
         gbl_generalpanel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
         panel.setLayout(gbl_generalpanel);
 
-        panel.addTextEntry(0, TextParam.VerilogFile, "Verilog file", "", true, JFileChooser.FILES_ONLY, false);
-        panel.addTextEntry(1, TextParam.ProfileFile, "Profile file", "$BASEDIR/config/resynprofile.xml", true, JFileChooser.FILES_ONLY, true);
+        panel.addTextEntry(0, TextParam.VerilogFile, "Verilog file", params.getDefVerilogInFileName(), true, JFileChooser.FILES_ONLY, false);
+        panel.addTextEntry(1, TextParam.ProfileFile, "Profile file", params.getDefProfileFileName(), true, JFileChooser.FILES_ONLY, true);
 
         String[] techs = params.getAvailableTechs();
         String defTech = params.getDefTech();
@@ -90,9 +112,9 @@ public class RunDelayMatchPanel extends AbstractRunPanel {
             errorOccured = true;
         }
         panel.addTechnologyChooserWithDefaultEntry(2, "Technology library", techs, defTech, EnumParam.TechLib, BooleanParam.TechLibDef, "Use default");
-        addOutSection(panel, 3, "delaymatched.v");
+        addOutSection(panel, 3, params.getDefOutFileName(), params.getDefOutDirName());
         // 4: blank
-        addIOSection(panel, 6, DelayMatchMain.DEF_CONFIG_FILE_NAME);
+        addIOSection(panel, 6, DelayMatchMain.DEF_CONFIG_FILE_NAME, params.getDefLogFileName(), params.getDefZipFileName());
 
         getDataFromPanel(panel);
     }
@@ -108,9 +130,17 @@ public class RunDelayMatchPanel extends AbstractRunPanel {
         panel.setLayout(gbl_advpanel);
 
         panel.addCheckboxEntry(0, BooleanParam.future, "Future algorithm", false);
-        panel.addTextEntry(1, TextParam.STGFile, "STG file for past algorithm", "", true, JFileChooser.FILES_ONLY, false);
+        panel.addCheckboxEntry(1, BooleanParam.past, "Past algorithm", false);
+
+        boolean stgPathButton = !fixSTGfile;
+        panel.addTextEntry(2, TextParam.STGFile, "STG file for past algorithm", params.getDefPastStgFileName(), stgPathButton, JFileChooser.FILES_ONLY, false);
 
         getDataFromPanel(panel);
+
+        if(fixSTGfile) {
+            final JTextField field = textfields.get(TextParam.STGFile);
+            field.setEnabled(false);
+        }
     }
 
     private void constructDebugPanel(JTabbedPane tabbedPane, boolean isDebug) {
@@ -128,5 +158,9 @@ public class RunDelayMatchPanel extends AbstractRunPanel {
         panel.addCheckboxEntry(0, GeneralBooleanParam.debug, "Debug", isDebug);
 
         getDataFromPanel(panel);
+    }
+
+    public boolean isUserHitRun() {
+        return userHitRun;
     }
 }

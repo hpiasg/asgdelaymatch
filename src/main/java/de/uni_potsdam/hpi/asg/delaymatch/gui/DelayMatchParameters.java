@@ -27,6 +27,13 @@ import de.uni_potsdam.hpi.asg.common.misc.CommonConstants;
 import de.uni_potsdam.hpi.asg.common.technology.TechnologyDirectory;
 
 public class DelayMatchParameters extends AbstractParameters {
+
+    private static final String DEF_VERILOGIN_FILE_NAME = "";
+    private static final String DEF_PROFILE_FILE_NAME   = "$BASEDIR/config/resynprofile.xml";
+    private static final String DEF_OUT_FILE_NAME       = "delaymatched" + CommonConstants.VERILOG_FILE_EXTENSION;
+    private static final String DEF_LOG_FILE_NAME       = "delaymatched" + CommonConstants.LOG_FILE_EXTENSION;
+    private static final String DEF_ZIP_FILE_NAME       = "delaymatched" + CommonConstants.ZIP_FILE_EXTENSION;
+
     //@formatter:off
     public enum TextParam implements AbstractTextParam {
         /*general*/ VerilogFile, ProfileFile, STGFile
@@ -34,7 +41,7 @@ public class DelayMatchParameters extends AbstractParameters {
 
     public enum BooleanParam implements AbstractBooleanParam {
         /*general*/ TechLibDef,
-        /*adv*/ future
+        /*adv*/ future, past
         /*debug*/ 
     }
     
@@ -45,11 +52,41 @@ public class DelayMatchParameters extends AbstractParameters {
 
     private String   defTech;
     private String[] techs;
+    private boolean  forceTech;
+    private String   defVerilogInFileName;
+    private String   defProfileFileName;
+    private String   defPastStgFileName;
+    private String   defOutDirName;
+    private String   defOutFileName;
+    private String   defLogFileName;
+    private String   defZipFileName;
 
     public DelayMatchParameters(String defTech, TechnologyDirectory techDir) {
         super(CommonConstants.VERILOG_FILE_EXTENSION);
         this.defTech = defTech;
         this.techs = techDir.getTechNames();
+        this.forceTech = false;
+        this.defVerilogInFileName = DEF_VERILOGIN_FILE_NAME;
+        this.defProfileFileName = DEF_PROFILE_FILE_NAME;
+        this.defPastStgFileName = "";
+        this.defOutDirName = AbstractParameters.DEF_OUT_DIR;
+        this.defOutFileName = DEF_OUT_FILE_NAME;
+        this.defLogFileName = DEF_LOG_FILE_NAME;
+        this.defZipFileName = DEF_ZIP_FILE_NAME;
+    }
+
+    public DelayMatchParameters(String defTech, TechnologyDirectory techDir, boolean forceTech, String verilogInFile, String profileFile, String pastStgFile, String outDir, String outFile, String logFile, String zipFile) {
+        super(CommonConstants.VERILOG_FILE_EXTENSION);
+        this.defTech = defTech;
+        this.techs = techDir.getTechNames();
+        this.forceTech = true;
+        this.defVerilogInFileName = verilogInFile;
+        this.defProfileFileName = profileFile;
+        this.defPastStgFileName = pastStgFile;
+        this.defOutDirName = outDir;
+        this.defOutFileName = outFile;
+        this.defLogFileName = logFile;
+        this.defZipFileName = zipFile;
     }
 
     @Override
@@ -68,5 +105,37 @@ public class DelayMatchParameters extends AbstractParameters {
 
     public String[] getAvailableTechs() {
         return techs;
+    }
+
+    public String getDefVerilogInFileName() {
+        return defVerilogInFileName;
+    }
+
+    public String getDefProfileFileName() {
+        return defProfileFileName;
+    }
+
+    public String getDefPastStgFileName() {
+        return defPastStgFileName;
+    }
+
+    public String getDefOutFileName() {
+        return defOutFileName;
+    }
+
+    public String getDefOutDirName() {
+        return defOutDirName;
+    }
+
+    public boolean isForceTech() {
+        return forceTech;
+    }
+
+    public String getDefLogFileName() {
+        return defLogFileName;
+    }
+
+    public String getDefZipFileName() {
+        return defZipFileName;
     }
 }
