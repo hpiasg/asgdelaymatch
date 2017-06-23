@@ -197,7 +197,7 @@ public class DelayMatchMain {
         }
         File sdcInFile = options.getSdcInFile();
 
-        AbstractScript.readTemplateFiles("delay_");
+        AbstractScript.readTemplateFiles("delaymatch_");
 
         SdfSplitMain ssdfmain = new SdfSplitMain(name, rinfo, modules, tech, vparser.getRootModule().getModulename());
         MeasureMain memain = new MeasureMain(name, rinfo, modules, tech);
