@@ -91,7 +91,7 @@ The option `-sdfOut` exports the last (temporary created) SDF file which was use
 
 With the option `-verifyOnly` ASGdelaymatch only checks if the matched delay are met and will not modify the netlist.
 
-#### Exid codes ####
+#### Exit codes ####
 
 ASGdelaymatch creates the following exit codes:
 * 0: No timing violation(s)
