@@ -56,7 +56,7 @@ To see a list of supported command line arguments execute
 
 For simple delay matching execute
 
-	bin/ASGdelaymatch -lib tech/tech.xml -p config/resynprofile.xml -out outfile.v infile.v
+	bin/ASGdelaymatch -lib tech/techname.xml -p config/resynprofile.xml -out outfile.v infile.v
 
 The `-p` option is required expects a profile configuration file as described above.
 
@@ -66,7 +66,7 @@ The `-lib` option expects a technology library file in the ASGtech XML format. Y
 
 For control-aware delay matching execute
 
-	bin/ASGdelaymatch -lib tech/tech.xml -p config/resynprofile.xml -out outfile.v -past stg.g infile.v
+	bin/ASGdelaymatch -lib tech/techname.xml -p config/resynprofile.xml -out outfile.v -past stg.g infile.v
 
 The option `-past` expects the Balsa-STG which was used for the implementation of `infile.v`. There is also the option `-future` (without STG-file), however it has not that huge impact to performance of the circuit as the `-past` one has (Using both at the same time is possible, but the resulting timing is not guaranteed to be proper).
 
@@ -80,9 +80,9 @@ With the option `-sdfIn` you can specify an SDF file which will be used in the m
 
 	createVerilog verilog_1.v
 	createSdf sdf_1.sdf
-	bin/ASGdelaymatch -lib tech/tech.xml -p config/resynprofile.xml -sdfIn sdf_1.sdf -out verilog_2.v -valOut val_2.xml verilog_1.v
+	bin/ASGdelaymatch -lib tech/techname.xml -p config/resynprofile.xml -sdfIn sdf_1.sdf -out verilog_2.v -valOut val_2.xml verilog_1.v
 	createSdf sdf_2.sdf
-	bin/ASGdelaymatch -lib tech/tech.xml -p config/resynprofile.xml -sdfIn sdf_2.sdf -valIn val_2.xml -out verilog_3.v -valOut val_3.xml verilog_2.v
+	bin/ASGdelaymatch -lib tech/techname.xml -p config/resynprofile.xml -sdfIn sdf_2.sdf -valIn val_2.xml -out verilog_3.v -valOut val_3.xml verilog_2.v
 	[...]
 
 The option `-sdfOut` exports the last (temporary created) SDF file which was used during delay matching.
