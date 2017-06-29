@@ -51,7 +51,7 @@ public class DelayMatchCommandlineOptions extends CommandlineOptions {
     private File profilefile = null;
     @Option(name = "-out", metaVar = "<outfile>", usage = "Verilog outfile")
     private File outfile = null;
-    @Option(name = "-lib", metaVar = "<technologyfile>", usage = "technology description for implementation")
+    @Option(name = "-lib", metaVar = "<technologyfile>", usage = "technology description for implementation (the xml file from the installed ASGtech format)")
     private File technology;
     
     @Option(name = "-future", usage = "Use future alorithm (Resyn only!)")
