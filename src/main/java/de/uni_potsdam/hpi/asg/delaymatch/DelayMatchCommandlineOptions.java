@@ -35,8 +35,8 @@ public class DelayMatchCommandlineOptions extends CommandlineOptions {
 
     //@formatter:off
     
-    @Option(name = "-o", metaVar = "<level>", usage = "Outputlevel: 0:nothing\n1:errors\n[2:+warnings]\n3:+info")
-    private int outputlevel             = 2;
+    @Option(name = "-o", metaVar = "<level>", usage = "Outputlevel: 0:nothing\n1:errors\n2:+warnings\n[3:+info]")
+    private int outputlevel             = 3;
     @Option(name = "-log", metaVar = "<logfile>", usage = "Define output Logfile, default is delaymatch" + CommonConstants.LOG_FILE_EXTENSION)
     private File logfile = new File(System.getProperty("user.dir"), "delaymatch" + CommonConstants.LOG_FILE_EXTENSION);
     @Option(name = "-zip", metaVar = "<zipfile>", usage = "Define the zip file with all temp files, default is delaymatch" + CommonConstants.ZIP_FILE_EXTENSION)
