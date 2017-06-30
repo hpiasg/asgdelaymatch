@@ -1,7 +1,7 @@
 package de.uni_potsdam.hpi.asg.delaymatch.profile;
 
 /*
- * Copyright (C) 2016 Norman Kluge
+ * Copyright (C) 2016 - 2017 Norman Kluge
  * 
  * This file is part of ASGdelaymatch.
  * 
@@ -83,7 +83,19 @@ public class ProfileComponents {
         }
     }
 
-    public ProfileComponent getComponentByRegex(String str) {
+    public ProfileComponent getComponentByRegex(String modulename) {
+        String str = modulename;
+        if(modulename.contains("___")) { //renamed by drivestrength?
+            String[] split1 = modulename.split("___");
+            if(split1.length >= 2) {
+                String[] split2 = split1[split1.length - 2].split("__");
+                if(split2.length >= 1) {
+                    String actualModulename = split2[split2.length - 1];
+                    str = actualModulename;
+                }
+            }
+        }
+
         for(ProfileComponent c : components) {
             if(Pattern.matches(c.getModuleregex(), str)) {
                 return c;
