@@ -85,12 +85,17 @@ public class ProfileComponents {
 
     public ProfileComponent getComponentByRegex(String modulename) {
         String str = modulename;
-        if(modulename.contains("___")) { //renamed by drivestrength?
+        if(modulename.contains("___")) {
+            // renamed by drivestrength?
+            // ModuleName__InstName___ModuleName__InstName___ ...
+            // ---------------------/----------------------/- ...
             String[] split1 = modulename.split("___");
-            if(split1.length >= 2) {
-                String[] split2 = split1[split1.length - 2].split("__");
-                if(split2.length >= 1) {
-                    String actualModulename = split2[split2.length - 1];
+            if(split1.length >= 1) {
+                // Choose the Last ModuleName__InstName group:
+                String[] split2 = split1[split1.length - 1].split("__");
+                if(split2.length == 2) {
+                    // Choose ModuleName
+                    String actualModulename = split2[0];
                     str = actualModulename;
                 }
             }
