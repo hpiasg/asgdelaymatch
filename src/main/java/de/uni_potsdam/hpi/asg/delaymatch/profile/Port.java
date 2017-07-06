@@ -26,12 +26,16 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogModule;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogSignal;
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogSignalGroup;
 
 @XmlAccessorType(XmlAccessType.NONE)
 public class Port {
+    private static final Logger logger = LogManager.getLogger();
 
     public enum SignalType {
         req, ack, data
@@ -68,15 +72,28 @@ public class Port {
         Set<VerilogSignal> retVal = new HashSet<>();
         VerilogSignalGroup group = mod.getSignalGroups().get(name);
         if(group == null) {
+            logger.warn("Group " + name + " in module " + mod.getModulename() + " not found. Maybe a wrong profile file was used?");
             return null;
         }
 
         if(id.isEach()) {
             for(int i = 0; i < group.getCount(); i++) {
-                retVal.add(mod.getSignal(name + "_" + i + typeString()));
+                String sigName = name + "_" + i + typeString();
+                VerilogSignal sig = mod.getSignal(sigName);
+                if(sig == null) {
+                    logger.warn("Signal " + sigName + " in module " + mod.getModulename() + " not found. Maybe a wrong profile file was used?");
+                    return null;
+                }
+                retVal.add(sig);
             }
         } else {
-            retVal.add(mod.getSignal(name + "_" + id.getId() + typeString()));
+            String sigName = name + "_" + id.getId() + typeString();
+            VerilogSignal sig = mod.getSignal(sigName);
+            if(sig == null) {
+                logger.warn("Signal " + sigName + " in module " + mod.getModulename() + " not found. Maybe a wrong profile file was used?");
+                return null;
+            }
+            retVal.add(sig);
         }
 
         return retVal;

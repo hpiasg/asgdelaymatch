@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xs:schema version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:element name="delayvalues" type="valuesXml"/>
+
+  <xs:complexType name="valuesXml">
+    <xs:sequence>
+      <xs:element name="module" type="valuesXmlModule" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="valuesXmlModule">
+    <xs:sequence>
+      <xs:element name="path" type="valuesXmlPath" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="valuesXmlPath">
+    <xs:sequence>
+      <xs:element name="each" type="valuesXmlEach" maxOccurs="unbounded"/>
+      <xs:element name="minValueFactor" type="xs:float" minOccurs="0"/>
+      <xs:element name="maxValueFactor" type="xs:float" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="valuesXmlEach">
+    <xs:sequence>
+      <xs:element name="instance" type="valuesXmlInstance" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="minValueFactor" type="xs:float" minOccurs="0"/>
+      <xs:element name="maxValueFactor" type="xs:float" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="valuesXmlInstance">
+    <xs:sequence>
+      <xs:element name="value" type="xs:float"/>
+      <xs:element name="check" type="xs:float"/>
+      <xs:element name="past" type="xs:float" minOccurs="0"/>
+      <xs:element name="future" type="xs:float" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:string" use="required"/>
+  </xs:complexType>
+</xs:schema>
+

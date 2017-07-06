@@ -1,7 +1,7 @@
 package de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model;
 
 /*
- * Copyright (C) 2016 Norman Kluge
+ * Copyright (C) 2016 - 2017 Norman Kluge
  * 
  * This file is part of ASGdelaymatch.
  * 
@@ -23,11 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 public class VerilogModuleConnection {
-    private static final Logger                       logger = LogManager.getLogger();
 
     private VerilogModuleInstance                     writer;
     private VerilogSignal                             writerSig;

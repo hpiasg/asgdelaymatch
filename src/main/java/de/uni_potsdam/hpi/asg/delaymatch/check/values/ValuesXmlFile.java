@@ -1,7 +1,7 @@
-package de.uni_potsdam.hpi.asg.delaymatch.profile;
+package de.uni_potsdam.hpi.asg.delaymatch.check.values;
 
 /*
- * Copyright (C) 2016 - 2017 Norman Kluge
+ * Copyright (C) 2017 Norman Kluge
  * 
  * This file is part of ASGdelaymatch.
  * 
@@ -20,17 +20,15 @@ package de.uni_potsdam.hpi.asg.delaymatch.profile;
  */
 
 import java.io.File;
-import java.util.List;
-import java.util.regex.Pattern;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
@@ -40,30 +38,24 @@ import org.apache.logging.log4j.Logger;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-@XmlRootElement(name = "components")
-@XmlAccessorType(XmlAccessType.NONE)
-public class ProfileComponents {
-    protected static final Logger  logger         = LogManager.getLogger();
-    protected static final String  schemafilename = "/profile_config.xsd";
+import de.uni_potsdam.hpi.asg.delaymatch.check.values.model.ValuesXml;
 
-    @XmlElement(name = "component")
-    private List<ProfileComponent> components;
+public class ValuesXmlFile {
+    protected static final Logger logger         = LogManager.getLogger();
+    protected static final String schemafilename = "/values_xml.xsd";
 
-    protected ProfileComponents() {
-    }
-
-    public static ProfileComponents readIn(File file) {
+    public static ValuesXml readIn(File file) {
         try {
-            JAXBContext jaxbContext = JAXBContext.newInstance(ProfileComponents.class);
+            JAXBContext jaxbContext = JAXBContext.newInstance(ValuesXml.class);
             Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
 
             SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-            Schema schema = sf.newSchema(new StreamSource(ProfileComponents.class.getResourceAsStream(schemafilename)));
+            Schema schema = sf.newSchema(new StreamSource(ValuesXml.class.getResourceAsStream(schemafilename)));
 
             jaxbUnmarshaller.setSchema(schema);
 
             if(file.exists()) {
-                return (ProfileComponents)jaxbUnmarshaller.unmarshal(file);
+                return (ValuesXml)jaxbUnmarshaller.unmarshal(file);
             } else {
                 logger.error("File " + file.getAbsolutePath() + " not found");
                 return null;
@@ -83,33 +75,20 @@ public class ProfileComponents {
         }
     }
 
-    public ProfileComponent getComponentByRegex(String modulename) {
-        String str = modulename;
-        if(modulename.contains("___")) {
-            // renamed by drivestrength?
-            // ModuleName__InstName___ModuleName__InstName___ ...
-            // ---------------------/----------------------/- ...
-            String[] split1 = modulename.split("___");
-            if(split1.length >= 1) {
-                // Choose the Last ModuleName__InstName group:
-                String[] split2 = split1[split1.length - 1].split("__");
-                if(split2.length == 2) {
-                    // Choose ModuleName
-                    String actualModulename = split2[0];
-                    str = actualModulename;
-                }
-            }
+    public static boolean writeOut(ValuesXml valxml, File file) {
+        try {
+            Writer fw = new FileWriter(file);
+            JAXBContext context = JAXBContext.newInstance(ValuesXml.class);
+            Marshaller m = context.createMarshaller();
+            m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+            m.marshal(valxml, fw);
+            return true;
+        } catch(JAXBException e) {
+            logger.error(e.getLocalizedMessage());
+            return false;
+        } catch(IOException e) {
+            logger.error(e.getLocalizedMessage());
+            return false;
         }
-
-        for(ProfileComponent c : components) {
-            if(Pattern.matches(c.getModuleregex(), str)) {
-                return c;
-            }
-        }
-        return null;
-    }
-
-    public List<ProfileComponent> getComponents() {
-        return components;
     }
 }

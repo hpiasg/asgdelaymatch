@@ -1,7 +1,7 @@
 package de.uni_potsdam.hpi.asg.delaymatch.verilogparser;
 
 /*
- * Copyright (C) 2016 Norman Kluge
+ * Copyright (C) 2016 - 2017 Norman Kluge
  * 
  * This file is part of ASGdelaymatch.
  * 
@@ -21,7 +21,6 @@ package de.uni_potsdam.hpi.asg.delaymatch.verilogparser;
 
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,14 +28,10 @@ import java.util.Map.Entry;
 
 import javax.swing.JFrame;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.mxgraph.layout.mxFastOrganicLayout;
 import com.mxgraph.layout.mxParallelEdgeLayout;
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
 import com.mxgraph.model.mxCell;
-import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.view.mxGraph;
 
@@ -46,15 +41,14 @@ import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogModuleInstan
 import de.uni_potsdam.hpi.asg.delaymatch.verilogparser.model.VerilogSignal;
 
 public class VerilogGraph extends JFrame {
-    private static final Logger logger           = LogManager.getLogger();
-    private static final long   serialVersionUID = 801986534712786851L;
+    private static final long serialVersionUID = 801986534712786851L;
 
     public VerilogGraph(VerilogModule rootModule, boolean wait, File exp) {
         super("VerilogModule graph - " + rootModule.getModulename());
 
         final mxGraph graph = new mxGraph();
         Object parent = graph.getDefaultParent();
-        mxIGraphModel model = graph.getModel();
+//        mxIGraphModel model = graph.getModel();
 
         final mxGraphComponent graphComponent = new mxGraphComponent(graph);
         graphComponent.getGraphControl().addMouseListener(new MouseListener() {

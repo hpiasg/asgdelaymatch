@@ -1,7 +1,7 @@
-package de.uni_potsdam.hpi.asg.delaymatch.profile;
+package de.uni_potsdam.hpi.asg.delaymatch.check.values.model;
 
 /*
- * Copyright (C) 2016 Norman Kluge
+ * Copyright (C) 2017 Norman Kluge
  * 
  * This file is part of ASGdelaymatch.
  * 
@@ -19,38 +19,39 @@ package de.uni_potsdam.hpi.asg.delaymatch.profile;
  * along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import java.util.List;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
+import de.uni_potsdam.hpi.asg.delaymatch.model.DelayMatchModule;
+
+@XmlRootElement(name = "delayvalues")
 @XmlAccessorType(XmlAccessType.NONE)
-public class MatchPath {
+public class ValuesXml {
 
-    //@formatter:off
-    @XmlAttribute(name = "id", required = true)
-    private String id;
-    @XmlElement(name = "measure", required = true)
-    private Path measure;
-    @XmlElement(name = "match", required = true)
-    private Path match;
-    @XmlAttribute(name = "foreach", required = false)
-    private String foreach;
-    //@formatter:on
+    @XmlElement(name = "module")
+    private List<ValuesXmlModule> modules;
 
-    public Path getMatch() {
-        return match;
+    protected ValuesXml() {
     }
 
-    public Path getMeasure() {
-        return measure;
+    public ValuesXml(List<ValuesXmlModule> modules) {
+        this.modules = modules;
     }
 
-    public String getForeach() {
-        return foreach;
+    public List<ValuesXmlModule> getModules() {
+        return modules;
     }
 
-    public String getId() {
-        return id;
+    public ValuesXmlModule getModule(DelayMatchModule mod) {
+        for(ValuesXmlModule valmod : modules) {
+            if(valmod.getName().equals(mod.getModuleName())) {
+                return valmod;
+            }
+        }
+        return null;
     }
 }

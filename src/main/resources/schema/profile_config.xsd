@@ -21,6 +21,7 @@
       <xs:element name="measure" type="path"/>
       <xs:element name="match" type="path"/>
     </xs:sequence>
+    <xs:attribute name="id" type="xs:string" use="required"/>
     <xs:attribute name="foreach" type="xs:string"/>
   </xs:complexType>
 

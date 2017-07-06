@@ -1,4 +1,4 @@
-package de.uni_potsdam.hpi.asg.delaymatch.match;
+package de.uni_potsdam.hpi.asg.delaymatch.model;
 
 /*
  * Copyright (C) 2016 Norman Kluge
@@ -19,21 +19,29 @@ package de.uni_potsdam.hpi.asg.delaymatch.match;
  * along with ASGdelaymatch.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import de.uni_potsdam.hpi.asg.common.remote.RemoteInformation;
-import de.uni_potsdam.hpi.asg.common.remote.SimpleRemoteOperationWorkflow;
+public class MeasureEntry {
 
-public class MatchRemoteOperationWorkflow extends SimpleRemoteOperationWorkflow {
-
-    public MatchRemoteOperationWorkflow(RemoteInformation rinfo, String subdir) {
-        super(rinfo, subdir);
+    public enum EntryType {
+        recordDelay, externalDelay, datapathDelay, unknown
     }
 
-    @Override
-    protected boolean executeCallBack(String script, int code) {
-        if(code == 0) {
-            return true;
-        }
-        return false;
+    private MeasureRecord rec;
+    private EntryType     type;
+
+    public MeasureEntry(MeasureRecord rec) {
+        this.rec = rec;
+        this.type = EntryType.recordDelay;
     }
 
+    public MeasureEntry(EntryType type) {
+        this.type = type;
+    }
+
+    public MeasureRecord getRecord() {
+        return rec;
+    }
+
+    public EntryType getType() {
+        return type;
+    }
 }

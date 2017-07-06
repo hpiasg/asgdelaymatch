@@ -1,7 +1,7 @@
 package de.uni_potsdam.hpi.asg.delaymatch.verilogparser;
 
 /*
- * Copyright (C) 2016 Norman Kluge
+ * Copyright (C) 2016 - 2017 Norman Kluge
  * 
  * This file is part of ASGdelaymatch.
  * 
@@ -73,9 +73,23 @@ public class VerilogParser {
 
         while((line = linequeue.poll()) != null) {
             do {
+                if(line.startsWith("`")) {
+                    line = "";
+                }
+
                 if(line.contains("//")) {
                     line = line.substring(0, line.indexOf("//"));
                 }
+                if(line.contains("/*")) {
+                    String linebegin = line.substring(0, line.indexOf("/*"));
+                    String comment = line.substring(line.indexOf("/*"));
+                    while(!comment.contains("*/")) {
+                        comment = comment + linequeue.poll();
+                    }
+                    String lineend = comment.substring(comment.indexOf("*/") + 2);
+                    line = linebegin + lineend;
+                }
+
                 m = linepattern.matcher(line);
                 if(m.matches()) {
                     break;
@@ -116,6 +130,10 @@ public class VerilogParser {
 
             m = endmodulepattern.matcher(line);
             if(m.matches()) {
+                if(currModule == null) {
+                    logger.error("endmode before module");
+                    return false;
+                }
                 linesMap.get(currModule).add(line);
                 currModule = null;
                 currContentParser = null;
@@ -161,6 +179,7 @@ public class VerilogParser {
 
         for(VerilogModule module : modules.values()) {
             VerilogModuleContentParser moduleparser = parserMap.get(module.getModulename());
+            module.setHasContent(moduleparser.hasSubInst());
             for(VerilogModuleInstanceTemp tinst : moduleparser.getInstances()) {
                 if(parserMap.containsKey(tinst.getModuleName())) {
                     VerilogModule submodule = modules.get(tinst.getModuleName());
@@ -194,8 +213,9 @@ public class VerilogParser {
                             case output:
                                 switch(submoduleSignal.getDirection()) {
                                     case input:
-                                        logger.error("fail out inp");
-                                        return false;
+                                        logger.warn("output signal '" + moduleSignal.getName() + "' of component '" + module.getModulename() + "' used as input for subcomponent '" + submodule.getModulename() + "'");
+                                        con.addReader(submoduleinst, submoduleSignal);
+                                        break; //return false;
                                     case output:
                                         con.setWriter(submoduleinst, submoduleSignal);
                                         break;
@@ -218,7 +238,6 @@ public class VerilogParser {
                                 }
                                 break;
                         }
-
                     }
                 }
             }
